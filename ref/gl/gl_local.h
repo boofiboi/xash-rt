@@ -790,7 +790,7 @@ typedef struct rt_state_s
 	int         curStudioBodyPart;
 	int         curStudioSubmodel;
 	int         curStudioMesh;
-	int         curStudioWeaponModel; // NOTE: declared here to match 0034, field is used by pglEnd
+	int         curStudioWeaponModel;
 	int         curStudioGlend;
 
 	int			curBrushSurface;

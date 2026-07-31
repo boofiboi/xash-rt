@@ -940,6 +940,7 @@ qboolean CL_AddVisibleEntity( cl_entity_t *ent, int entityType )
 	{
 		cl.local.apply_effects = true;
 
+#if !XASH_RAYTRACING
 		if( !CL_IsThirdPerson( ) && ( ent->index == cl.viewentity ))
 		{
 			// we don't draw player in default renderer in firstperson mode
@@ -947,6 +948,7 @@ qboolean CL_AddVisibleEntity( cl_entity_t *ent, int entityType )
 			// for use in custom renderers
 			draw_player = false;
 		}
+#endif
 	}
 
 	// check for adding this entity
