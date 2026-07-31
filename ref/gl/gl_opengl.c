@@ -2198,6 +2198,40 @@ void pglColor4ubv( const GLubyte* v )
 RgInstance rg_instance = NULL;
 rt_state_t rt_state     = { 0 };
 
+static int Q_clamp_wassert( int x, int xmin, int xmax )
+{
+	if( x < xmin )
+	{
+		assert( 0 );
+		return xmin;
+	}
+	if( x > xmax )
+	{
+		assert( 0 );
+		return xmax;
+	}
+	return x;
+}
+
+static uint32_t hashStudioPrimitive( int bodypart, int model, int mesh, int glendIndex )
+{
+	const uint32_t BODYPART_BITS = 8;
+	const uint32_t MODEL_BITS    = 8;
+	const uint32_t MESH_BITS     = 8;
+	const uint32_t GLEND_BITS    = 8;
+	assert( BODYPART_BITS + MODEL_BITS + MESH_BITS + GLEND_BITS == 32 );
+
+	bodypart   = Q_clamp_wassert( bodypart, 0, ( 1 << BODYPART_BITS ) - 1 );
+	model      = Q_clamp_wassert( model, 0, ( 1 << MODEL_BITS ) - 1 );
+	mesh       = Q_clamp_wassert( mesh, 0, ( 1 << MESH_BITS ) - 1 );
+	glendIndex = Q_clamp_wassert( glendIndex, 0, ( 1 << GLEND_BITS ) - 1 );
+
+	return ( uint32_t )glendIndex << ( BODYPART_BITS + MODEL_BITS + MESH_BITS ) |
+		   ( uint32_t )mesh << ( BODYPART_BITS + MODEL_BITS ) |
+		   ( uint32_t )model << ( BODYPART_BITS ) |
+		   ( uint32_t )bodypart;
+}
+
 void pglEnd( void )
 {
 	if( !glState.in2DMode )
@@ -2206,6 +2240,31 @@ void pglEnd( void )
 			rt_state.curStudioBodyPartIndex >= 0 && rt_state.curStudioModelIndex >= 0 &&
 			rt_state.curStudioMeshIndex >= 0 )
 		{
+			static int glendIndex = 0;
+			{
+				static int         prevEntityID    = -1;
+				static const char* prevModelName   = NULL;
+				static uint32_t    prevStudioHash0 = 0;
+
+				uint32_t curStudioHash0 = hashStudioPrimitive( rt_state.curStudioBodyPartIndex,
+															   rt_state.curStudioModelIndex,
+															   rt_state.curStudioMeshIndex,
+															   /* glendIndex= */ 0 );
+
+				if( rt_state.curEntityID == prevEntityID &&
+					rt_state.curModelName == prevModelName && prevStudioHash0 == curStudioHash0 )
+				{
+					glendIndex++;
+				}
+				else
+				{
+					glendIndex = 0;
+				}
+				prevEntityID    = rt_state.curEntityID;
+				prevModelName   = rt_state.curModelName;
+				prevStudioHash0 = curStudioHash0;
+			}
+
 			RgMeshInfo mesh = {
 				.uniqueObjectID = rt_state.curEntityID,
 				.pMeshName      = rt_state.curModelName,
@@ -2216,7 +2275,10 @@ void pglEnd( void )
 			};
 
 			RgMeshPrimitiveInfo info = {
-				.primitiveIndexInMesh = 0,
+				.primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPartIndex,
+															 rt_state.curStudioModelIndex,
+															 rt_state.curStudioMeshIndex,
+															 glendIndex ),
 				.flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
 				.pTextureName         = rt_state.curTexture2DName,
 				.textureFrame         = 0,
