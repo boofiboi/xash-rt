@@ -1,4 +1,4 @@
-
+﻿
 #include "gl_local.h"
 #if XASH_GL4ES
 #include "gl4es/include/gl4esinit.h"
@@ -1552,3 +1552,481 @@ void GL_OnContextCreated( void )
 	pglHint( GL_AVOID16BITS_HINT_GL4ES, 1 );
 #endif // XASH_GL4ES
 }
+
+#if XASH_RAYTRACING
+#define EMPTY_LINKAGE extern
+#define EMPTY_FUNCTION( name ) APIENTRY p##name
+
+EMPTY_LINKAGE GLenum APIENTRY pglGetError(void){ return 0; }
+EMPTY_LINKAGE const GLubyte * APIENTRY pglGetString(GLenum name){ return ""; }
+EMPTY_LINKAGE void APIENTRY pglAccum(GLenum op, GLfloat value){}
+EMPTY_LINKAGE void APIENTRY pglAlphaFunc(GLenum func, GLclampf ref){}
+EMPTY_LINKAGE void APIENTRY pglArrayElement(GLint i){}
+EMPTY_LINKAGE void APIENTRY pglBegin(GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglBindTexture(GLenum target, GLuint texture){}
+EMPTY_LINKAGE void APIENTRY pglBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap){}
+EMPTY_LINKAGE void APIENTRY pglBlendFunc(GLenum sfactor, GLenum dfactor){}
+EMPTY_LINKAGE void APIENTRY pglCallList(GLuint list){}
+EMPTY_LINKAGE void APIENTRY pglCallLists(GLsizei n, GLenum type, const GLvoid *lists){}
+EMPTY_LINKAGE void APIENTRY pglClear(GLbitfield mask){}
+EMPTY_LINKAGE void APIENTRY pglClearAccum(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){}
+EMPTY_LINKAGE void APIENTRY pglClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha){}
+EMPTY_LINKAGE void APIENTRY pglClearDepth(GLclampd depth){}
+EMPTY_LINKAGE void APIENTRY pglClearIndex(GLfloat c){}
+EMPTY_LINKAGE void APIENTRY pglClearStencil(GLint s){}
+EMPTY_LINKAGE GLboolean APIENTRY pglIsEnabled( GLenum cap ){ return 0; }
+EMPTY_LINKAGE GLboolean APIENTRY pglIsList( GLuint list ){ return 0; }
+EMPTY_LINKAGE GLboolean APIENTRY pglIsTexture( GLuint texture ){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglClipPlane(GLenum plane, const GLdouble *equation){}
+EMPTY_LINKAGE void APIENTRY pglColor3b(GLbyte red, GLbyte green, GLbyte blue){}
+EMPTY_LINKAGE void APIENTRY pglColor3bv(const GLbyte *v){}
+EMPTY_LINKAGE void APIENTRY pglColor3d(GLdouble red, GLdouble green, GLdouble blue){}
+EMPTY_LINKAGE void APIENTRY pglColor3dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglColor3f(GLfloat red, GLfloat green, GLfloat blue){}
+EMPTY_LINKAGE void APIENTRY pglColor3fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglColor3i(GLint red, GLint green, GLint blue){}
+EMPTY_LINKAGE void APIENTRY pglColor3iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglColor3s(GLshort red, GLshort green, GLshort blue){}
+EMPTY_LINKAGE void APIENTRY pglColor3sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglColor3ub(GLubyte red, GLubyte green, GLubyte blue){}
+EMPTY_LINKAGE void APIENTRY pglColor3ubv(const GLubyte *v){}
+EMPTY_LINKAGE void APIENTRY pglColor3ui(GLuint red, GLuint green, GLuint blue){}
+EMPTY_LINKAGE void APIENTRY pglColor3uiv(const GLuint *v){}
+EMPTY_LINKAGE void APIENTRY pglColor3us(GLushort red, GLushort green, GLushort blue){}
+EMPTY_LINKAGE void APIENTRY pglColor3usv(const GLushort *v){}
+EMPTY_LINKAGE void APIENTRY pglColor4b(GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha){}
+EMPTY_LINKAGE void APIENTRY pglColor4bv(const GLbyte *v){}
+EMPTY_LINKAGE void APIENTRY pglColor4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha){}
+EMPTY_LINKAGE void APIENTRY pglColor4dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){}
+EMPTY_LINKAGE void APIENTRY pglColor4fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglColor4i(GLint red, GLint green, GLint blue, GLint alpha){}
+EMPTY_LINKAGE void APIENTRY pglColor4iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglColor4s(GLshort red, GLshort green, GLshort blue, GLshort alpha){}
+EMPTY_LINKAGE void APIENTRY pglColor4sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha){}
+EMPTY_LINKAGE void APIENTRY pglColor4ubv(const GLubyte *v){}
+EMPTY_LINKAGE void APIENTRY pglColor4ui(GLuint red, GLuint green, GLuint blue, GLuint alpha){}
+EMPTY_LINKAGE void APIENTRY pglColor4uiv(const GLuint *v){}
+EMPTY_LINKAGE void APIENTRY pglColor4us(GLushort red, GLushort green, GLushort blue, GLushort alpha){}
+EMPTY_LINKAGE void APIENTRY pglColor4usv(const GLushort *v){}
+EMPTY_LINKAGE void APIENTRY pglColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha){}
+EMPTY_LINKAGE void APIENTRY pglColorMaterial(GLenum face, GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type){}
+EMPTY_LINKAGE void APIENTRY pglCopyTexImage1D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLint border){}
+EMPTY_LINKAGE void APIENTRY pglCopyTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border){}
+EMPTY_LINKAGE void APIENTRY pglCopyTexSubImage1D(GLenum target, GLint level, GLint xoffset, GLint x, GLint y, GLsizei width){}
+EMPTY_LINKAGE void APIENTRY pglCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void APIENTRY pglCullFace(GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglDeleteLists(GLuint list, GLsizei range){}
+EMPTY_LINKAGE void APIENTRY pglDeleteTextures(GLsizei n, const GLuint *textures){}
+EMPTY_LINKAGE void APIENTRY pglDepthFunc(GLenum func){}
+EMPTY_LINKAGE void APIENTRY pglDepthMask(GLboolean flag){}
+EMPTY_LINKAGE void APIENTRY pglDepthRange(GLclampd zNear, GLclampd zFar){}
+EMPTY_LINKAGE void APIENTRY pglDisable(GLenum cap){}
+EMPTY_LINKAGE void APIENTRY pglDisableClientState(GLenum array){}
+EMPTY_LINKAGE void APIENTRY pglDrawArrays(GLenum mode, GLint first, GLsizei count){}
+EMPTY_LINKAGE void APIENTRY pglDrawBuffer(GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices){}
+EMPTY_LINKAGE void APIENTRY pglDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void APIENTRY pglEdgeFlag(GLboolean flag){}
+EMPTY_LINKAGE void APIENTRY pglEdgeFlagPointer(GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglEdgeFlagv(const GLboolean *flag){}
+EMPTY_LINKAGE void APIENTRY pglEnable(GLenum cap){}
+EMPTY_LINKAGE void APIENTRY pglEnableClientState(GLenum array){}
+EMPTY_LINKAGE void APIENTRY pglEnd(void){}
+EMPTY_LINKAGE void APIENTRY pglEndList(void){}
+EMPTY_LINKAGE void APIENTRY pglEvalCoord1d(GLdouble u){}
+EMPTY_LINKAGE void APIENTRY pglEvalCoord1dv(const GLdouble *u){}
+EMPTY_LINKAGE void APIENTRY pglEvalCoord1f(GLfloat u){}
+EMPTY_LINKAGE void APIENTRY pglEvalCoord1fv(const GLfloat *u){}
+EMPTY_LINKAGE void APIENTRY pglEvalCoord2d(GLdouble u, GLdouble v){}
+EMPTY_LINKAGE void APIENTRY pglEvalCoord2dv(const GLdouble *u){}
+EMPTY_LINKAGE void APIENTRY pglEvalCoord2f(GLfloat u, GLfloat v){}
+EMPTY_LINKAGE void APIENTRY pglEvalCoord2fv(const GLfloat *u){}
+EMPTY_LINKAGE void APIENTRY pglEvalMesh1(GLenum mode, GLint i1, GLint i2){}
+EMPTY_LINKAGE void APIENTRY pglEvalMesh2(GLenum mode, GLint i1, GLint i2, GLint j1, GLint j2){}
+EMPTY_LINKAGE void APIENTRY pglEvalPoint1(GLint i){}
+EMPTY_LINKAGE void APIENTRY pglEvalPoint2(GLint i, GLint j){}
+EMPTY_LINKAGE void APIENTRY pglFeedbackBuffer(GLsizei size, GLenum type, GLfloat *buffer){}
+EMPTY_LINKAGE void APIENTRY pglFinish(void){}
+EMPTY_LINKAGE void APIENTRY pglFlush(void){}
+EMPTY_LINKAGE void APIENTRY pglFogf(GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void APIENTRY pglFogfv(GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglFogi(GLenum pname, GLint param){}
+EMPTY_LINKAGE void APIENTRY pglFogiv(GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglFrontFace(GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar){}
+EMPTY_LINKAGE void APIENTRY pglGenTextures(GLsizei n, GLuint *textures){}
+EMPTY_LINKAGE void APIENTRY pglGetBooleanv(GLenum pname, GLboolean *params){}
+EMPTY_LINKAGE void APIENTRY pglGetClipPlane(GLenum plane, GLdouble *equation){}
+EMPTY_LINKAGE void APIENTRY pglGetDoublev(GLenum pname, GLdouble *params){}
+EMPTY_LINKAGE void APIENTRY pglGetFloatv(GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglGetIntegerv(GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetLightfv(GLenum light, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglGetLightiv(GLenum light, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetMapdv(GLenum target, GLenum query, GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglGetMapfv(GLenum target, GLenum query, GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglGetMapiv(GLenum target, GLenum query, GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglGetMaterialfv(GLenum face, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglGetMaterialiv(GLenum face, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetPixelMapfv(GLenum map, GLfloat *values){}
+EMPTY_LINKAGE void APIENTRY pglGetPixelMapuiv(GLenum map, GLuint *values){}
+EMPTY_LINKAGE void APIENTRY pglGetPixelMapusv(GLenum map, GLushort *values){}
+EMPTY_LINKAGE void APIENTRY pglGetPointerv(GLenum pname, GLvoid* *params){}
+EMPTY_LINKAGE void APIENTRY pglGetPolygonStipple(GLubyte *mask){}
+EMPTY_LINKAGE void APIENTRY pglGetTexEnvfv(GLenum target, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglGetTexEnviv(GLenum target, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetTexGendv(GLenum coord, GLenum pname, GLdouble *params){}
+EMPTY_LINKAGE void APIENTRY pglGetTexGenfv(GLenum coord, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglGetTexGeniv(GLenum coord, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, GLvoid *pixels){}
+EMPTY_LINKAGE void APIENTRY pglGetTexLevelParameterfv(GLenum target, GLint level, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglGetTexLevelParameteriv(GLenum target, GLint level, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglGetTexParameteriv(GLenum target, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglHint(GLenum target, GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglIndexMask(GLuint mask){}
+EMPTY_LINKAGE void APIENTRY pglIndexPointer(GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglIndexd(GLdouble c){}
+EMPTY_LINKAGE void APIENTRY pglIndexdv(const GLdouble *c){}
+EMPTY_LINKAGE void APIENTRY pglIndexf(GLfloat c){}
+EMPTY_LINKAGE void APIENTRY pglIndexfv(const GLfloat *c){}
+EMPTY_LINKAGE void APIENTRY pglIndexi(GLint c){}
+EMPTY_LINKAGE void APIENTRY pglIndexiv(const GLint *c){}
+EMPTY_LINKAGE void APIENTRY pglIndexs(GLshort c){}
+EMPTY_LINKAGE void APIENTRY pglIndexsv(const GLshort *c){}
+EMPTY_LINKAGE void APIENTRY pglIndexub(GLubyte c){}
+EMPTY_LINKAGE void APIENTRY pglIndexubv(const GLubyte *c){}
+EMPTY_LINKAGE void APIENTRY pglInitNames(void){}
+EMPTY_LINKAGE void APIENTRY pglInterleavedArrays(GLenum format, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglLightModelf(GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void APIENTRY pglLightModelfv(GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglLightModeli(GLenum pname, GLint param){}
+EMPTY_LINKAGE void APIENTRY pglLightModeliv(GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglLightf(GLenum light, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void APIENTRY pglLightfv(GLenum light, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglLighti(GLenum light, GLenum pname, GLint param){}
+EMPTY_LINKAGE void APIENTRY pglLightiv(GLenum light, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglLineStipple(GLint factor, GLushort pattern){}
+EMPTY_LINKAGE void APIENTRY pglLineWidth(GLfloat width){}
+EMPTY_LINKAGE void APIENTRY pglListBase(GLuint base){}
+EMPTY_LINKAGE void APIENTRY pglLoadIdentity(void){}
+EMPTY_LINKAGE void APIENTRY pglLoadMatrixd(const GLdouble *m){}
+EMPTY_LINKAGE void APIENTRY pglLoadMatrixf(const GLfloat *m){}
+EMPTY_LINKAGE void APIENTRY pglLoadName(GLuint name){}
+EMPTY_LINKAGE void APIENTRY pglLogicOp(GLenum opcode){}
+EMPTY_LINKAGE void APIENTRY pglMap1d(GLenum target, GLdouble u1, GLdouble u2, GLint stride, GLint order, const GLdouble *points){}
+EMPTY_LINKAGE void APIENTRY pglMap1f(GLenum target, GLfloat u1, GLfloat u2, GLint stride, GLint order, const GLfloat *points){}
+EMPTY_LINKAGE void APIENTRY pglMap2d(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder, GLdouble v1, GLdouble v2, GLint vstride, GLint vorder, const GLdouble *points){}
+EMPTY_LINKAGE void APIENTRY pglMap2f(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder, GLfloat v1, GLfloat v2, GLint vstride, GLint vorder, const GLfloat *points){}
+EMPTY_LINKAGE void APIENTRY pglMapGrid1d(GLint un, GLdouble u1, GLdouble u2){}
+EMPTY_LINKAGE void APIENTRY pglMapGrid1f(GLint un, GLfloat u1, GLfloat u2){}
+EMPTY_LINKAGE void APIENTRY pglMapGrid2d(GLint un, GLdouble u1, GLdouble u2, GLint vn, GLdouble v1, GLdouble v2){}
+EMPTY_LINKAGE void APIENTRY pglMapGrid2f(GLint un, GLfloat u1, GLfloat u2, GLint vn, GLfloat v1, GLfloat v2){}
+EMPTY_LINKAGE void APIENTRY pglMaterialf(GLenum face, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void APIENTRY pglMaterialfv(GLenum face, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglMateriali(GLenum face, GLenum pname, GLint param){}
+EMPTY_LINKAGE void APIENTRY pglMaterialiv(GLenum face, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglMatrixMode(GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglMultMatrixd(const GLdouble *m){}
+EMPTY_LINKAGE void APIENTRY pglMultMatrixf(const GLfloat *m){}
+EMPTY_LINKAGE void APIENTRY pglNewList(GLuint list, GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglNormal3b(GLbyte nx, GLbyte ny, GLbyte nz){}
+EMPTY_LINKAGE void APIENTRY pglNormal3bv(const GLbyte *v){}
+EMPTY_LINKAGE void APIENTRY pglNormal3d(GLdouble nx, GLdouble ny, GLdouble nz){}
+EMPTY_LINKAGE void APIENTRY pglNormal3dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglNormal3f(GLfloat nx, GLfloat ny, GLfloat nz){}
+EMPTY_LINKAGE void APIENTRY pglNormal3fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglNormal3i(GLint nx, GLint ny, GLint nz){}
+EMPTY_LINKAGE void APIENTRY pglNormal3iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglNormal3s(GLshort nx, GLshort ny, GLshort nz){}
+EMPTY_LINKAGE void APIENTRY pglNormal3sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglNormalPointer(GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar){}
+EMPTY_LINKAGE void APIENTRY pglPassThrough(GLfloat token){}
+EMPTY_LINKAGE void APIENTRY pglPixelMapfv(GLenum map, GLsizei mapsize, const GLfloat *values){}
+EMPTY_LINKAGE void APIENTRY pglPixelMapuiv(GLenum map, GLsizei mapsize, const GLuint *values){}
+EMPTY_LINKAGE void APIENTRY pglPixelMapusv(GLenum map, GLsizei mapsize, const GLushort *values){}
+EMPTY_LINKAGE void APIENTRY pglPixelStoref(GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void APIENTRY pglPixelStorei(GLenum pname, GLint param){}
+EMPTY_LINKAGE void APIENTRY pglPixelTransferf(GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void APIENTRY pglPixelTransferi(GLenum pname, GLint param){}
+EMPTY_LINKAGE void APIENTRY pglPixelZoom(GLfloat xfactor, GLfloat yfactor){}
+EMPTY_LINKAGE void APIENTRY pglPointSize(GLfloat size){}
+EMPTY_LINKAGE void APIENTRY pglPolygonMode(GLenum face, GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglPolygonOffset(GLfloat factor, GLfloat units){}
+EMPTY_LINKAGE void APIENTRY pglPolygonStipple(const GLubyte *mask){}
+EMPTY_LINKAGE void APIENTRY pglPopAttrib(void){}
+EMPTY_LINKAGE void APIENTRY pglPopClientAttrib(void){}
+EMPTY_LINKAGE void APIENTRY pglPopMatrix(void){}
+EMPTY_LINKAGE void APIENTRY pglPopName(void){}
+EMPTY_LINKAGE void APIENTRY pglPushAttrib(GLbitfield mask){}
+EMPTY_LINKAGE void APIENTRY pglPushClientAttrib(GLbitfield mask){}
+EMPTY_LINKAGE void APIENTRY pglPushMatrix(void){}
+EMPTY_LINKAGE void APIENTRY pglPushName(GLuint name){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos2d(GLdouble x, GLdouble y){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos2dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos2f(GLfloat x, GLfloat y){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos2fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos2i(GLint x, GLint y){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos2iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos2s(GLshort x, GLshort y){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos2sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos3d(GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos3dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos3f(GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos3fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos3i(GLint x, GLint y, GLint z){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos3iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos3s(GLshort x, GLshort y, GLshort z){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos3sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos4d(GLdouble x, GLdouble y, GLdouble z, GLdouble w){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos4dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos4fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos4i(GLint x, GLint y, GLint z, GLint w){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos4iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos4s(GLshort x, GLshort y, GLshort z, GLshort w){}
+EMPTY_LINKAGE void APIENTRY pglRasterPos4sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglReadBuffer(GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels){}
+EMPTY_LINKAGE void APIENTRY pglRectd(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2){}
+EMPTY_LINKAGE void APIENTRY pglRectdv(const GLdouble *v1, const GLdouble *v2){}
+EMPTY_LINKAGE void APIENTRY pglRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2){}
+EMPTY_LINKAGE void APIENTRY pglRectfv(const GLfloat *v1, const GLfloat *v2){}
+EMPTY_LINKAGE void APIENTRY pglRecti(GLint x1, GLint y1, GLint x2, GLint y2){}
+EMPTY_LINKAGE void APIENTRY pglRectiv(const GLint *v1, const GLint *v2){}
+EMPTY_LINKAGE void APIENTRY pglRects(GLshort x1, GLshort y1, GLshort x2, GLshort y2){}
+EMPTY_LINKAGE void APIENTRY pglRectsv(const GLshort *v1, const GLshort *v2){}
+EMPTY_LINKAGE void APIENTRY pglRotated(GLdouble angle, GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void APIENTRY pglRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void APIENTRY pglScaled(GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void APIENTRY pglScalef(GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void APIENTRY pglScissor(GLint x, GLint y, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void APIENTRY pglSelectBuffer(GLsizei size, GLuint *buffer){}
+EMPTY_LINKAGE void APIENTRY pglShadeModel(GLenum mode){}
+EMPTY_LINKAGE void APIENTRY pglStencilFunc(GLenum func, GLint ref, GLuint mask){}
+EMPTY_LINKAGE void APIENTRY pglStencilMask(GLuint mask){}
+EMPTY_LINKAGE void APIENTRY pglStencilOp(GLenum fail, GLenum zfail, GLenum zpass){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord1d(GLdouble s){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord1dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord1f(GLfloat s){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord1fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord1i(GLint s){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord1iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord1s(GLshort s){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord1sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord2d(GLdouble s, GLdouble t){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord2dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord2f(GLfloat s, GLfloat t){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord2fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord2i(GLint s, GLint t){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord2iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord2s(GLshort s, GLshort t){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord2sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord3d(GLdouble s, GLdouble t, GLdouble r){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord3dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord3f(GLfloat s, GLfloat t, GLfloat r){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord3fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord3i(GLint s, GLint t, GLint r){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord3iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord3s(GLshort s, GLshort t, GLshort r){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord3sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord4d(GLdouble s, GLdouble t, GLdouble r, GLdouble q){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord4dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord4fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord4i(GLint s, GLint t, GLint r, GLint q){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord4iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord4s(GLshort s, GLshort t, GLshort r, GLshort q){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord4sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglTexEnvf(GLenum target, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void APIENTRY pglTexEnvfv(GLenum target, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglTexEnvi(GLenum target, GLenum pname, GLint param){}
+EMPTY_LINKAGE void APIENTRY pglTexEnviv(GLenum target, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglTexGend(GLenum coord, GLenum pname, GLdouble param){}
+EMPTY_LINKAGE void APIENTRY pglTexGendv(GLenum coord, GLenum pname, const GLdouble *params){}
+EMPTY_LINKAGE void APIENTRY pglTexGenf(GLenum coord, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void APIENTRY pglTexGenfv(GLenum coord, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglTexGeni(GLenum coord, GLenum pname, GLint param){}
+EMPTY_LINKAGE void APIENTRY pglTexGeniv(GLenum coord, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglTexImage1D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void APIENTRY pglTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void APIENTRY pglTexParameterf(GLenum target, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void APIENTRY pglTexParameterfv(GLenum target, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglTexParameteri(GLenum target, GLenum pname, GLint param){}
+EMPTY_LINKAGE void APIENTRY pglTexParameteriv(GLenum target, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglTexSubImage1D(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void APIENTRY pglTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void APIENTRY pglTranslated(GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void APIENTRY pglTranslatef(GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void APIENTRY pglVertex2d(GLdouble x, GLdouble y){}
+EMPTY_LINKAGE void APIENTRY pglVertex2dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex2f(GLfloat x, GLfloat y){}
+EMPTY_LINKAGE void APIENTRY pglVertex2fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex2i(GLint x, GLint y){}
+EMPTY_LINKAGE void APIENTRY pglVertex2iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex2s(GLshort x, GLshort y){}
+EMPTY_LINKAGE void APIENTRY pglVertex2sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex3d(GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void APIENTRY pglVertex3dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex3f(GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void APIENTRY pglVertex3fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex3i(GLint x, GLint y, GLint z){}
+EMPTY_LINKAGE void APIENTRY pglVertex3iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex3s(GLshort x, GLshort y, GLshort z){}
+EMPTY_LINKAGE void APIENTRY pglVertex3sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex4d(GLdouble x, GLdouble y, GLdouble z, GLdouble w){}
+EMPTY_LINKAGE void APIENTRY pglVertex4dv(const GLdouble *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
+EMPTY_LINKAGE void APIENTRY pglVertex4fv(const GLfloat *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex4i(GLint x, GLint y, GLint z, GLint w){}
+EMPTY_LINKAGE void APIENTRY pglVertex4iv(const GLint *v){}
+EMPTY_LINKAGE void APIENTRY pglVertex4s(GLshort x, GLshort y, GLshort z, GLshort w){}
+EMPTY_LINKAGE void APIENTRY pglVertex4sv(const GLshort *v){}
+EMPTY_LINKAGE void APIENTRY pglVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglViewport(GLint x, GLint y, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void APIENTRY pglPointParameterfEXT( GLenum param, GLfloat value ){}
+EMPTY_LINKAGE void APIENTRY pglPointParameterfvEXT( GLenum param, const GLfloat *value ){}
+EMPTY_LINKAGE void APIENTRY pglLockArraysEXT (int a, int b){}
+EMPTY_LINKAGE void APIENTRY pglUnlockArraysEXT (void){}
+EMPTY_LINKAGE void APIENTRY pglActiveTextureARB( GLenum e ){}
+EMPTY_LINKAGE void APIENTRY pglClientActiveTextureARB( GLenum e ){}
+EMPTY_LINKAGE void APIENTRY pglGetCompressedTexImage( GLenum target, GLint lod, const GLvoid* data ){}
+EMPTY_LINKAGE void APIENTRY pglDrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices ){}
+EMPTY_LINKAGE void APIENTRY pglDrawRangeElementsEXT( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices ){}
+EMPTY_LINKAGE void APIENTRY pglMultiTexCoord1f (GLenum e, GLfloat a){}
+EMPTY_LINKAGE void APIENTRY pglMultiTexCoord2f (GLenum e, GLfloat a, GLfloat b){}
+EMPTY_LINKAGE void APIENTRY pglMultiTexCoord3f (GLenum e, GLfloat a, GLfloat b, GLfloat c){}
+EMPTY_LINKAGE void APIENTRY pglMultiTexCoord4f (GLenum e, GLfloat a, GLfloat b, GLfloat c, GLfloat d){}
+EMPTY_LINKAGE void APIENTRY pglActiveTexture (GLenum e){}
+EMPTY_LINKAGE void APIENTRY pglClientActiveTexture (GLenum e){}
+EMPTY_LINKAGE void APIENTRY pglCompressedTexImage3DARB(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void APIENTRY pglCompressedTexImage2DARB(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border,  GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void APIENTRY pglCompressedTexImage1DARB(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void APIENTRY pglCompressedTexSubImage3DARB(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void APIENTRY pglCompressedTexSubImage2DARB(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void APIENTRY pglCompressedTexSubImage1DARB(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void APIENTRY pglDeleteObjectARB(GLhandleARB obj){}
+EMPTY_LINKAGE GLhandleARB APIENTRY pglGetHandleARB(GLenum pname){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglDetachObjectARB(GLhandleARB containerObj, GLhandleARB attachedObj){}
+EMPTY_LINKAGE GLhandleARB APIENTRY pglCreateShaderObjectARB(GLenum shaderType){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglShaderSourceARB(GLhandleARB shaderObj, GLsizei count, const GLcharARB **string, const GLint *length){}
+EMPTY_LINKAGE void APIENTRY pglCompileShaderARB(GLhandleARB shaderObj){}
+EMPTY_LINKAGE GLhandleARB APIENTRY pglCreateProgramObjectARB(void){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglAttachObjectARB(GLhandleARB containerObj, GLhandleARB obj){}
+EMPTY_LINKAGE void APIENTRY pglLinkProgramARB(GLhandleARB programObj){}
+EMPTY_LINKAGE void APIENTRY pglUseProgramObjectARB(GLhandleARB programObj){}
+EMPTY_LINKAGE void APIENTRY pglValidateProgramARB(GLhandleARB programObj){}
+EMPTY_LINKAGE void APIENTRY pglBindProgramARB(GLenum target, GLuint program){}
+EMPTY_LINKAGE void APIENTRY pglDeleteProgramsARB(GLsizei n, const GLuint *programs){}
+EMPTY_LINKAGE void APIENTRY pglGenProgramsARB(GLsizei n, GLuint *programs){}
+EMPTY_LINKAGE void APIENTRY pglProgramStringARB(GLenum target, GLenum format, GLsizei len, const GLvoid *string){}
+EMPTY_LINKAGE void APIENTRY pglProgramEnvParameter4fARB(GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
+EMPTY_LINKAGE void APIENTRY pglProgramLocalParameter4fARB(GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
+EMPTY_LINKAGE void APIENTRY pglUniform1fARB(GLint location, GLfloat v0){}
+EMPTY_LINKAGE void APIENTRY pglUniform2fARB(GLint location, GLfloat v0, GLfloat v1){}
+EMPTY_LINKAGE void APIENTRY pglUniform3fARB(GLint location, GLfloat v0, GLfloat v1, GLfloat v2){}
+EMPTY_LINKAGE void APIENTRY pglUniform4fARB(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3){}
+EMPTY_LINKAGE void APIENTRY pglUniform1iARB(GLint location, GLint v0){}
+EMPTY_LINKAGE void APIENTRY pglUniform2iARB(GLint location, GLint v0, GLint v1){}
+EMPTY_LINKAGE void APIENTRY pglUniform3iARB(GLint location, GLint v0, GLint v1, GLint v2){}
+EMPTY_LINKAGE void APIENTRY pglUniform4iARB(GLint location, GLint v0, GLint v1, GLint v2, GLint v3){}
+EMPTY_LINKAGE void APIENTRY pglUniform1fvARB(GLint location, GLsizei count, const GLfloat *value){}
+EMPTY_LINKAGE void APIENTRY pglUniform2fvARB(GLint location, GLsizei count, const GLfloat *value){}
+EMPTY_LINKAGE void APIENTRY pglUniform3fvARB(GLint location, GLsizei count, const GLfloat *value){}
+EMPTY_LINKAGE void APIENTRY pglUniform4fvARB(GLint location, GLsizei count, const GLfloat *value){}
+EMPTY_LINKAGE void APIENTRY pglUniform1ivARB(GLint location, GLsizei count, const GLint *value){}
+EMPTY_LINKAGE void APIENTRY pglUniform2ivARB(GLint location, GLsizei count, const GLint *value){}
+EMPTY_LINKAGE void APIENTRY pglUniform3ivARB(GLint location, GLsizei count, const GLint *value){}
+EMPTY_LINKAGE void APIENTRY pglUniform4ivARB(GLint location, GLsizei count, const GLint *value){}
+EMPTY_LINKAGE void APIENTRY pglUniformMatrix2fvARB(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value){}
+EMPTY_LINKAGE void APIENTRY pglUniformMatrix3fvARB(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value){}
+EMPTY_LINKAGE void APIENTRY pglUniformMatrix4fvARB(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value){}
+EMPTY_LINKAGE void APIENTRY pglGetObjectParameterfvARB(GLhandleARB obj, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglGetObjectParameterivARB(GLhandleARB obj, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetInfoLogARB(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog){}
+EMPTY_LINKAGE void APIENTRY pglGetAttachedObjectsARB(GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj){}
+EMPTY_LINKAGE GLint APIENTRY pglGetUniformLocationARB(GLhandleARB programObj, const GLcharARB *name){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglGetActiveUniformARB(GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name){}
+EMPTY_LINKAGE void APIENTRY pglGetUniformfvARB(GLhandleARB programObj, GLint location, GLfloat *params){}
+EMPTY_LINKAGE void APIENTRY pglGetUniformivARB(GLhandleARB programObj, GLint location, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetShaderSourceARB(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source){}
+EMPTY_LINKAGE void APIENTRY pglTexImage3D( GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels ){}
+EMPTY_LINKAGE void APIENTRY pglTexSubImage3D( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels ){}
+EMPTY_LINKAGE void APIENTRY pglCopyTexSubImage3D( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height ){}
+EMPTY_LINKAGE void APIENTRY pglBlendEquationEXT(GLenum e){}
+EMPTY_LINKAGE void APIENTRY pglStencilOpSeparate(GLenum a, GLenum b, GLenum c, GLenum d){}
+EMPTY_LINKAGE void APIENTRY pglStencilFuncSeparate(GLenum a, GLenum b, GLint c, GLuint d){}
+EMPTY_LINKAGE void APIENTRY pglActiveStencilFaceEXT(GLenum e){}
+EMPTY_LINKAGE void APIENTRY pglVertexAttribPointerARB(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglEnableVertexAttribArrayARB(GLuint index){}
+EMPTY_LINKAGE void APIENTRY pglDisableVertexAttribArrayARB(GLuint index){}
+EMPTY_LINKAGE void APIENTRY pglBindAttribLocationARB(GLhandleARB programObj, GLuint index, const GLcharARB *name){}
+EMPTY_LINKAGE void APIENTRY pglGetActiveAttribARB(GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name){}
+EMPTY_LINKAGE GLint APIENTRY pglGetAttribLocationARB(GLhandleARB programObj, const GLcharARB *name){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglBindFragDataLocation(GLuint programObj, GLuint index, const GLcharARB *name){}
+EMPTY_LINKAGE void APIENTRY pglVertexAttrib2fARB( GLuint index, GLfloat x, GLfloat y ){}
+EMPTY_LINKAGE void APIENTRY pglVertexAttrib2fvARB( GLuint index, const GLfloat *v ){}
+EMPTY_LINKAGE void APIENTRY pglVertexAttrib3fvARB( GLuint index, const GLfloat *v ){}
+EMPTY_LINKAGE void APIENTRY pglBindBufferARB(GLenum target, GLuint buffer){}
+EMPTY_LINKAGE void APIENTRY pglDeleteBuffersARB(GLsizei n, const GLuint *buffers){}
+EMPTY_LINKAGE void APIENTRY pglGenBuffersARB(GLsizei n, GLuint *buffers){}
+EMPTY_LINKAGE GLboolean APIENTRY pglIsBufferARB(GLuint buffer){ return 0; }
+EMPTY_LINKAGE GLvoid* APIENTRY pglMapBufferARB(GLenum target, GLenum access){ return NULL; }
+EMPTY_LINKAGE GLboolean APIENTRY pglUnmapBufferARB(GLenum target){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage){}
+EMPTY_LINKAGE void APIENTRY pglBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data){}
+EMPTY_LINKAGE void APIENTRY pglGenQueriesARB(GLsizei n, GLuint *ids){}
+EMPTY_LINKAGE void APIENTRY pglDeleteQueriesARB(GLsizei n, const GLuint *ids){}
+EMPTY_LINKAGE GLboolean APIENTRY pglIsQueryARB(GLuint id){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglBeginQueryARB(GLenum target, GLuint id){}
+EMPTY_LINKAGE void APIENTRY pglEndQueryARB(GLenum target){}
+EMPTY_LINKAGE void APIENTRY pglGetQueryivARB(GLenum target, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetQueryObjectivARB(GLuint id, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglGetQueryObjectuivARB(GLuint id, GLenum pname, GLuint *params){}
+EMPTY_LINKAGE void APIENTRY pglDebugMessageControlARB( GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint* ids, GLboolean enabled ){}
+EMPTY_LINKAGE void APIENTRY pglDebugMessageInsertARB( GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* buf ){}
+EMPTY_LINKAGE void APIENTRY pglDebugMessageCallbackARB( GL_DEBUG_PROC_ARB callback, void* userParam ){}
+EMPTY_LINKAGE GLuint APIENTRY pglGetDebugMessageLogARB( GLuint count, GLsizei bufsize, GLenum* sources, GLenum* types, GLuint* ids, GLuint* severities, GLsizei* lengths, char* messageLog ){ return 0; }
+EMPTY_LINKAGE GLboolean APIENTRY pglIsRenderbuffer(GLuint renderbuffer){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglBindRenderbuffer(GLenum target, GLuint renderbuffer){}
+EMPTY_LINKAGE void APIENTRY pglDeleteRenderbuffers(GLsizei n, const GLuint *renderbuffers){}
+EMPTY_LINKAGE void APIENTRY pglGenRenderbuffers(GLsizei n, GLuint *renderbuffers){}
+EMPTY_LINKAGE void APIENTRY pglRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void APIENTRY pglRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void APIENTRY pglGetRenderbufferParameteriv(GLenum target, GLenum pname, GLint *params){}
+EMPTY_LINKAGE GLboolean APIENTRY pglIsFramebuffer(GLuint framebuffer){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglBindFramebuffer(GLenum target, GLuint framebuffer){}
+EMPTY_LINKAGE void APIENTRY pglDeleteFramebuffers(GLsizei n, const GLuint *framebuffers){}
+EMPTY_LINKAGE void APIENTRY pglGenFramebuffers(GLsizei n, GLuint *framebuffers){}
+EMPTY_LINKAGE GLenum APIENTRY pglCheckFramebufferStatus(GLenum target){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglFramebufferTexture1D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level){}
+EMPTY_LINKAGE void APIENTRY pglFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level){}
+EMPTY_LINKAGE void APIENTRY pglFramebufferTexture3D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer){}
+EMPTY_LINKAGE void APIENTRY pglFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer){}
+EMPTY_LINKAGE void APIENTRY pglFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer){}
+EMPTY_LINKAGE void APIENTRY pglGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void APIENTRY pglBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter){}
+EMPTY_LINKAGE void APIENTRY pglDrawBuffersARB( GLsizei n, const GLenum *bufs ){}
+EMPTY_LINKAGE void APIENTRY pglGenerateMipmap( GLenum target ){}
+EMPTY_LINKAGE void APIENTRY pglBindVertexArray( GLuint array ){}
+EMPTY_LINKAGE void APIENTRY pglDeleteVertexArrays( GLsizei n, const GLuint *arrays ){}
+EMPTY_LINKAGE void APIENTRY pglGenVertexArrays( GLsizei n, const GLuint *arrays ){}
+EMPTY_LINKAGE GLboolean APIENTRY pglIsVertexArray( GLuint array ){ return 0; }
+EMPTY_LINKAGE void APIENTRY pglSwapInterval ( int interval ){}
+EMPTY_LINKAGE void APIENTRY pglTexImage2DMultisample( GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations ){}
+EMPTY_LINKAGE const GLubyte * EMPTY_FUNCTION( glGetStringi )(GLenum name, GLint i){ return "; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteProgram )(GLuint program){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetProgramiv )(GLuint program, GLenum e, GLuint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetProgramInfoLog )(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBufferStorage )( GLenum target, GLsizei size, const GLvoid * data, GLbitfield flags){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFlushMappedBufferRange )(GLenum target, GLsizei offset, GLsizei length){}
+EMPTY_LINKAGE void *EMPTY_FUNCTION( glMapBufferRange )(GLenum target, GLsizei offset, GLsizei length, GLbitfield access){ return NULL; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawRangeElementsBaseVertex )( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, GLuint vertex ){}
+
+#endif // XASH_RAYTRACING
+
