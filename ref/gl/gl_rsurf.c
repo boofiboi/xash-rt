@@ -936,6 +936,12 @@ static void EmitWaterPolys( msurface_t *warp, qboolean reverse, qboolean ripples
 		waveHeight = -RI.currententity->curstate.scale;
 	else waveHeight = RI.currententity->curstate.scale;
 
+#if XASH_RAYTRACING
+	const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
+	rt_state.curBrushSurface        = ( int )( warp - surfbase );
+	rt_state.curBrushSurfaceIsWater = true;
+#endif
+
 	// reset fog color for nonlightmapped water
 	GL_ResetFogColor();
 
@@ -997,6 +1003,11 @@ static void EmitWaterPolys( msurface_t *warp, qboolean reverse, qboolean ripples
 
 	if( useQuads )
 		pglEnd();
+
+#if XASH_RAYTRACING
+	rt_state.curBrushSurface        = -1;
+	rt_state.curBrushSurfaceIsWater = false;
+#endif
 
 	GL_SetupFogColorForSurfaces();
 }
@@ -1505,11 +1516,13 @@ static void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 
 #if XASH_RAYTRACING
 	const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
-	rt_state.curBrushSurface   = ( int )( fa - surfbase );
+	rt_state.curBrushSurface        = ( int )( fa - surfbase );
+	rt_state.curBrushSurfaceIsWater = false;
 #endif
 	DrawGLPoly( fa->polys, 0.0f, 0.0f );
 #if XASH_RAYTRACING
-	rt_state.curBrushSurface = -1;
+	rt_state.curBrushSurface        = -1;
+	rt_state.curBrushSurfaceIsWater = false;
 #endif
 
 	R_RenderDecalsForSurface( fa, cull_type );

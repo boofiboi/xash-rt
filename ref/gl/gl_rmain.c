@@ -1194,19 +1194,43 @@ void R_EndFrame( void )
 			.uniqueID               = 0,
 			.isExportable           = false,
 			.extra                  = { 0 },
-			.color                  = rgUtilPackColorByte4D( 10, 10, 10, 255 ),
+			.color                  = rgUtilPackColorByte4D( 20, 20, 20, 255 ),
 			.intensity              = 1.0f,
 			.direction              = { -1, -1, -1 },
 			.angularDiameterDegrees = 0.5f,
 		};		RgResult r2 = rgUploadDirectionalLight( rg_instance, &sun );
 		RG_CHECK( r2 );
 
+		RgDrawFrameReflectRefractParams refl_refr_params = {
+			.sType                   = RG_STRUCTURE_TYPE_REFLECTREFRACT,
+			.pNext                   = NULL,
+			.maxReflectRefractDepth  = 1,
+			.typeOfMediaAroundCamera = RG_MEDIA_TYPE_VACUUM,
+			.indexOfRefractionGlass  = 1.52f,
+			.indexOfRefractionWater  = 1.33f,
+			.waterWaveSpeed          = 0.4f,
+			.waterWaveNormalStrength = 0.0f,
+			.waterColor              = { 171 / 255.0f, 193 / 255.0f, 210 / 255.0f },
+			.acidColor               = { 0 / 255.0f, 169 / 255.0f, 145 / 255.0f },
+			.acidDensity             = 25,
+			.waterWaveTextureDerivativesMultiplier = 5,
+			.waterTextureAreaScale   = 1.0f / ( QUAKEUNIT_IN_METERS * QUAKEUNIT_IN_METERS ),
+			.portalNormalTwirl       = 0,
+		};
+		// because 1 quake unit is not 1 meter
+		refl_refr_params.waterColor.data[ 0 ] = powf( refl_refr_params.waterColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+		refl_refr_params.waterColor.data[ 1 ] = powf( refl_refr_params.waterColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+		refl_refr_params.waterColor.data[ 2 ] = powf( refl_refr_params.waterColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+		refl_refr_params.acidColor.data[ 0 ]  = powf( refl_refr_params.acidColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+		refl_refr_params.acidColor.data[ 1 ]  = powf( refl_refr_params.acidColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+		refl_refr_params.acidColor.data[ 2 ]  = powf( refl_refr_params.acidColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+
 		RgDrawFrameSkyParams skyParams = {
 			.sType                       = RG_STRUCTURE_TYPE_SKY,
-			.pNext                       = NULL,
+			.pNext                       = &refl_refr_params,
 			.skyType                     = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
 			.skyColorDefault             = { 0, 0, 0 },
-			.skyColorMultiplier          = 1.0f,
+			.skyColorMultiplier          = 10.0f,
 			.skyColorSaturation          = 1.0f,
 			.skyViewerPosition           = { 0, 0, 0 },
 			.pSkyCubemapTextureName      = NULL,

@@ -1356,7 +1356,8 @@ qboolean R_Init( void )
 				.curStudioMesh     = -1,
 				.curStudioGlend    = -1,
 
-				.curBrushSurface   = -1,
+				.curBrushSurface        = -1,
+				.curBrushSurfaceIsWater = false,
 			};
 			memcpy( &rt_state, &nullstate, sizeof( rt_state ) );
 		}
@@ -2583,7 +2584,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 		RgMeshPrimitiveInfo prim = {
 			.pPrimitiveNameInMesh = NULL,
 			.primitiveIndexInMesh = rt_state.curBrushSurface,
-			.flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
+			.flags                = ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
+									( rt_state.curBrushSurfaceIsWater ? RG_MESH_PRIMITIVE_WATER : 0 ),
 			.pTextureName         = rt_state.curTexture2DName,
 			.textureFrame         = 0,
 			.color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
