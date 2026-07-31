@@ -1278,6 +1278,9 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_mzlflash_decay,			"1",	"how fast muzzle flash light size should decrease" )
 	CVAR_DEF_T( rt_norms_studio,			"1",	"use original normals for studio models" )
 	CVAR_DEF_T( rt_norms_brush,				"1",	"use original normals for brushes" )
+
+	CVAR_DEF_T( rt_tent_life,				"10",	"lifetime multiplier for tempentities" )
+
 	CVAR_DEF_T( rt_texture_nearest,			"1",	"nearest texture filter for the world" )
 	CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 
@@ -2732,6 +2735,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 		qboolean isplayerviewer = ( RI.currententity == gEngfuncs.GetLocalPlayer() &&
 									!ENGINE_GET_PARM( PARM_THIRDPERSON ) );
 		qboolean ishologram     = ( RI.currententity->curstate.renderfx == kRenderFxHologram );
+		qboolean isfadeout      = ( RI.currententity->curstate.rendermode == kRenderTransTexture ||
+							   RI.currententity->curstate.rendermode == kRenderTransColor );
 
 		// look HL1RT_HACKS in hlsdk
 		qboolean hasinvis = ( RI.currententity->curstate.renderfx == 63 );
