@@ -336,6 +336,11 @@ static float R_GetFarClip( void )
 	return 2048.0f;
 }
 
+static float R_GetNearClip( void )
+{
+	return 4.0f;
+}
+
 /*
 ===============
 R_SetupFrustum
@@ -381,7 +386,7 @@ static void R_SetupProjectionMatrix( matrix4x4 m )
 
 	RI.farClip = R_GetFarClip();
 
-	GLfloat zNear = 4.0f;
+	GLfloat zNear = R_GetNearClip();
 	GLfloat zFar = Q_max( 256.0f, RI.farClip );
 
 	GLfloat yMax = zNear * tan( RI.rvp.fov_y * M_PI_F / 360.0f );
@@ -1141,9 +1146,9 @@ void R_EndFrame( void )
 	{
 		RgDrawFrameInfo info = {
 			.fovYRadians      = DEG2RAD( RI.rvp.fov_y ),
-			.cameraNear       = 0.1f,
-			.cameraFar        = 10000.0f,
-			.rayLength        = 10000.0f,
+			.cameraNear       = R_GetNearClip(),
+			.cameraFar        = R_GetFarClip(),
+			.rayLength        = R_GetFarClip(),
 			.rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
 								RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
 			.currentTime      = gpGlobals->realtime,
