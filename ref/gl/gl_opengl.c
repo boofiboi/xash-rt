@@ -2428,9 +2428,10 @@ static qboolean     rt_2dstate_changed = false;
 
 static struct
 {
-	rt_batchtype_t      type;
-	RgMeshInfo          mesh;
-	RgMeshPrimitiveInfo primitive;
+	rt_batchtype_t           type;
+	RgMeshInfo               mesh;
+	RgMeshPrimitiveInfo      primitive;
+	RgEditorInfo             additional;
 } rt_batch = { 0 };
 
 static qboolean AreTransformsAlwaysIdentity( rt_batchtype_t type )
@@ -2491,6 +2492,32 @@ static qboolean AreMeshesSame( rt_batchtype_t    a_type,
 	return false;
 }
 
+static qboolean AreAdditionalsSame( const RgEditorInfo* a, const RgEditorInfo* b )
+{
+	if( !a && !b )
+	{
+		return true;
+	}
+
+	if( a && b )
+	{
+		if( !a->layerLightmapExists && !b->layerLightmapExists )
+		{
+			return true;
+		}
+
+		if( a->layerLightmapExists && b->layerLightmapExists )
+		{
+			if( a->layerLightmap.pTextureName == b->layerLightmap.pTextureName )
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
 								   const RgMeshInfo*          a_mesh,
 								   const RgMeshPrimitiveInfo* a_primitive,
@@ -2508,9 +2535,10 @@ static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
 	{
 		if( AreMeshesSame( a_type, a_mesh, b_type, b_mesh ) )
 		{
-			if( a_primitive->flags == b_primitive->flags && a_primitive->color == b_primitive->color &&
-				a_primitive->pTextureName == b_primitive->pTextureName &&
-				AreFloatsClose( a_primitive->emissive, b_primitive->emissive ) )
+		if( a_primitive->flags == b_primitive->flags && a_primitive->color == b_primitive->color &&
+			a_primitive->pTextureName == b_primitive->pTextureName &&
+			AreFloatsClose( a_primitive->emissive, b_primitive->emissive ) &&
+			AreAdditionalsSame( a_primitive->pEditorInfo, b_primitive->pEditorInfo ) )
 			{
 				assert( a_type == b_type );
 
@@ -2574,6 +2602,14 @@ static void TryBeginBatch_Finalize( rt_batchtype_t             newtype,
 			rt_batch.type      = newtype;
 			rt_batch.mesh      = newmesh ? *newmesh : null_mesh;
 			rt_batch.primitive = newprimitive ? *newprimitive : null_prim;
+			{
+				const RgEditorInfo* src =
+					newprimitive && newprimitive->pEditorInfo ? newprimitive->pEditorInfo : NULL;
+				// assign and relink
+				static const RgEditorInfo        null_addt = { 0 };
+				rt_batch.additional            = src ? *src : null_addt;
+				rt_batch.primitive.pEditorInfo = src ? &rt_batch.additional : NULL;
+			}
 
 			if( rt_batch.type == RT_BATCH_TYPE_2D )
 			{
@@ -2712,6 +2748,16 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.emissive             = 0.0f,
 			.pEditorInfo          = NULL,
 		};
+
+		RgEditorInfo additional = {
+			.layerLightmapExists = rt_state.curLightmapTextureName != NULL,
+			.layerLightmap       = { .pTexCoord    = NULL,
+									 .pTextureName = rt_state.curLightmapTextureName,
+									 .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
+									 .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ) },
+		};
+
+		prim.pEditorInfo = &additional;
 
 		TryBeginBatch_Finalize( curtype, &mesh, &prim );
 	}

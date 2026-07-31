@@ -850,6 +850,11 @@ DrawGLPoly
 */
 static void DrawGLPoly( glpoly2_t *p, float xScale, float yScale )
 {
+#if XASH_RAYTRACING
+    float lightmap_soffset = 0.0f; // ( surf->light_s - surf->info->dlight_s ) / ( float )BLOCK_SIZE;
+    float lightmap_toffset = 0.0f; // ( surf->light_t - surf->info->dlight_t ) / ( float )BLOCK_SIZE;
+#endif
+
 	float sOffset, tOffset;
 
 	if( !p )
@@ -908,6 +913,10 @@ static void DrawGLPoly( glpoly2_t *p, float xScale, float yScale )
 		else pglTexCoord2f( v[3] + sOffset, v[4] + tOffset );
 
 		pglVertex3fv( v );
+#if XASH_RAYTRACING
+        rgUtilImScratchTexCoord_LayerLightmap(
+            rg_instance, v[ 5 ] - lightmap_soffset, v[ 6 ] - lightmap_toffset );
+#endif
 	}
 
 	pglEnd();
@@ -1507,6 +1516,9 @@ static void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 		if( Mod_HaveLightmappedWater( ))
 			R_RenderLightmapForSurface( fa );
 
+#if XASH_RAYTRACING
+        RT_BindLightmapTexture( tr.lightmapTextures[ fa->lightmaptexturenum ] );
+#endif
 		return;
 	}
 	else GL_Bind( XASH_TEXTURE0, t->gl_texturenum );
@@ -1518,11 +1530,14 @@ static void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 	const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
 	rt_state.curBrushSurface        = ( int )( fa - surfbase );
 	rt_state.curBrushSurfaceIsWater = false;
+
+	RT_BindLightmapTexture( tr.lightmapTextures[ fa->lightmaptexturenum ] );
 #endif
 	DrawGLPoly( fa->polys, 0.0f, 0.0f );
 #if XASH_RAYTRACING
 	rt_state.curBrushSurface        = -1;
 	rt_state.curBrushSurfaceIsWater = false;
+	RT_BindLightmapTexture( 0 );
 #endif
 
 	R_RenderDecalsForSurface( fa, cull_type );

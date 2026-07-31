@@ -91,6 +91,26 @@ qboolean GL_TextureFilteringEnabled( const gl_texture_t *tex )
 	return gl_texture_nearest.value == 0.0f;
 }
 
+#if XASH_RAYTRACING
+void RT_BindLightmapTexture( int texnum )
+{
+    const char* texname = NULL;
+
+    if( texnum <= 0 || texnum >= MAX_TEXTURES )
+    {
+        if( texnum != 0 )
+            gEngfuncs.Con_DPrintf( S_ERROR "RT_BindLightmapTexture: invalid texturenum %d\n",
+                                   texnum );
+    }
+    else
+    {
+        texname = gl_textures[ texnum ].name;
+    }
+
+    rt_state.curLightmapTextureName = texname;
+}
+#endif
+
 /*
 =================
 GL_ApplyTextureParams
