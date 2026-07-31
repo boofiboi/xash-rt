@@ -1714,26 +1714,21 @@ void R_EndFrame( void )
 			.skyCubemapRotationTransform = RG_TRANSFORM_IDENTITY,
 		};
 
-		// TODO: remove
-		vec3_t volume_light_dir    = { -1, -1, -1 };
-		vec3_t volume_light_color  = { 1, 1, 1 };
-		vec3_t volume_light_ambient = { RT_CVAR_TO_FLOAT( rt_volume_ambient ),
-										RT_CVAR_TO_FLOAT( rt_volume_ambient ),
-										RT_CVAR_TO_FLOAT( rt_volume_ambient ) };
-
 		RgDrawFrameVolumetricParams volumetric_params = {
 			.sType                   = RG_STRUCTURE_TYPE_VOLUMETRIC,
 			.pNext                   = &skyParams,
 			.enable                  = RT_CVAR_TO_UINT32( rt_volume_type ) != 0,
 			.useSimpleDepthBased     = RT_CVAR_TO_UINT32( rt_volume_type ) == 1,
 			.volumetricFar           = RT_CVAR_TO_FLOAT( rt_volume_far ),
-			.ambientColor            = RT_VEC3( volume_light_ambient ),
+			.ambientColor            = { RT_CVAR_TO_FLOAT( rt_volume_ambient ),
+										 RT_CVAR_TO_FLOAT( rt_volume_ambient ),
+										 RT_CVAR_TO_FLOAT( rt_volume_ambient ) },
 			.scaterring              = RT_CVAR_TO_FLOAT( rt_volume_scatter ),
 			.assymetry               = RT_CVAR_TO_FLOAT( rt_volume_lassymetry ),
-			.useIlluminationVolume   = false,
-			.fallbackSourceColor     = RT_VEC3_MULT( volume_light_color, RT_CVAR_TO_FLOAT( rt_volume_lintensity ) ),
-			.fallbackSourceDirection = RT_VEC3( volume_light_dir ),
-			.lightMultiplier         = 1.0f,
+			.useIlluminationVolume   = RT_CVAR_TO_BOOL( rt_volume_illumgrid ),
+			.fallbackSourceColor     = { 0, 0, 0 },
+			.fallbackSourceDirection = { 0, -1, 0 },
+			.lightMultiplier         = RT_CVAR_TO_FLOAT( rt_volume_lintensity ),
 		};
 
 		RgDrawFrameTexturesParams texture_params = {
