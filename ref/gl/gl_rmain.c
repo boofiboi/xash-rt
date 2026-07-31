@@ -1510,6 +1510,32 @@ void R_EndFrame( void )
 			.pCRT                 = &crt_effect,
 		};
 
+		char mapname_storage[ 64 ] = "";
+
+		char* mapname = NULL;
+		if( WORLDMODEL )
+		{
+			{
+				assert( sizeof( WORLDMODEL->name ) == sizeof( mapname_storage ) );
+				memcpy( mapname_storage, WORLDMODEL->name, sizeof( mapname_storage ) );
+				mapname_storage[ sizeof( mapname_storage ) - 1 ] = '\0';
+			}
+			mapname = mapname_storage;
+
+			// try skip "maps/"
+			if( Q_strncmp( mapname, "maps/", 5 ) == 0)
+			{
+				mapname += 5;
+			}
+
+			// try remove ".bsp" at the end
+			char* e = Q_strstr( mapname, ".bsp" ); 
+			if( e != NULL)
+			{
+				*e = '\0';
+			}
+		}
+
 		RgDrawFrameInfo info = {
 			.fovYRadians      = DEG2RAD( RI.rvp.fov_y ),
 			.cameraNear       = R_GetNearClip(),
@@ -1519,6 +1545,7 @@ void R_EndFrame( void )
 								RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
 			.currentTime      = gp_cl->time,
 			.vsync            = RT_CVAR_TO_BOOL( rt_vsync ),
+			.pMapName         = mapname,
 			.pParams          = &posteffect_params,
 		};
 
