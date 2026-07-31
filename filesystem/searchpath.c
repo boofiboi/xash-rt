@@ -444,22 +444,16 @@ void FS_Rescan( uint32_t flags, const char *language )
 	if( !COM_StringEmptyOrNULL( str ))
 		FS_MountArchive_Fullpath( str, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
 
-	{
-		char rtGame[MAX_OSPATH] = "";
-
-		Q_strcat( rtGame, "rt/", sizeof( rtGame ));
-		Q_strcat( rtGame, GI->gamefolder, sizeof( rtGame ));
-		FS_AddGameHierarchy( rtGame, 0 );
-	}
-
-	if( Q_stricmp( GI->basedir, GI->gamefolder ))
-		FS_AddGameHierarchy( GI->basedir, flags );
-
-	if( Q_stricmp( GI->basedir, GI->falldir ) && Q_stricmp( GI->gamefolder, GI->falldir ))
-		FS_AddGameHierarchy( GI->falldir, flags );
-
 	((gameinfo_t *)GI)->added = true; // getting rid of const here, as this modifier only for the engine
 	FS_AddGameHierarchy( GI->gamefolder, FS_GAMEDIR_PATH | flags );
+
+#if XASH_RAYTRACING
+	{
+		char rtgame[MAX_OSPATH] = "";
+		Q_snprintf( rtgame, sizeof( rtgame ), "rt/%s", GI->gamefolder );
+		FS_AddGameHierarchy( rtgame, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
+	}
+#endif
 }
 
 /*
