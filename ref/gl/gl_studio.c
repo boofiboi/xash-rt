@@ -2601,7 +2601,7 @@ static void R_StudioClientEvents( void )
 				if( RI.currententity == gEngfuncs.GetViewModel() )
 				{
 					// fallback to camera position, if from first person view
-					VectorCopy( RI.vieworg, offsetted_pos );
+					VectorCopy( RI.rvp.vieworigin, offsetted_pos );
 				}
 				else
 				{
