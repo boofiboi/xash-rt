@@ -1145,10 +1145,10 @@ void GL_ClearExtensions( void )
 //=======================================================================
 
 #if XASH_RAYTRACING
-static void RT_ClassicSwitch()
+void RT_ClassicToggle( void )
 {
-    int newval = !RT_CVAR_TO_BOOL( rt_classic );
-    gEngfuncs.Cvar_SetValue( rt_cvars.rt_classic->name, ( float )newval );
+    float newval = RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f ? 0 : 1;
+    gEngfuncs.Cvar_SetValue( rt_cvars.rt_classic->name, newval );
 }
 #endif
 
@@ -1302,7 +1302,7 @@ static void GL_InitCommands( void )
 	// clang-format on
 
     gEngfuncs.Cmd_AddCommand(
-        "rt_classic_switch", &RT_ClassicSwitch, "switch between classic and ray traced renderer" );
+        "rt_classic_toggle", &RT_ClassicToggle, "switch between classic and ray traced renderer" );
 
 #endif
 }

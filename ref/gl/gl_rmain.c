@@ -1364,7 +1364,7 @@ void R_BeginFrame( qboolean clearScene )
 
 		RgStartFrameInfo info = {
 			.pMapName               = mapname,
-			.ignoreExternalGeometry = false,
+			.ignoreExternalGeometry = RT_CVAR_TO_FLOAT( rt_classic ) > 0.5f,
 		};
 
 		RgResult r = rgStartFrame( rg_instance, &info );
