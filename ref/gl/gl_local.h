@@ -789,6 +789,7 @@ typedef struct rt_state_s
 	int         curStudioGlend;
 
 	int			curBrushSurface;
+	qboolean	curBrushSurfaceIsWater;
 
 	uint32_t	curTempEntityIndex;
 
