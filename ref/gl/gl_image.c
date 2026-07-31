@@ -1015,7 +1015,11 @@ static qboolean GL_UploadTexture( gl_texture_t *tex, rgbdata_t *pic )
 	// uploading texture into video memory, change the binding
 	glState.currentTextures[glState.activeTMU] = tex->texnum;
 	glState.currentTexturesIndex[glState.activeTMU] = tex - gl_textures;
+#if XASH_RAYTRACING
+	pglBindTexture( tex->target, tex->texnum, tex->name );
+#else
 	pglBindTexture( tex->target, tex->texnum );
+#endif
 
 	for( uint i = 0; i < numSides; i++ )
 	{

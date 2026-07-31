@@ -1,4 +1,4 @@
-﻿
+
 #include "gl_local.h"
 #if XASH_GL4ES
 #include "gl4es/include/gl4esinit.h"
@@ -1648,7 +1648,6 @@ EMPTY_LINKAGE const GLubyte * APIENTRY pglGetString(GLenum name){ return ""; }
 EMPTY_LINKAGE void APIENTRY pglAccum(GLenum op, GLfloat value){}
 EMPTY_LINKAGE void APIENTRY pglAlphaFunc(GLenum func, GLclampf ref){}
 EMPTY_LINKAGE void APIENTRY pglArrayElement(GLint i){}
-EMPTY_LINKAGE void APIENTRY pglBegin(GLenum mode){}
 EMPTY_LINKAGE void APIENTRY pglBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap){}
 EMPTY_LINKAGE void APIENTRY pglBlendFunc(GLenum sfactor, GLenum dfactor){}
 EMPTY_LINKAGE void APIENTRY pglCallList(GLuint list){}
@@ -1663,41 +1662,29 @@ EMPTY_LINKAGE GLboolean APIENTRY pglIsEnabled( GLenum cap ){ return 0; }
 EMPTY_LINKAGE GLboolean APIENTRY pglIsList( GLuint list ){ return 0; }
 EMPTY_LINKAGE GLboolean APIENTRY pglIsTexture( GLuint texture ){ return 0; }
 EMPTY_LINKAGE void APIENTRY pglClipPlane(GLenum plane, const GLdouble *equation){}
-EMPTY_LINKAGE void APIENTRY pglColor3b(GLbyte red, GLbyte green, GLbyte blue){}
-EMPTY_LINKAGE void APIENTRY pglColor3bv(const GLbyte *v){}
-EMPTY_LINKAGE void APIENTRY pglColor3d(GLdouble red, GLdouble green, GLdouble blue){}
-EMPTY_LINKAGE void APIENTRY pglColor3dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglColor3f(GLfloat red, GLfloat green, GLfloat blue){}
-EMPTY_LINKAGE void APIENTRY pglColor3fv(const GLfloat *v){}
-EMPTY_LINKAGE void APIENTRY pglColor3i(GLint red, GLint green, GLint blue){}
-EMPTY_LINKAGE void APIENTRY pglColor3iv(const GLint *v){}
-EMPTY_LINKAGE void APIENTRY pglColor3s(GLshort red, GLshort green, GLshort blue){}
-EMPTY_LINKAGE void APIENTRY pglColor3sv(const GLshort *v){}
-EMPTY_LINKAGE void APIENTRY pglColor3ub(GLubyte red, GLubyte green, GLubyte blue){}
-EMPTY_LINKAGE void APIENTRY pglColor3ubv(const GLubyte *v){}
-EMPTY_LINKAGE void APIENTRY pglColor3ui(GLuint red, GLuint green, GLuint blue){}
-EMPTY_LINKAGE void APIENTRY pglColor3uiv(const GLuint *v){}
-EMPTY_LINKAGE void APIENTRY pglColor3us(GLushort red, GLushort green, GLushort blue){}
-EMPTY_LINKAGE void APIENTRY pglColor3usv(const GLushort *v){}
-EMPTY_LINKAGE void APIENTRY pglColor4b(GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha){}
-EMPTY_LINKAGE void APIENTRY pglColor4bv(const GLbyte *v){}
-EMPTY_LINKAGE void APIENTRY pglColor4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha){}
-EMPTY_LINKAGE void APIENTRY pglColor4dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){}
-EMPTY_LINKAGE void APIENTRY pglColor4fv(const GLfloat *v){}
-EMPTY_LINKAGE void APIENTRY pglColor4i(GLint red, GLint green, GLint blue, GLint alpha){}
-EMPTY_LINKAGE void APIENTRY pglColor4iv(const GLint *v){}
-EMPTY_LINKAGE void APIENTRY pglColor4s(GLshort red, GLshort green, GLshort blue, GLshort alpha){}
-EMPTY_LINKAGE void APIENTRY pglColor4sv(const GLshort *v){}
-EMPTY_LINKAGE void APIENTRY pglColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha){}
-EMPTY_LINKAGE void APIENTRY pglColor4ubv(const GLubyte *v){}
-EMPTY_LINKAGE void APIENTRY pglColor4ui(GLuint red, GLuint green, GLuint blue, GLuint alpha){}
-EMPTY_LINKAGE void APIENTRY pglColor4uiv(const GLuint *v){}
-EMPTY_LINKAGE void APIENTRY pglColor4us(GLushort red, GLushort green, GLushort blue, GLushort alpha){}
-EMPTY_LINKAGE void APIENTRY pglColor4usv(const GLushort *v){}
-EMPTY_LINKAGE void APIENTRY pglColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha){}
-EMPTY_LINKAGE void APIENTRY pglColorMaterial(GLenum face, GLenum mode){}
-EMPTY_LINKAGE void APIENTRY pglColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglColor3b(GLbyte red, GLbyte green, GLbyte blue){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor3bv(const GLbyte *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor3i(GLint red, GLint green, GLint blue){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor3iv(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor3s(GLshort red, GLshort green, GLshort blue){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor3sv(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor3ui(GLuint red, GLuint green, GLuint blue){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor3uiv(const GLuint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor3us(GLushort red, GLushort green, GLushort blue){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor3usv(const GLushort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4b(GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4bv(const GLbyte *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4i(GLint red, GLint green, GLint blue, GLint alpha){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4iv(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4s(GLshort red, GLshort green, GLshort blue, GLshort alpha){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4sv(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4ui(GLuint red, GLuint green, GLuint blue, GLuint alpha){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4uiv(const GLuint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4us(GLushort red, GLushort green, GLushort blue, GLushort alpha){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColor4usv(const GLushort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColorMaterial(GLenum face, GLenum mode){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){ assert( 0 ); }
 EMPTY_LINKAGE void APIENTRY pglCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type){}
 EMPTY_LINKAGE void APIENTRY pglCopyTexImage1D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLint border){}
 EMPTY_LINKAGE void APIENTRY pglCopyTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border){}
@@ -1708,7 +1695,6 @@ EMPTY_LINKAGE void APIENTRY pglDeleteLists(GLuint list, GLsizei range){}
 EMPTY_LINKAGE void APIENTRY pglDeleteTextures(GLsizei n, const GLuint *textures){}
 EMPTY_LINKAGE void APIENTRY pglDepthFunc(GLenum func){}
 EMPTY_LINKAGE void APIENTRY pglDepthMask(GLboolean flag){}
-EMPTY_LINKAGE void APIENTRY pglDepthRange(GLclampd zNear, GLclampd zFar){}
 EMPTY_LINKAGE void APIENTRY pglDisable(GLenum cap){}
 EMPTY_LINKAGE void APIENTRY pglDisableClientState(GLenum array){}
 EMPTY_LINKAGE void APIENTRY pglDrawArrays(GLenum mode, GLint first, GLsizei count){}
@@ -1720,7 +1706,6 @@ EMPTY_LINKAGE void APIENTRY pglEdgeFlagPointer(GLsizei stride, const GLvoid *poi
 EMPTY_LINKAGE void APIENTRY pglEdgeFlagv(const GLboolean *flag){}
 EMPTY_LINKAGE void APIENTRY pglEnable(GLenum cap){}
 EMPTY_LINKAGE void APIENTRY pglEnableClientState(GLenum array){}
-EMPTY_LINKAGE void APIENTRY pglEnd(void){}
 EMPTY_LINKAGE void APIENTRY pglEndList(void){}
 EMPTY_LINKAGE void APIENTRY pglEvalCoord1d(GLdouble u){}
 EMPTY_LINKAGE void APIENTRY pglEvalCoord1dv(const GLdouble *u){}
@@ -1797,9 +1782,6 @@ EMPTY_LINKAGE void APIENTRY pglLightiv(GLenum light, GLenum pname, const GLint *
 EMPTY_LINKAGE void APIENTRY pglLineStipple(GLint factor, GLushort pattern){}
 EMPTY_LINKAGE void APIENTRY pglLineWidth(GLfloat width){}
 EMPTY_LINKAGE void APIENTRY pglListBase(GLuint base){}
-EMPTY_LINKAGE void APIENTRY pglLoadIdentity(void){}
-EMPTY_LINKAGE void APIENTRY pglLoadMatrixd(const GLdouble *m){}
-EMPTY_LINKAGE void APIENTRY pglLoadMatrixf(const GLfloat *m){}
 EMPTY_LINKAGE void APIENTRY pglLoadName(GLuint name){}
 EMPTY_LINKAGE void APIENTRY pglLogicOp(GLenum opcode){}
 EMPTY_LINKAGE void APIENTRY pglMap1d(GLenum target, GLdouble u1, GLdouble u2, GLint stride, GLint order, const GLdouble *points){}
@@ -1814,7 +1796,6 @@ EMPTY_LINKAGE void APIENTRY pglMaterialf(GLenum face, GLenum pname, GLfloat para
 EMPTY_LINKAGE void APIENTRY pglMaterialfv(GLenum face, GLenum pname, const GLfloat *params){}
 EMPTY_LINKAGE void APIENTRY pglMateriali(GLenum face, GLenum pname, GLint param){}
 EMPTY_LINKAGE void APIENTRY pglMaterialiv(GLenum face, GLenum pname, const GLint *params){}
-EMPTY_LINKAGE void APIENTRY pglMatrixMode(GLenum mode){}
 EMPTY_LINKAGE void APIENTRY pglMultMatrixd(const GLdouble *m){}
 EMPTY_LINKAGE void APIENTRY pglMultMatrixf(const GLfloat *m){}
 EMPTY_LINKAGE void APIENTRY pglNewList(GLuint list, GLenum mode){}
@@ -1829,7 +1810,6 @@ EMPTY_LINKAGE void APIENTRY pglNormal3iv(const GLint *v){}
 EMPTY_LINKAGE void APIENTRY pglNormal3s(GLshort nx, GLshort ny, GLshort nz){}
 EMPTY_LINKAGE void APIENTRY pglNormal3sv(const GLshort *v){}
 EMPTY_LINKAGE void APIENTRY pglNormalPointer(GLenum type, GLsizei stride, const GLvoid *pointer){}
-EMPTY_LINKAGE void APIENTRY pglOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar){}
 EMPTY_LINKAGE void APIENTRY pglPassThrough(GLfloat token){}
 EMPTY_LINKAGE void APIENTRY pglPixelMapfv(GLenum map, GLsizei mapsize, const GLfloat *values){}
 EMPTY_LINKAGE void APIENTRY pglPixelMapuiv(GLenum map, GLsizei mapsize, const GLuint *values){}
@@ -1895,39 +1875,37 @@ EMPTY_LINKAGE void APIENTRY pglShadeModel(GLenum mode){}
 EMPTY_LINKAGE void APIENTRY pglStencilFunc(GLenum func, GLint ref, GLuint mask){}
 EMPTY_LINKAGE void APIENTRY pglStencilMask(GLuint mask){}
 EMPTY_LINKAGE void APIENTRY pglStencilOp(GLenum fail, GLenum zfail, GLenum zpass){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord1d(GLdouble s){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord1dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord1f(GLfloat s){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord1fv(const GLfloat *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord1i(GLint s){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord1iv(const GLint *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord1s(GLshort s){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord1sv(const GLshort *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord2d(GLdouble s, GLdouble t){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord2dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord2f(GLfloat s, GLfloat t){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord2fv(const GLfloat *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord2i(GLint s, GLint t){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord2iv(const GLint *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord2s(GLshort s, GLshort t){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord2sv(const GLshort *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord3d(GLdouble s, GLdouble t, GLdouble r){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord3dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord3f(GLfloat s, GLfloat t, GLfloat r){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord3fv(const GLfloat *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord3i(GLint s, GLint t, GLint r){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord3iv(const GLint *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord3s(GLshort s, GLshort t, GLshort r){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord3sv(const GLshort *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord4d(GLdouble s, GLdouble t, GLdouble r, GLdouble q){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord4dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord4fv(const GLfloat *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord4i(GLint s, GLint t, GLint r, GLint q){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord4iv(const GLint *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord4s(GLshort s, GLshort t, GLshort r, GLshort q){}
-EMPTY_LINKAGE void APIENTRY pglTexCoord4sv(const GLshort *v){}
-EMPTY_LINKAGE void APIENTRY pglTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void APIENTRY pglTexCoord1d(GLdouble s){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord1dv(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord1f(GLfloat s){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord1fv(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord1i(GLint s){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord1iv(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord1s(GLshort s){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord1sv(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord2d(GLdouble s, GLdouble t){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord2dv(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord2i(GLint s, GLint t){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord2iv(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord2s(GLshort s, GLshort t){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord2sv(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord3d(GLdouble s, GLdouble t, GLdouble r){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord3dv(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord3f(GLfloat s, GLfloat t, GLfloat r){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord3fv(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord3i(GLint s, GLint t, GLint r){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord3iv(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord3s(GLshort s, GLshort t, GLshort r){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord3sv(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord4d(GLdouble s, GLdouble t, GLdouble r, GLdouble q){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord4dv(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord4fv(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord4i(GLint s, GLint t, GLint r, GLint q){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord4iv(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord4s(GLshort s, GLshort t, GLshort r, GLshort q){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoord4sv(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){ assert( 0 ); }
 EMPTY_LINKAGE void APIENTRY pglTexEnvf(GLenum target, GLenum pname, GLfloat param){}
 EMPTY_LINKAGE void APIENTRY pglTexEnvfv(GLenum target, GLenum pname, const GLfloat *params){}
 EMPTY_LINKAGE void APIENTRY pglTexEnvi(GLenum target, GLenum pname, GLint param){}
@@ -1947,32 +1925,28 @@ EMPTY_LINKAGE void APIENTRY pglTexSubImage1D(GLenum target, GLint level, GLint x
 EMPTY_LINKAGE void APIENTRY pglTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels){}
 EMPTY_LINKAGE void APIENTRY pglTranslated(GLdouble x, GLdouble y, GLdouble z){}
 EMPTY_LINKAGE void APIENTRY pglTranslatef(GLfloat x, GLfloat y, GLfloat z){}
-EMPTY_LINKAGE void APIENTRY pglVertex2d(GLdouble x, GLdouble y){}
-EMPTY_LINKAGE void APIENTRY pglVertex2dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex2f(GLfloat x, GLfloat y){}
-EMPTY_LINKAGE void APIENTRY pglVertex2fv(const GLfloat *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex2i(GLint x, GLint y){}
-EMPTY_LINKAGE void APIENTRY pglVertex2iv(const GLint *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex2s(GLshort x, GLshort y){}
-EMPTY_LINKAGE void APIENTRY pglVertex2sv(const GLshort *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex3d(GLdouble x, GLdouble y, GLdouble z){}
-EMPTY_LINKAGE void APIENTRY pglVertex3dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex3f(GLfloat x, GLfloat y, GLfloat z){}
-EMPTY_LINKAGE void APIENTRY pglVertex3fv(const GLfloat *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex3i(GLint x, GLint y, GLint z){}
-EMPTY_LINKAGE void APIENTRY pglVertex3iv(const GLint *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex3s(GLshort x, GLshort y, GLshort z){}
-EMPTY_LINKAGE void APIENTRY pglVertex3sv(const GLshort *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex4d(GLdouble x, GLdouble y, GLdouble z, GLdouble w){}
-EMPTY_LINKAGE void APIENTRY pglVertex4dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
-EMPTY_LINKAGE void APIENTRY pglVertex4fv(const GLfloat *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex4i(GLint x, GLint y, GLint z, GLint w){}
-EMPTY_LINKAGE void APIENTRY pglVertex4iv(const GLint *v){}
-EMPTY_LINKAGE void APIENTRY pglVertex4s(GLshort x, GLshort y, GLshort z, GLshort w){}
-EMPTY_LINKAGE void APIENTRY pglVertex4sv(const GLshort *v){}
-EMPTY_LINKAGE void APIENTRY pglVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
-EMPTY_LINKAGE void APIENTRY pglViewport(GLint x, GLint y, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void APIENTRY pglVertex2d(GLdouble x, GLdouble y){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex2dv(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex2fv(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex2i(GLint x, GLint y){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex2iv(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex2s(GLshort x, GLshort y){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex2sv(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex3d(GLdouble x, GLdouble y, GLdouble z){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex3dv(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex3i(GLint x, GLint y, GLint z){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex3iv(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex3s(GLshort x, GLshort y, GLshort z){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex3sv(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex4d(GLdouble x, GLdouble y, GLdouble z, GLdouble w){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex4dv(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex4fv(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex4i(GLint x, GLint y, GLint z, GLint w){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex4iv(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex4s(GLshort x, GLshort y, GLshort z, GLshort w){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertex4sv(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void APIENTRY pglVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){ assert( 0 ); }
 EMPTY_LINKAGE void APIENTRY pglPointParameterfEXT( GLenum param, GLfloat value ){}
 EMPTY_LINKAGE void APIENTRY pglPointParameterfvEXT( GLenum param, const GLfloat *value ){}
 EMPTY_LINKAGE void APIENTRY pglLockArraysEXT (int a, int b){}
@@ -2113,39 +2087,236 @@ EMPTY_LINKAGE void *EMPTY_FUNCTION( glMapBufferRange )(GLenum target, GLsizei of
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawRangeElementsBaseVertex )( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, GLuint vertex ){}
 
 
-static GLuint g_currentTex2D = 0;
-
-EMPTY_LINKAGE void EMPTY_FUNCTION(glBindTexture)(GLenum target, GLuint texture)
+void pglBegin( GLenum mode )
 {
-	if (target == GL_TEXTURE_2D)
+	RgUtilImScratchTopology topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLES;
+	switch( mode )
 	{
-		g_currentTex2D = texture;
+		case GL_TRIANGLES: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLES; break;
+		case GL_TRIANGLE_STRIP: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLE_STRIP; break;
+		case GL_TRIANGLE_FAN: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLE_FAN; break;
+		case GL_QUADS: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_QUADS; break;
+		default: assert( 0 ); return;
+	}
+
+	rgUtilImScratchStart( rg_instance, topology );
+}
+
+void pglTexCoord2f( GLfloat s, GLfloat t )
+{
+	rgUtilImScratchTexCoord( rg_instance, s, t );
+}
+void pglTexCoord2fv( const GLfloat* v )
+{
+	rgUtilImScratchTexCoord( rg_instance, v[ 0 ], v[ 1 ] );
+}
+
+void pglVertex3f( GLfloat x, GLfloat y, GLfloat z )
+{
+	rgUtilImScratchVertex( rg_instance, x, y, z );
+}
+void pglVertex3fv( const GLfloat* v )
+{
+	rgUtilImScratchVertex( rg_instance, v[ 0 ], v[ 1 ], v[ 2 ] );
+}
+void pglVertex2f ( GLfloat x, GLfloat y )
+{
+	rgUtilImScratchVertex( rg_instance, x, y, 0.0f );
+}
+
+void pglColor3d( GLdouble red, GLdouble green, GLdouble blue )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( ( float )red, ( float )green, ( float )blue, 1.0f ) );
+}
+void pglColor3dv( const GLdouble* v )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( ( float )v[ 0 ], ( float )v[ 1 ], ( float )v[ 2 ], 1.0f ) );
+}
+void pglColor3f( GLfloat red, GLfloat green, GLfloat blue )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( red, green, blue, 1.0f ) );
+}
+void pglColor3fv( const GLfloat* v )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( v[ 0 ], v[ 1 ], v[ 2 ], 1.0f ) );
+}
+void pglColor3ub( GLubyte red, GLubyte green, GLubyte blue )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorByte4D( red, green, blue, 255 ) );
+}
+void pglColor3ubv( const GLubyte* v )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorByte4D( v[ 0 ], v[ 1 ], v[ 2 ], 255 ) );
+}
+void pglColor4d( GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( ( float )red, ( float )green, ( float )blue, ( float )alpha ) );
+}
+void pglColor4dv( const GLdouble* v )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( ( float )v[ 0 ], ( float )v[ 1 ], ( float )v[ 2 ], ( float )v[ 3 ] ) );
+}
+void pglColor4f( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( red, green, blue, alpha ) );
+}
+void pglColor4fv( const GLfloat* v )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( v[ 0 ], v[ 1 ], v[ 2 ], v[ 3 ] ) );
+}
+void pglColor4ub( GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorByte4D( red, green, blue, alpha ) );
+}
+void pglColor4ubv( const GLubyte* v )
+{
+	rgUtilImScratchColor( rg_instance, rgUtilPackColorByte4D( v[ 0 ], v[ 1 ], v[ 2 ], v[ 3 ] ) );
+}
+
+void pglEnd( void )
+{}
+
+
+static const char* rg_currentTexture2DName = NULL;
+
+void pglBindTexture( GLenum target, GLuint texture, const char* textureName )
+{
+	if( target == GL_TEXTURE_2D )
+	{
+		if( textureName && textureName[ 0 ] != '\0' )
+		{
+			rg_currentTexture2DName = textureName;
+		}
 	}
 }
 
-EMPTY_LINKAGE void EMPTY_FUNCTION(glTexImage2D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
+void pglTexImage2D( GLenum        target,
+					GLint         level,
+					GLint         internalformat,
+					GLsizei       width,
+					GLsizei       height,
+					GLint         border,
+					GLenum        format,
+					GLenum        type,
+					const GLvoid* pixels )
 {
-	if (g_currentTex2D && target == GL_TEXTURE_2D && level == 0 && format == GL_RGBA && type == GL_UNSIGNED_BYTE && pixels)
+	if( target == GL_TEXTURE_2D )
 	{
-		char texName[16];
-		snprintf(texName, sizeof(texName), "%d", g_currentTex2D);
+		if( rg_currentTexture2DName )
+		{
+			if( level == 0 && format == GL_RGBA && type == GL_UNSIGNED_BYTE && pixels )
+			{
+				RgOriginalTextureInfo info = {
+					.pTextureName = rg_currentTexture2DName,
+					.pPixels      = pixels,
+					.size         = { width, height },
+					.filter       = RG_SAMPLER_FILTER_AUTO,
+					.addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+					.addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+				};
 
-		RgOriginalTextureInfo info = {
-			.pTextureName = texName,
-			.pPixels = pixels,
-			.size = {width, height},
-			.filter = RG_SAMPLER_FILTER_AUTO,
-			.addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
-			.addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+				RgResult r = rgProvideOriginalTexture( rg_instance, &info );
+				RG_CHECK( r );
+			}
+		}
+	}
+}
+
+
+RgViewport rg_viewport = { 0 };
+
+void pglViewport( GLint x, GLint y, GLsizei width, GLsizei height )
+{
+	rg_viewport.x      = ( float )x;
+	rg_viewport.y      = ( float )y;
+	rg_viewport.width  = ( float )width;
+	rg_viewport.height = ( float )height;
+}
+
+void pglDepthRange( GLclampd zNear, GLclampd zFar )
+{
+	rg_viewport.minDepth = ( float )zNear;
+	rg_viewport.maxDepth = ( float )zFar;
+}
+
+const RgViewport* rg_GetViewport()
+{
+	return &rg_viewport;
+}
+
+
+static GLenum rg_matrix_mode = 0;
+matrix4x4     rg_matrix_proj = { 0 };
+
+void pglMatrixMode( GLenum mode )
+{
+	rg_matrix_mode = mode;
+}
+
+void pglLoadIdentity( void )
+{
+	if( rg_matrix_mode == GL_PROJECTION )
+	{
+		Matrix4x4_LoadIdentity( rg_matrix_proj );
+	}
+}
+
+void pglLoadMatrixd( const GLdouble* m )
+{
+	assert( 0 );
+}
+
+void pglLoadMatrixf( const GLfloat* m )
+{
+	if( rg_matrix_mode == GL_PROJECTION )
+	{
+		Matrix4x4_FromArrayFloatGL( rg_matrix_proj, m );
+	}
+}
+
+void pglOrtho( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar )
+{
+	// vulkan: swap Y
+	{
+		GLdouble temp = bottom;
+
+		bottom = top;
+		top    = temp;
+	}
+
+	if( rg_matrix_mode == GL_PROJECTION )
+	{
+		GLdouble tx = -( right + left ) / ( right - left );
+		GLdouble ty = -( top + bottom ) / ( top - bottom );
+		GLdouble tz = -( zFar + zNear ) / ( zFar - zNear );
+
+		matrix4x4 ortho = {
+			{ ( float )( 2.0 / ( right - left ) ), 0, 0, ( float )tx },
+			{ 0, ( float )( 2.0 / ( top - bottom ) ), 0, ( float )ty },
+			{ 0, 0, ( float )( -2.0 / ( zFar - zNear ) ), ( float )tz },
+			{ 0, 0, 0, 1 },
 		};
 
-		RgResult r = rgProvideOriginalTexture(rg_instance, &info);
-		RG_CHECK(r);
+		matrix4x4 prev;
+		Matrix4x4_Copy( prev, rg_matrix_proj );
+
+		Matrix4x4_Concat( rg_matrix_proj, ortho, prev );
 	}
+}
+
+const float* rg_Get2DProjectionMatrix()
+{
+	static float column[ 16 ];
+	Matrix4x4_ToArrayFloatGL( rg_matrix_proj, column );
+
+	return column;
 }
 
 
 #undef EMPTY_LINKAGE
 #undef EMPTY_FUNCTION
 #endif // XASH_RAYTRACING
+
+
+
 

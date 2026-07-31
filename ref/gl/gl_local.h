@@ -743,6 +743,7 @@ extern convar_t r_ripple_spawntime;
 extern convar_t r_large_lightmaps;
 
 #if XASH_RAYTRACING
+#include <assert.h>
 #define RG_USE_SURFACE_WIN32
 #include <RTGL1/RTGL1.h>
 
@@ -760,6 +761,9 @@ extern RgInstance rg_instance;
 #define QUAKEUNIT_IN_METERS      0.025f
 #define QUAKEUNIT_TO_METRIC( x ) ( ( x ) * QUAKEUNIT_IN_METERS )
 #define METRIC_TO_QUAKEUNIT( x ) ( ( x ) / QUAKEUNIT_IN_METERS )
+
+extern const RgViewport* rg_GetViewport( void );
+extern const float*      rg_Get2DProjectionMatrix( void );
 #endif
 
 //

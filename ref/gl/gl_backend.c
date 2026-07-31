@@ -204,7 +204,11 @@ void GL_Bind( int tmu, unsigned int texnum )
 	if( glState.currentTextures[tmu] == texture->texnum )
 		return;
 
+#if XASH_RAYTRACING
+	pglBindTexture( texture->target, texture->texnum, texture->name );
+#else
 	pglBindTexture( texture->target, texture->texnum );
+#endif
 	glState.currentTextures[tmu] = texture->texnum;
 	glState.currentTexturesIndex[tmu] = texnum;
 }
