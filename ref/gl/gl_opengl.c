@@ -1163,7 +1163,9 @@ static void GL_InitCommands( void )
 	gEngfuncs.Cvar_RegisterVariable( &r_lockfrustum );
 	gEngfuncs.Cvar_RegisterVariable( &r_traceglow );
 	gEngfuncs.Cvar_RegisterVariable( &r_studio_sort_textures );
+#if !XASH_RAYTRACING
 	gEngfuncs.Cvar_RegisterVariable( &r_studio_drawelements );
+#endif
 	gEngfuncs.Cvar_RegisterVariable( &r_ripple );
 	gEngfuncs.Cvar_RegisterVariable( &r_ripple_updatetime );
 	gEngfuncs.Cvar_RegisterVariable( &r_ripple_spawntime );
