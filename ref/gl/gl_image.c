@@ -1287,6 +1287,35 @@ static gl_texture_t *GL_AllocTexture( const char *name, texFlags_t flags )
 		return NULL;
 	}
 
+#if XASH_RAYTRACING
+	// special names for RT: if *.mip, then put inside "#maps" folder
+	if( Q_strcmp( COM_FileExtension( name ), "mip" ) == 0 )
+	{
+		const char* purename_start = name;
+		{
+			const char* separator = Q_strrchr( name, '/' );
+			const char* backslash = Q_strrchr( name, '\\' );
+
+			if( !separator || separator < backslash )
+			{
+				separator = backslash;
+			}
+			const char* colon = Q_strrchr( name, ':' );
+
+			if( !separator || separator < colon )
+			{
+				separator = colon;
+			}
+			purename_start = separator + 1;
+		}
+
+		char rtname[ RT_ARRAYSIZE( tex->name ) ];
+		Q_snprintf( rtname, RT_ARRAYSIZE( rtname ), "#maps/%s", purename_start );
+
+		name = rtname;
+	}
+#endif
+
 	// copy initial params
 	Q_strncpy( tex->name, name, sizeof( tex->name ));
 	tex->texnum = texnum;
