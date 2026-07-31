@@ -50,6 +50,10 @@ void CL_DrawParticles( double frametime, particle_t *cl_active_particles, float 
 	if( !cl_active_particles )
 		return;	// nothing to draw?
 
+#if XASH_RAYTRACING
+	rt_state.curIsRasterized = true;
+#endif
+
 	pglEnable( GL_BLEND );
 	pglDisable( GL_ALPHA_TEST );
 	pglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -104,6 +108,10 @@ void CL_DrawParticles( double frametime, particle_t *cl_active_particles, float 
 
 	pglEnd();
 	pglDepthMask( GL_TRUE );
+
+#if XASH_RAYTRACING
+	rt_state.curIsRasterized = false;
+#endif
 }
 
 /*
@@ -179,6 +187,10 @@ void CL_DrawTracers( double frametime, particle_t *cl_active_tracers )
 	float gravity = frametime * gp_movevars->gravity;
 	float scale = 1.0 - (frametime * 0.9);
 	if( scale < 0.0f ) scale = 0.0f;
+
+#if XASH_RAYTRACING
+	rt_state.curIsRasterized = true;
+#endif
 
 	pglBegin( GL_QUADS );
 
@@ -256,6 +268,10 @@ void CL_DrawTracers( double frametime, particle_t *cl_active_tracers )
 		}
 	}
 	pglEnd();
+
+#if XASH_RAYTRACING
+	rt_state.curIsRasterized = false;
+#endif
 
 	pglDepthMask( GL_TRUE );
 	R_AllowFog( true );
