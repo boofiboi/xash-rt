@@ -1139,17 +1139,22 @@ void R_EndFrame( void )
 
 #if XASH_RAYTRACING
 	{
-		RgDrawFrameInfo frameInfo = {
-			.fovYRadians      = (float)M_PI * 0.5f,
+		RgDrawFrameInfo info = {
+			.fovYRadians      = DEG2RAD( RI.rvp.fov_y ),
 			.cameraNear       = 0.1f,
 			.cameraFar        = 10000.0f,
 			.rayLength        = 10000.0f,
-			.rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT,
+			.rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
+								RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
 			.currentTime      = gpGlobals->realtime,
 			.vsync            = true,
 		};
 
-		RgResult r = rgDrawFrame( rg_instance, &frameInfo );
+		// reinterpret cast to make matrices column-major
+		matrix4x4* v = ( matrix4x4* )&info.view;
+		Matrix4x4_Transpose( *v, RI.worldviewMatrix );
+
+		RgResult r = rgDrawFrame( rg_instance, &info );
 		RG_CHECK( r );
 	}
 #endif
