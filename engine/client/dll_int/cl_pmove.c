@@ -670,6 +670,13 @@ static int GAME_EXPORT pfnTruePointContents( float *p )
 
 static pmtrace_t GAME_EXPORT pfnPlayerTrace( float *start, float *end, int traceFlags, int ignore_pe )
 {
+#if XASH_RAYTRACING
+	// ugly fix to prevent infinite loop during level transition
+	if( isnan( end[ 0 ] ) || isnan( end[ 1 ] ) || isnan( end[ 2 ] ) )
+	{
+		VectorCopy( start, end );
+	}
+#endif
 	return PM_PlayerTraceExt( clgame.pmove, start, end, traceFlags, clgame.pmove->numphysent, clgame.pmove->physents, ignore_pe, NULL );
 }
 
