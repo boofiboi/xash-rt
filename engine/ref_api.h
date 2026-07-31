@@ -172,6 +172,8 @@ typedef struct ref_globals_s
 
 	int desktopBitsPixel;
 
+	void* rtglHwnd;
+
 	// scaling factor of physical window size compared to logical
 	float scale_x;
 	float scale_y;

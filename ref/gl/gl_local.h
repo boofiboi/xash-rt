@@ -742,6 +742,26 @@ extern convar_t r_ripple_updatetime;
 extern convar_t r_ripple_spawntime;
 extern convar_t r_large_lightmaps;
 
+#if XASH_RAYTRACING
+#define RG_USE_SURFACE_WIN32
+#include <RTGL1/RTGL1.h>
+
+extern RgInstance rg_instance;
+#define RG_CHECK( x )									\
+	assert( ( x ) == RG_RESULT_SUCCESS ||				\
+			( x ) == RG_RESULT_SUCCESS_FOUND_MESH ||	\
+			( x ) == RG_RESULT_SUCCESS_FOUND_TEXTURE )
+
+#define RG_TRANSFORM_IDENTITY	\
+    {	1.f, 0.f, 0.f, 0.f,		\
+        0.f, 1.f, 0.f, 0.f,		\
+        0.f, 0.f, 1.f, 0.f	}
+
+#define QUAKEUNIT_IN_METERS      0.025f
+#define QUAKEUNIT_TO_METRIC( x ) ( ( x ) * QUAKEUNIT_IN_METERS )
+#define METRIC_TO_QUAKEUNIT( x ) ( ( x ) / QUAKEUNIT_IN_METERS )
+#endif
+
 //
 // engine shared convars
 //

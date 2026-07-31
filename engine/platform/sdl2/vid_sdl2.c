@@ -753,6 +753,17 @@ static rserr_t VID_CreateWindow( const int input_width, const int input_height, 
 #endif
 	}
 
+#if XASH_RAYTRACING
+	{
+		SDL_SysWMinfo wmInfo;
+		SDL_VERSION( &wmInfo.version );
+		SDL_GetWindowWMInfo( host.hWnd, &wmInfo );
+		HWND hwnd = wmInfo.info.win.window;
+
+		refState.rtglHwnd = hwnd;
+	}
+#endif
+
 	// update window size if it was resized
 	SDL_GetWindowSize( host.hWnd, &rect.w, &rect.h );
 	VID_SaveWindowSize( rect.w, rect.h );
