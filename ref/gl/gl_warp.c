@@ -75,6 +75,8 @@ static struct
 } g_ripple;
 
 
+#if !XASH_RAYTRACING
+
 static void DrawSkyPolygon( int nump, vec3_t vecs )
 {
 	// decide which face it maps to
@@ -218,6 +220,8 @@ loc1:
 	ClipSkyPolygon( newc[1], newv[1][0], stage + 1 );
 }
 
+#endif // !XASH_RAYTRACING
+
 static void MakeSkyVec( float s, float t, int axis )
 {
 	int farclip = RI.farClip;
@@ -265,8 +269,13 @@ void R_ClearSkyBox( void )
 {
 	for( int i = 0; i < SKYBOX_MAX_SIDES; i++ )
 	{
+#if XASH_RAYTRACING
+		RI.skyMins[0][i] = RI.skyMins[1][i] = -1.0f;
+		RI.skyMaxs[0][i] = RI.skyMaxs[1][i] = +1.0f;
+#else
 		RI.skyMins[0][i] = RI.skyMins[1][i] = 9999999.0f;
 		RI.skyMaxs[0][i] = RI.skyMaxs[1][i] = -9999999.0f;
+#endif
 	}
 }
 
@@ -277,6 +286,8 @@ R_AddSkyBoxSurface
 */
 void R_AddSkyBoxSurface( msurface_t *fa )
 {
+#if !XASH_RAYTRACING
+
 	if( FBitSet( tr.world->flags, FWORLD_SKYSPHERE ) && fa->polys && !FBitSet( tr.world->flags, FWORLD_CUSTOM_SKYBOX ))
 	{
 		glpoly2_t *p = fa->polys;
@@ -300,6 +311,8 @@ void R_AddSkyBoxSurface( msurface_t *fa )
 			VectorSubtract( p->verts[i], RI.cullorigin, verts[i] );
 		ClipSkyPolygon( p->numverts, verts[0], 0 );
 	}
+
+#endif
 }
 
 /*
@@ -331,6 +344,10 @@ R_DrawSkybox
 */
 void R_DrawSkyBox( void )
 {
+#if XASH_RAYTRACING
+	rt_state.curIsSky = true;
+#endif
+
 	// don't fogging skybox (this fix old Half-Life bug)
 	if( !RI.fogSkybox ) R_AllowFog( false );
 
@@ -365,6 +382,10 @@ void R_DrawSkyBox( void )
 		pglFogf( GL_FOG_DENSITY, RI.fogDensity );
 
 	R_LoadIdentity();
+
+#if XASH_RAYTRACING
+	rt_state.curIsSky = false;
+#endif
 }
 
 //==============================================================================
@@ -422,6 +443,8 @@ R_CloudDrawPoly
 */
 static void R_CloudDrawPoly( const float *verts )
 {
+#if !XASH_RAYTRACING
+
 	GL_SetRenderMode( kRenderNormal );
 	GL_Bind( XASH_TEXTURE0, tr.solidskyTexture );
 
@@ -453,6 +476,8 @@ static void R_CloudDrawPoly( const float *verts )
 	pglDisable( GL_BLEND );
 }
 
+#endif // !XASH_RAYTRACING
+
 /*
 ==============
 R_CloudRenderSide
@@ -460,6 +485,8 @@ R_CloudRenderSide
 */
 static void R_CloudRenderSide( int axis )
 {
+#if !XASH_RAYTRACING
+
 	vec3_t verts[4];
 	R_CloudVertex( -1.0f, -1.0f, axis, verts[0] );
 	R_CloudVertex( -1.0f,  1.0f, axis, verts[1] );
@@ -503,6 +530,8 @@ static void R_CloudRenderSide( int axis )
 			R_CloudDrawPoly( final_verts[0] );
 		}
 	}
+
+#endif
 }
 
 /*
@@ -514,6 +543,8 @@ Quake-style clouds
 */
 void R_DrawClouds( void )
 {
+#if !XASH_RAYTRACING
+
 	if( RI.fogEnabled )
 		pglFogf( GL_FOG_DENSITY, RI.fogDensity * 0.25f );
 	pglDepthFunc( GL_GEQUAL );
@@ -531,6 +562,8 @@ void R_DrawClouds( void )
 
 	if( RI.fogEnabled )
 		pglFogf( GL_FOG_DENSITY, RI.fogDensity );
+
+#endif
 }
 
 /*
