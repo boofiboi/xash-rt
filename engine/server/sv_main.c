@@ -909,6 +909,9 @@ void SV_Init( void )
 	Cvar_RegisterVariable( &sv_waterfriction );
 	Cvar_RegisterVariable( &sv_wateraccelerate );
 	Cvar_RegisterVariable( &sv_rollangle );
+#if XASH_RAYTRACING
+	Cvar_Set( "sv_rollangle", "0.7" );
+#endif
 	Cvar_RegisterVariable( &sv_rollspeed );
 	Cvar_RegisterVariable( &sv_airaccelerate );
 	Cvar_RegisterVariable( &sv_maxvelocity );
