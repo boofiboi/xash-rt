@@ -355,6 +355,7 @@ GL_UpdateSwapInterval
 */
 void GL_UpdateSwapInterval( void )
 {
+#if !XASH_RAYTRACING
 	if( FBitSet( gl_vsync.flags, FCVAR_CHANGED ))
 	{
 		ClearBits( gl_vsync.flags, FCVAR_CHANGED );
@@ -362,6 +363,7 @@ void GL_UpdateSwapInterval( void )
 		if( SDL_GL_SetSwapInterval( gl_vsync.value ) < 0 )
 			Con_Reportf( S_ERROR  "SDL_GL_SetSwapInterval: %s\n", SDL_GetError( ));
 	}
+#endif
 }
 
 /*
@@ -373,11 +375,13 @@ always return false
 */
 static qboolean GL_DeleteContext( void )
 {
+#if !XASH_RAYTRACING
 	if( glw_state.context )
 	{
 		SDL_GL_DeleteContext( glw_state.context );
 		glw_state.context = NULL;
 	}
+#endif
 	return false;
 }
 
@@ -388,8 +392,10 @@ static void VID_GetWindowSizeInPixels( SDL_Window *window, SDL_Renderer *rendere
 #else
 	if( glw_state.software )
 		SDL_GetRendererOutputSize( renderer, w, h );
+#if !XASH_RAYTRACING
 	else
 		SDL_GL_GetDrawableSize( window, w, h );
+#endif
 #endif
 }
 
@@ -670,7 +676,13 @@ static rserr_t VID_CreateWindow( const int input_width, const int input_height, 
 #endif // !XASH_WIN32
 
 	if( !glw_state.software )
+	{
+#if XASH_RAYTRACING
+		SetBits( flags, SDL_WINDOW_VULKAN );
+#else
 		SetBits( flags, SDL_WINDOW_OPENGL );
+#endif
+	}
 
 	if( vid_maximized.value )
 		SetBits( flags, SDL_WINDOW_MAXIMIZED );
@@ -722,6 +734,7 @@ static rserr_t VID_CreateWindow( const int input_width, const int input_height, 
 	}
 	else
 	{
+#if !XASH_RAYTRACING
 		glw_state.context = SDL_GL_CreateContext( host.hWnd );
 
 		if( !glw_state.context )
@@ -737,6 +750,7 @@ static rserr_t VID_CreateWindow( const int input_width, const int input_height, 
 			err = rserr_invalid_context;
 			goto cleanup;
 		}
+#endif
 	}
 
 	// update window size if it was resized
@@ -794,18 +808,23 @@ GL_SetupAttributes
 */
 static void GL_SetupAttributes( void )
 {
+#if !XASH_RAYTRACING
 	SDL_GL_ResetAttributes();
+#endif
 
 	ref.dllFuncs.GL_SetupAttributes( glw_state.safe );
 }
 
 void GL_SwapBuffers( void )
 {
+#if !XASH_RAYTRACING
 	SDL_GL_SwapWindow( host.hWnd );
+#endif
 }
 
 int GL_SetAttribute( int attr, int val )
 {
+#if !XASH_RAYTRACING
 	switch( attr )
 	{
 #define MAP_REF_API_ATTRIBUTE_TO_SDL( name ) case REF_##name: return SDL_GL_SetAttribute( SDL_##name, val );
@@ -845,12 +864,14 @@ int GL_SetAttribute( int attr, int val )
 #endif
 #undef MAP_REF_API_ATTRIBUTE_TO_SDL
 	}
+#endif
 
 	return -1;
 }
 
 int GL_GetAttribute( int attr, int *val )
 {
+#if !XASH_RAYTRACING
 	switch( attr )
 	{
 #define MAP_REF_API_ATTRIBUTE_TO_SDL( name ) case REF_##name: return SDL_GL_GetAttribute( SDL_##name, val );
@@ -880,6 +901,7 @@ int GL_GetAttribute( int attr, int *val )
 #endif
 #undef MAP_REF_API_ATTRIBUTE_TO_SDL
 	}
+#endif
 
 	return 0;
 }
@@ -923,6 +945,7 @@ qboolean R_Init_Video( ref_graphic_apis_t type )
 		glw_state.software = true;
 		break;
 	case REF_GL:
+#if !XASH_RAYTRACING
 		if( !glw_state.safe && Sys_GetParmFromCmdLine( "-safegl", safe ) )
 			glw_state.safe = bound( SAFE_NO, Q_atoi( safe ), SAFE_DONTCARE );
 
@@ -934,6 +957,7 @@ qboolean R_Init_Video( ref_graphic_apis_t type )
 			Con_Reportf( S_ERROR  "Couldn't initialize OpenGL: %s\n", SDL_GetError());
 			return false;
 		}
+#endif
 		break;
 	case REF_RT:
 		break;
