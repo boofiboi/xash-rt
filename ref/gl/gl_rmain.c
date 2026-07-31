@@ -1717,7 +1717,7 @@ void R_EndFrame( void )
 		RgDrawFrameVolumetricParams volumetric_params = {
 			.sType                   = RG_STRUCTURE_TYPE_VOLUMETRIC,
 			.pNext                   = &skyParams,
-			.enable                  = RT_CVAR_TO_UINT32( rt_volume_type ) != 0,
+			.enable                  = RT_CVAR_TO_UINT32( rt_volume_type ) != 0 && RT_CVAR_TO_FLOAT( rt_classic ) < 0.5f,
 			.useSimpleDepthBased     = RT_CVAR_TO_UINT32( rt_volume_type ) == 1,
 			.volumetricFar           = RT_CVAR_TO_FLOAT( rt_volume_far ),
 			.ambientColor            = { RT_CVAR_TO_FLOAT( rt_volume_ambient ),
