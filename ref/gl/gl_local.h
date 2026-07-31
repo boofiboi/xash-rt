@@ -816,6 +816,8 @@ typedef cvar_t* cvar_ptr_t;
 typedef struct rt_cvars_t
 {
     cvar_ptr_t
+		rt_classic,
+
 		rt_vsync,
 		
 		rt_renderscale,
