@@ -827,7 +827,7 @@ typedef struct rt_cvars_t
 		
 		rt_renderscale,
 		rt_upscale_dlss,
-		rt_upscale_fsr2,
+		rt_upscale_fsr3,
 		rt_sharpen,
 
         rt_antifirefly,

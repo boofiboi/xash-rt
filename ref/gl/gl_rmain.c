@@ -1520,11 +1520,11 @@ static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar()
 static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 {
     RgBool32 dlss_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS );
-    RgBool32 fsr2_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2 );
+    RgBool32 fsr2_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
 	gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_available->name, dlss_ok ? "1" : "0" );
 
     int nvDlss = dlss_ok ? RT_CVAR_TO_INT32( rt_upscale_dlss ) : 0;
-    int amdFsr = fsr2_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr2 ) : 0;
+    int amdFsr = fsr2_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr3 ) : 0;
 
     switch( nvDlss )
     {
@@ -1558,25 +1558,29 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
     switch( amdFsr )
     {
         case 1:
-            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
-            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_QUALITY;
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_CUSTOM;
             break;
         case 2:
-            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
-            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_BALANCED;
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_QUALITY;
             break;
         case 3:
-            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
-            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_BALANCED;
             break;
         case 4:
-            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
-            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE;
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
             break;
 
         case 5:
-            // use FSR2 with rt_renderscale
-            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE;
+            break;
+
+        case 6:
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
             pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_CUSTOM;
             break;
 
@@ -1633,6 +1637,11 @@ void R_EndFrame( void )
 		};
 		ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
 		UpscaleCvarsToRtgl( &resolution_params );
+
+		if( RT_CVAR_TO_INT32( rt_upscale_fsr3 ) == 1 )
+		{
+			resolution_params.customRenderSize = winsize;
+		}
 
 		{
 			static float prevvalue = 0;

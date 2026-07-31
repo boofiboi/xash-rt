@@ -1247,7 +1247,7 @@ static void GL_InitCommands( void )
 	
 	CVAR_DEF_T( rt_renderscale,				"0",	"[20, 100] resolution scale")
 	CVAR_DEF_T( rt_upscale_dlss,			"0",	"0 - off, 1 - quality, 2 - balanced, 3 - perf, 4 - ultra perf, 5 - DLSS with rt_renderscale" )
-	CVAR_DEF_T( rt_upscale_fsr2,			"2",	"0 - off, 1 - quality, 2 - balanced, 3 - perf, 4 - ultra perf, 5 - FSR2 with rt_renderscale" )
+    CVAR_DEF_T( rt_upscale_fsr3,			"2",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
 	CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
 
 	CVAR_DEF_T( rt_antifirefly,				"1",	"" )
