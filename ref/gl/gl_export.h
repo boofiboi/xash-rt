@@ -983,7 +983,11 @@ APIENTRY_LINKAGE void GL_FUNCTION( glCopyTexSubImage1D )(GLenum target, GLint le
 APIENTRY_LINKAGE void GL_FUNCTION( glCopyTexSubImage2D )(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 APIENTRY_LINKAGE void GL_FUNCTION( glCullFace )(GLenum mode);
 APIENTRY_LINKAGE void GL_FUNCTION( glDeleteLists )(GLuint list, GLsizei range);
+#if !XASH_RAYTRACING
 APIENTRY_LINKAGE void GL_FUNCTION( glDeleteTextures )(GLsizei n, const GLuint *textures);
+#else
+APIENTRY_LINKAGE void GL_FUNCTION( glDeleteTextures )(const char* texturename);
+#endif
 APIENTRY_LINKAGE void GL_FUNCTION( glDepthFunc )(GLenum func);
 APIENTRY_LINKAGE void GL_FUNCTION( glDepthMask )(GLboolean flag);
 APIENTRY_LINKAGE void GL_FUNCTION( glDepthRange )(GLclampd zNear, GLclampd zFar);
