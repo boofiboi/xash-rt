@@ -2589,13 +2589,13 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.uniqueObjectID = RI.currententity->index,
 			.pMeshName      = RI.currentmodel->name,
 			.transform      = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
-			.isExportable   = false,
+			.isExportable   = ( RI.currentmodel == WORLDMODEL ),
 			.animationName  = NULL,
 			.animationTime  = 0.0f,
 		};
 
 		RgMeshPrimitiveInfo prim = {
-			.pPrimitiveNameInMesh = NULL,
+			.pPrimitiveNameInMesh = rt_state.curTexture2DName, // NULL,
 			.primitiveIndexInMesh = rt_state.curBrushSurface,
 			.flags                = ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
 									( rt_state.curBrushSurfaceIsWater ? RG_MESH_PRIMITIVE_WATER : 0 ),
