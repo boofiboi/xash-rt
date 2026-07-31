@@ -2405,6 +2405,19 @@ static uint32_t hashStudioPrimitive( int bodypart, int submodel, int mesh, int w
 		   ( uint32_t )bodypart;
 }
 
+static uint32_t HashCombine( uint32_t seed, uint32_t v )
+{
+	seed ^= v + 0x9e3779b9 + ( seed << 6 ) + ( seed >> 2 );
+	return seed;
+}
+
+static uint32_t MakeTempEntityIndex( const cl_entity_t* ent )
+{
+	uint64_t iptr = ( uint64_t )RI.currententity / sizeof( cl_entity_t );
+
+	return ( 1u << 30u ) | ( HashCombine( iptr >> 32ull, iptr & UINT32_MAX ) );
+}
+
 typedef enum
 {
 	RT_BATCH_TYPE_NONE,
@@ -2722,7 +2735,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 		// so motion vectors will be invalid
 		if( mesh.uniqueObjectID == 0 )
 		{
-			mesh.uniqueObjectID = rt_state.curTempEntityIndex;
+			mesh.uniqueObjectID = MakeTempEntityIndex( RI.currententity );
 		}
 		assert( mesh.uniqueObjectID != 0 );
 

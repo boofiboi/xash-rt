@@ -801,10 +801,6 @@ void R_DrawFog( void )
 	pglHint( GL_FOG_HINT, GL_NICEST );
 }
 
-#if XASH_RAYTRACING
-#define RT_ORDINARY_CLENTITIES_COUNT MAX_EDICTS
-#endif
-
 /*
 =============
 R_DrawEntitiesOnList
@@ -827,13 +823,6 @@ static void R_DrawEntitiesOnList( void )
 		Assert( RI.currententity != NULL );
 		Assert( RI.currentmodel != NULL );
 
-#if XASH_RAYTRACING
-		assert( RI.currententity->index >= 0 );
-		assert( RI.currententity->index < RT_ORDINARY_CLENTITIES_COUNT );
-		assert( i < RT_ORDINARY_CLENTITIES_COUNT );
-		rt_state.curTempEntityIndex = 1 * RT_ORDINARY_CLENTITIES_COUNT + i;
-#endif
-
 		switch( RI.currentmodel->type )
 		{
 		case mod_brush:
@@ -848,10 +837,6 @@ static void R_DrawEntitiesOnList( void )
 		default:
 			break;
 		}
-
-#if XASH_RAYTRACING
-		rt_state.curTempEntityIndex = 0;
-#endif
 	}
 
 	GL_CheckForErrors();
@@ -873,23 +858,12 @@ static void R_DrawEntitiesOnList( void )
 		Assert( RI.currententity != NULL );
 		Assert( RI.currentmodel != NULL );
 
-#if XASH_RAYTRACING
-		assert( RI.currententity->index >= 0 );
-		assert( RI.currententity->index < RT_ORDINARY_CLENTITIES_COUNT );
-		assert( i < RT_ORDINARY_CLENTITIES_COUNT );
-		rt_state.curTempEntityIndex = 2 * RT_ORDINARY_CLENTITIES_COUNT + i;
-#endif
-
 		switch( RI.currentmodel->type )
 		{
 		case mod_sprite:
 			R_DrawSpriteModel( RI.currententity );
 			break;
 		}
-
-#if XASH_RAYTRACING
-		rt_state.curTempEntityIndex = 0;
-#endif
 	}
 
 	GL_CheckForErrors();
@@ -925,13 +899,6 @@ static void R_DrawEntitiesOnList( void )
 		Assert( RI.currententity != NULL );
 		Assert( RI.currentmodel != NULL );
 
-#if XASH_RAYTRACING
-		assert( RI.currententity->index >= 0 );
-		assert( RI.currententity->index < RT_ORDINARY_CLENTITIES_COUNT );
-		assert( i < RT_ORDINARY_CLENTITIES_COUNT );
-		rt_state.curTempEntityIndex = 3 * RT_ORDINARY_CLENTITIES_COUNT + i;
-#endif
-
 		switch( RI.currentmodel->type )
 		{
 		case mod_brush:
@@ -949,10 +916,6 @@ static void R_DrawEntitiesOnList( void )
 		default:
 			break;
 		}
-
-#if XASH_RAYTRACING
-		rt_state.curTempEntityIndex = 0;
-#endif
 	}
 
 	GL_CheckForErrors();
