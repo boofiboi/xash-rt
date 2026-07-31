@@ -2686,6 +2686,10 @@ static void FlushBatch( void )
 }
 
 
+static qboolean rt_raster_additive = false;
+static qboolean rt_raster_blend    = false;
+static qboolean rt_alphatest       = false;
+
 static void TryBeginBatch_Finalize( rt_batchtype_t             newtype,
 									const RgMeshInfo*          newmesh,
 									const RgMeshPrimitiveInfo* newprimitive )
@@ -2960,10 +2964,6 @@ void pglTexImage2D( GLenum        target,
 		}
 	}
 }
-
-static qboolean rt_raster_additive = false;
-static qboolean rt_raster_blend    = false;
-static qboolean rt_alphatest       = false;
 
 void pglEnable( GLenum cap )
 {

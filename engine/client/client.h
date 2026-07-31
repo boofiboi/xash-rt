@@ -928,6 +928,9 @@ static inline cl_entity_t *CL_GetLocalPlayer( void )
 	return player;
 }
 
+cl_entity_t *CL_GetViewModel( void );
+
+
 //
 // cl_parse.c
 //
