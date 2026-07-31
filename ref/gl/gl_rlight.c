@@ -22,19 +22,21 @@ GNU General Public License for more details.
 
 typedef struct rt_sun_light_t
 {
-    vec3_t color;
-    float  pitch;
-    float  angle;
+    RgColor4DPacked32 pcolor;
+    float             intensity;
+    float             pitch;
+    float             angle;
 } rt_sun_light_t;
 
 typedef struct rt_static_light_t
 {
-    vec3_t   abs_position;
-    vec3_t   dir;
-    vec3_t   color; // 0-255
-    uint32_t index;
-    int      light_style;
-    qboolean is_spot;
+    vec3_t            abs_position;
+    vec3_t            dir;
+    RgColor4DPacked32 pcolor;
+    float             intensity;
+    uint32_t          index;
+    int               light_style;
+    qboolean          is_spot;
 } rt_static_light_t;
 
 #define RT_MAX_STATIC_LIGHTS        256
@@ -54,11 +56,12 @@ struct
 } g_lights;
 
 
-static void AddStaticLight( const vec3_t abs_position,
-                            const vec3_t dir,
-                            const vec3_t color,
-                            int          light_style,
-                            qboolean     is_spot )
+static void AddStaticLight( const vec3_t      abs_position,
+                            const vec3_t      dir,
+                            RgColor4DPacked32 pcolor,
+                            float             intensity,
+                            int               light_style,
+                            qboolean          is_spot )
 {
     uint32_t index = g_lights.static_lights_count;
     assert( index < RT_MAX_STATIC_LIGHTS );
@@ -67,7 +70,8 @@ static void AddStaticLight( const vec3_t abs_position,
     {
         VectorCopy( abs_position, dst->abs_position );
         VectorCopy( dir, dst->dir );
-        VectorCopy( color, dst->color );
+        dst->pcolor      = pcolor;
+        dst->intensity   = intensity;
         dst->index       = index;
         dst->light_style = light_style;
         dst->is_spot     = is_spot;
@@ -77,16 +81,17 @@ static void AddStaticLight( const vec3_t abs_position,
 }
 
 
-static void AddPotentialSun( float pitch, float angle, const vec3_t color )
+static void AddPotentialSun( float pitch, float angle, RgColor4DPacked32 pcolor, float intensity )
 {
     uint32_t index = g_lights.potential_sun_count;
     assert( index < RT_MAX_POTENTIAL_SUN_LIGHTS );
 
     rt_sun_light_t* dst = &g_lights.potential_sun[ index ];
     {
-        VectorCopy( color, dst->color );
-        dst->pitch = pitch;
-        dst->angle = angle;
+        dst->pcolor    = pcolor;
+        dst->intensity = intensity;
+        dst->pitch     = pitch;
+        dst->angle     = angle;
     }
 
     g_lights.potential_sun_count++;
@@ -125,12 +130,13 @@ void RT_ParseStaticLightEntities()
 
     struct
     {
-        vec3_t origin;
-        vec3_t allangles;
-        vec3_t color;
-        float  pitch;
-        float  angle;
-        int    style;
+        vec3_t            origin;
+        vec3_t            allangles;
+        RgColor4DPacked32 pcolor;
+        float             intensity;
+        float             pitch;
+        float             angle;
+        int               style;
     } light = { 0 };
 
     enum
@@ -198,7 +204,8 @@ void RT_ParseStaticLightEntities()
                 {
                     AddStaticLight( light.origin,
                                     direction,
-                                    light.color,
+                                    light.pcolor,
+                                    light.intensity,
                                     has_light_style ? light.style : 0,
                                     classname == LT_CLASS_SPOT );
                 }
@@ -222,7 +229,7 @@ void RT_ParseStaticLightEntities()
 
                 if( has_info )
                 {
-                    AddPotentialSun( pitch, angle, light.color );
+                    AddPotentialSun( pitch, angle, light.pcolor, light.intensity );
                 }
             }
 
@@ -267,27 +274,29 @@ void RT_ParseStaticLightEntities()
             {
                 float val = tmp_color[ 0 ];
 
-                light.color[ 0 ] = val;
-                light.color[ 1 ] = val;
-                light.color[ 2 ] = val;
+                light.pcolor =
+                    rgUtilPackColorFloat4D( val / 255.0f, val / 255.0f, val / 255.0f, 1.0f );
+                light.intensity = 1.0f;
 
                 has |= LT_HAS_COLOR;
             }
             else if( components == 3 )
             {
-                light.color[ 0 ] = tmp_color[ 0 ];
-                light.color[ 1 ] = tmp_color[ 1 ];
-                light.color[ 2 ] = tmp_color[ 2 ];
+                light.pcolor    = rgUtilPackColorFloat4D( tmp_color[ 0 ] / 255.0f,
+                                                       tmp_color[ 1 ] / 255.0f,
+                                                       tmp_color[ 2 ] / 255.0f,
+                                                       1.0f );
+                light.intensity = 1.0f;
 
                 has |= LT_HAS_COLOR;
             }
             else if( components == 4 )
             {
-                scale /= 255.0f;
-
-                light.color[ 0 ] = tmp_color[ 0 ] * scale;
-                light.color[ 1 ] = tmp_color[ 1 ] * scale;
-                light.color[ 2 ] = tmp_color[ 2 ] * scale;
+                light.pcolor    = rgUtilPackColorFloat4D( tmp_color[ 0 ] / 255.0f,
+                                                       tmp_color[ 1 ] / 255.0f,
+                                                       tmp_color[ 2 ] / 255.0f,
+                                                       1.0f );
+                light.intensity = scale / 255.0f;
 
                 has |= LT_HAS_COLOR;
             }
@@ -374,7 +383,7 @@ static qboolean SkyExists()
 #define RT_ARRAYSIZE( arr ) ( sizeof( arr ) / sizeof( arr[ 0 ] ) )
 
 
-static float ApplyLightStyle( int light_style )
+static float GetLightStyleIntensity( int light_style )
 {
     assert( light_style >= 0 && light_style < ( int )RT_ARRAYSIZE( g_lightstylevalue ) );
     // from CL_LightVecInternal and R_RecursiveLightPoint, assuming lm = (1, 1, 1)
@@ -408,29 +417,25 @@ static void CalculateFlaslightPosition( vec3_t out_position )
 }
 
 
-// because of units are not in meters
-#define RT_QUAKE_LIGHT_AREA_INTENSITY_FIX \
-    ( 1.0f / ( QUAKEUNIT_IN_METERS * QUAKEUNIT_IN_METERS ) )
-#define RT_FIXUP_LIGHT_INTENSITY( color, witharea )                                 \
-    do                                                                              \
-    {                                                                               \
-        const float rt_globallightmult = 1.0f;                                      \
-        float       area = ( witharea ) ? RT_QUAKE_LIGHT_AREA_INTENSITY_FIX : 1.0f; \
-        VectorScale( ( color ), ( rt_globallightmult )*area, ( color ) );           \
-    } while( 0 )
+static float FixupAreaLightIntensity()
+{
+    const float rt_globallightmult      = 1.0f;
+    const float rt_quake_light_area_fix = 1.0f / ( QUAKEUNIT_IN_METERS * QUAKEUNIT_IN_METERS );
+
+    return rt_globallightmult * rt_quake_light_area_fix;
+}
+
+    #define VectorPow( in, pw, out )                  \
+        ( ( out )[ 0 ] = powf( ( in )[ 0 ], ( pw ) ), \
+          ( out )[ 1 ] = powf( ( in )[ 1 ], ( pw ) ), \
+          ( out )[ 2 ] = powf( ( in )[ 2 ], ( pw ) ) )
 
 
-#define VectorPow( in, pw, out )                  \
-    ( ( out )[ 0 ] = powf( ( in )[ 0 ], ( pw ) ), \
-      ( out )[ 1 ] = powf( ( in )[ 1 ], ( pw ) ), \
-      ( out )[ 2 ] = powf( ( in )[ 2 ], ( pw ) ) )
-
-
-#define RT_IDBASE_SUN           0
-#define RT_IDBASE_FLASHLIGHT    256
-#define RT_IDBASE_DLIGHT        512
-#define RT_IDBASE_ELIGHT        768
-#define RT_IDBASE_STATICLIGHT   1024
+    #define RT_IDBASE_SUN         0
+    #define RT_IDBASE_FLASHLIGHT  256
+    #define RT_IDBASE_DLIGHT      512
+    #define RT_IDBASE_ELIGHT      768
+    #define RT_IDBASE_STATICLIGHT 1024
 
 
 void RT_UploadAllLights( void )
@@ -448,8 +453,8 @@ void RT_UploadAllLights( void )
         RgDirectionalLightUploadInfo info = {
             .uniqueID               = RT_IDBASE_SUN,
             .isExportable           = true,
-            .color                  = rgUtilPackColorByte4D( sun->color[ 0 ], sun->color[ 1 ], sun->color[ 2 ], 255 ),
-            .intensity              = RT_CVAR_TO_FLOAT( rt_sun ),
+            .color                  = sun->pcolor,
+            .intensity              = sun->intensity * RT_CVAR_TO_FLOAT( rt_sun ),
             .direction              = RT_VEC3( direction ),
             .angularDiameterDegrees = RT_CVAR_TO_FLOAT( rt_sun_diameter ),
         };
@@ -462,20 +467,19 @@ void RT_UploadAllLights( void )
     {
         const rt_static_light_t* src = &g_lights.static_lights[ i ];
 
-        float intensity = 300.0f * RT_QUAKE_LIGHT_AREA_INTENSITY_FIX * ApplyLightStyle( src->light_style );
-
         if( src->is_spot )
         {
             RgSpotLightUploadInfo info = {
                 .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
                 .isExportable = true,
-                .color        = rgUtilPackColorByte4D( src->color[ 0 ], src->color[ 1 ], src->color[ 2 ], 255 ),
-                .intensity    = intensity,
-                .position     = RT_VEC3( src->abs_position ),
-                .direction    = RT_VEC3( src->dir ),
-                .radius       = METRIC_TO_QUAKEUNIT( 0.1f ),
-                .angleOuter   = ( float )M_PI / 2,
-                .angleInner   = 0,
+                .color        = src->pcolor,
+                .intensity    = 300 * src->intensity * GetLightStyleIntensity( src->light_style ) *
+                             FixupAreaLightIntensity(),
+                .position   = RT_VEC3( src->abs_position ),
+                .direction  = RT_VEC3( src->dir ),
+                .radius     = METRIC_TO_QUAKEUNIT( 0.1f ),
+                .angleOuter = ( float )M_PI / 2,
+                .angleInner = 0,
             };
 
             RgResult r = rgUploadSpotLight( rg_instance, &info );
@@ -486,10 +490,11 @@ void RT_UploadAllLights( void )
             RgSphericalLightUploadInfo info = {
                 .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
                 .isExportable = true,
-                .color        = rgUtilPackColorByte4D( src->color[ 0 ], src->color[ 1 ], src->color[ 2 ], 255 ),
-                .intensity    = intensity,
-                .position     = RT_VEC3( src->abs_position ),
-                .radius       = METRIC_TO_QUAKEUNIT( 0.1f ),
+                .color        = src->pcolor,
+                .intensity =
+                    300 * GetLightStyleIntensity( src->light_style ) * FixupAreaLightIntensity(),
+                .position = RT_VEC3( src->abs_position ),
+                .radius   = METRIC_TO_QUAKEUNIT( 0.1f ),
             };
 
             RgResult r = rgUploadSphericalLight( rg_instance, &info );
@@ -519,15 +524,11 @@ void RT_UploadAllLights( void )
                 vec3_t pos;
                 CalculateFlaslightPosition( pos );
 
-                vec3_t color = { 1.0f, 0.92f, 0.82f };
-                VectorScale( color, RT_CVAR_TO_FLOAT( rt_flsh ), color );
-                RT_FIXUP_LIGHT_INTENSITY( color, true );
-
                 RgSpotLightUploadInfo info = {
                     .uniqueID     = RT_IDBASE_FLASHLIGHT + i,
                     .isExportable = false,
-                    .color        = rgUtilPackColorByte4D( 255, 235, 209, 255 ),
-                    .intensity    = color[ 0 ],
+                    .color        = rgUtilPackColorByte4D( 220, 243, 255, 255 ),
+                    .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ) * FixupAreaLightIntensity(),
                     .position     = RT_VEC3( pos ),
                     .direction    = RT_VEC3( RI.vforward ),
                     .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_radius ) ),
@@ -549,21 +550,13 @@ void RT_UploadAllLights( void )
                 //       GOLDSRCUNIT_TO_METRIC( l->radius ),
                 //       CVAR_TO_FLOAT( rt_cvars.rt_fLightDlightFalloffToIntensity ) );
 
-                vec3_t color = { ( float )l->color.r / 255.0f,
-                                 ( float )l->color.g / 255.0f,
-                                 ( float )l->color.b / 255.0f };
-                VectorScale( color, falloff_mult, color );
-
-                VectorScale( color, 300, color );
-                RT_FIXUP_LIGHT_INTENSITY( color, true );
-
                 RgSphericalLightUploadInfo info = {
                     .uniqueID     = is_e_light ? RT_IDBASE_ELIGHT + i : RT_IDBASE_DLIGHT + i,
                     .isExportable = false,
-                    .color        = rgUtilPackColorByte4D( l->color.r, l->color.g, l->color.b, 255 ),
-                    .intensity    = falloff_mult * 300.0f * RT_QUAKE_LIGHT_AREA_INTENSITY_FIX,
-                    .position     = RT_VEC3( l->origin ),
-                    .radius       = METRIC_TO_QUAKEUNIT( 0.1f ),
+                    .color     = rgUtilPackColorByte4D( l->color.r, l->color.g, l->color.b, 255 ),
+                    .intensity = 300 * falloff_mult * FixupAreaLightIntensity(),
+                    .position  = RT_VEC3( l->origin ),
+                    .radius    = METRIC_TO_QUAKEUNIT( 0.1f ),
                 };
 
                 RgResult r = rgUploadSphericalLight( rg_instance, &info );
