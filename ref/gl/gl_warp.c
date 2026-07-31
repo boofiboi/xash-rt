@@ -437,6 +437,8 @@ static void R_CloudTexCoord( const vec3_t v, float speed, float *s, float *t )
 	*t = ( speedscale + dir[1] * length ) * (1.0f / 128.0f);
 }
 
+#if !XASH_RAYTRACING
+
 /*
 ===============
 R_CloudDrawPoly
@@ -444,8 +446,6 @@ R_CloudDrawPoly
 */
 static void R_CloudDrawPoly( const float *verts )
 {
-#if !XASH_RAYTRACING
-
 	GL_SetRenderMode( kRenderNormal );
 	GL_Bind( XASH_TEXTURE0, tr.solidskyTexture );
 
@@ -463,6 +463,10 @@ static void R_CloudDrawPoly( const float *verts )
 	GL_SetRenderMode( kRenderTransTexture );
 	GL_Bind( XASH_TEXTURE0, tr.alphaskyTexture );
 
+#if XASH_RAYTRACING
+    rt_state.curTexturePreferLinear = true;
+#endif
+
 	pglBegin( GL_QUADS );
 	v = verts;
 	for( int i = 0; i < 4; i++, v += VERTEXSIZE )
@@ -473,11 +477,13 @@ static void R_CloudDrawPoly( const float *verts )
 		pglVertex3fv( v );
 	}
 	pglEnd();
+#if XASH_RAYTRACING
+    rt_state.curTexturePreferLinear = false;
+#endif
+
 
 	pglDisable( GL_BLEND );
 }
-
-#endif // !XASH_RAYTRACING
 
 /*
 ==============
@@ -486,8 +492,6 @@ R_CloudRenderSide
 */
 static void R_CloudRenderSide( int axis )
 {
-#if !XASH_RAYTRACING
-
 	vec3_t verts[4];
 	R_CloudVertex( -1.0f, -1.0f, axis, verts[0] );
 	R_CloudVertex( -1.0f,  1.0f, axis, verts[1] );
@@ -531,9 +535,9 @@ static void R_CloudRenderSide( int axis )
 			R_CloudDrawPoly( final_verts[0] );
 		}
 	}
-
-#endif
 }
+
+#endif // !XASH_RAYTRACING
 
 /*
 ==============
@@ -545,7 +549,6 @@ Quake-style clouds
 void R_DrawClouds( void )
 {
 #if !XASH_RAYTRACING
-
 	if( RI.fogEnabled )
 		pglFogf( GL_FOG_DENSITY, RI.fogDensity * 0.25f );
 	pglDepthFunc( GL_GEQUAL );
@@ -562,8 +565,7 @@ void R_DrawClouds( void )
 	pglDepthMask( GL_TRUE );
 
 	if( RI.fogEnabled )
-		pglFogf( GL_FOG_DENSITY, RI.fogDensity );
-
+        pglFogf( GL_FOG_DENSITY, RI.fogDensity );
 #endif
 }
 

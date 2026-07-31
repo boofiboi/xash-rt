@@ -2150,7 +2150,7 @@ pfnGetViewModel
 
 =============
 */
-static cl_entity_t *GAME_EXPORT CL_GetViewModel( void )
+cl_entity_t *GAME_EXPORT CL_GetViewModel( void )
 {
 	return &clgame.viewent;
 }

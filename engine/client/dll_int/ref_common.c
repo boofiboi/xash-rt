@@ -352,6 +352,8 @@ static const ref_api_t gEngfuncs =
 	Con_DrawString,
 	CL_DrawCenterPrint,
 
+	CL_GetLocalPlayer,
+	CL_GetViewModel,
 	R_BeamGetEntity,
 	CL_GetWaterEntity,
 	CL_AddVisibleEntity,

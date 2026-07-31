@@ -399,6 +399,8 @@ typedef struct ref_api_s
 	void	(*CL_DrawCenterPrint)( void );
 
 	// entity management
+	struct cl_entity_s *(*GetLocalPlayer)( void );
+	struct cl_entity_s *(*GetViewModel)( void );
 	struct cl_entity_s *(*R_BeamGetEntity)( int index );
 	struct cl_entity_s *(*CL_GetWaterEntity)( const vec3_t p );
 	qboolean (*CL_AddVisibleEntity)( cl_entity_t *ent, int entityType );
