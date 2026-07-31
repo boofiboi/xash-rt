@@ -1398,7 +1398,8 @@ void R_EndFrame( void )
 			.indirectDiffuseSensitivityToChange = 0.2f,
 			.specularSensitivityToChange        = 0.5f,
 			.polygonalLightSpotlightFactor      = 2.0f,
-			.lightUniqueIdIgnoreFirstPersonViewerShadows = NULL,
+			.lightUniqueIdIgnoreFirstPersonViewerShadows =
+				rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL
 		};
 
 		RgDrawFrameBloomParams bloom_params = {
@@ -1411,17 +1412,6 @@ void R_EndFrame( void )
 
 		RgMediaType cameramedia =
 			ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2 ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM;
-
-		RgDirectionalLightUploadInfo sun = {
-			.uniqueID               = 0,
-			.isExportable           = false,
-			.extra                  = { 0 },
-			.color                  = rgUtilPackColorByte4D( 20, 20, 20, 255 ),
-			.intensity              = 1.0f,
-			.direction              = { -1, -1, -1 },
-			.angularDiameterDegrees = 0.5f,
-		};		RgResult r2 = rgUploadDirectionalLight( rg_instance, &sun );
-		RG_CHECK( r2 );
 
 		RgDrawFrameReflectRefractParams refl_refr_params = {
 			.sType                   = RG_STRUCTURE_TYPE_REFLECTREFRACT,
@@ -1459,18 +1449,12 @@ void R_EndFrame( void )
 			.skyCubemapRotationTransform = RG_TRANSFORM_IDENTITY,
 		};
 
-		vec3_t volume_light_dir;
-		vec3_t volume_light_color;
-		vec3_t volume_light_ambient;
-		// if( sun )
-		{
-			VectorSet( volume_light_dir, -1, -1, -1 );
-			VectorSet( volume_light_color, 20.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f );
-			VectorSet( volume_light_ambient,
-					   RT_CVAR_TO_FLOAT( rt_volume_ambient ),
-					   RT_CVAR_TO_FLOAT( rt_volume_ambient ),
-					   RT_CVAR_TO_FLOAT( rt_volume_ambient ) );
-		}
+		// TODO: remove
+		vec3_t volume_light_dir    = { -1, -1, -1 };
+		vec3_t volume_light_color  = { 1, 1, 1 };
+		vec3_t volume_light_ambient = { RT_CVAR_TO_FLOAT( rt_volume_ambient ),
+										RT_CVAR_TO_FLOAT( rt_volume_ambient ),
+										RT_CVAR_TO_FLOAT( rt_volume_ambient ) };
 
 		RgDrawFrameVolumetricParams volumetric_params = {
 			.sType                   = RG_STRUCTURE_TYPE_VOLUMETRIC,
