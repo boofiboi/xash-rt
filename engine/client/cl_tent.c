@@ -2673,7 +2673,7 @@ static void CL_UpdateFlashlight( cl_entity_t *ent )
 	if( islocalplayer )
 	{
 		// mark for RT renderer mark that this dlight is a flashlight
-		convar_t* c = Cvar_FindVar( "_rt_iFlashlightKey" );
+        convar_t* c = Cvar_FindVar( "_rt_flsh_key" );
 		if( c != NULL )
 		{
 			c->value = ( float )dl->key;
