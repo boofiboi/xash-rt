@@ -1256,6 +1256,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_refr_water,				"1.33",	"") 
 
 	CVAR_DEF_T( rt_mzlflash,				"1",	"muzzle flash light source" )
+	CVAR_DEF_T( rt_studio_norms,			"1",	"regenerate smooth normals for studio models" )
 	CVAR_DEF_T( rt_texture_nearest,			"1",	"nearest texture filter for the world" )
 	CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 
@@ -1917,8 +1918,14 @@ EMPTY_LINKAGE void APIENTRY pglNormal3b(GLbyte nx, GLbyte ny, GLbyte nz){}
 EMPTY_LINKAGE void APIENTRY pglNormal3bv(const GLbyte *v){}
 EMPTY_LINKAGE void APIENTRY pglNormal3d(GLdouble nx, GLdouble ny, GLdouble nz){}
 EMPTY_LINKAGE void APIENTRY pglNormal3dv(const GLdouble *v){}
-EMPTY_LINKAGE void APIENTRY pglNormal3f(GLfloat nx, GLfloat ny, GLfloat nz){}
-EMPTY_LINKAGE void APIENTRY pglNormal3fv(const GLfloat *v){}
+void pglNormal3f( GLfloat nx, GLfloat ny, GLfloat nz )
+{
+    rgUtilImScratchNormal( rg_instance, nx, ny, nz );
+}
+void pglNormal3fv( const GLfloat* v )
+{
+    rgUtilImScratchNormal( rg_instance, v[ 0 ], v[ 1 ], v[ 2 ] );
+}
 EMPTY_LINKAGE void APIENTRY pglNormal3i(GLint nx, GLint ny, GLint nz){}
 EMPTY_LINKAGE void APIENTRY pglNormal3iv(const GLint *v){}
 EMPTY_LINKAGE void APIENTRY pglNormal3s(GLshort nx, GLshort ny, GLshort nz){}
@@ -2674,6 +2681,11 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.emissive     = 0.0f,
 			.pEditorInfo  = NULL,
 		};
+
+		if( RT_CVAR_TO_BOOL( rt_studio_norms ) )
+        {
+            prim.flags |= RG_MESH_PRIMITIVE_DONT_GENERATE_NORMALS;
+        }
 
 		TryBeginBatch_Finalize( curtype, &mesh, &prim );
 	}
