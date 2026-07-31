@@ -1120,6 +1120,15 @@ void GL_InitExtensions( void )
 #endif
 
 	R_RenderInfo( true );
+#else
+	glConfig.vendor_string     = "";
+	glConfig.renderer_string   = "";
+	glConfig.version_string    = "";
+	glConfig.extensions_string = "";
+
+	glConfig.max_2d_texture_size    = 4096;
+	glConfig.max_2d_rectangle_size  = 4096;
+	glConfig.max_texture_anisotropy = 8;
 #endif
 
 	tr.framecount = tr.visframecount = 1;
@@ -2181,7 +2190,7 @@ static const char* rg_currentTexture2DName = NULL;
 
 void pglBindTexture( GLenum target, GLuint texture, const char* textureName )
 {
-	if( target == GL_TEXTURE_2D )
+	if( target == GL_TEXTURE_2D || target == GL_TEXTURE_RECTANGLE_EXT )
 	{
 		if( textureName && textureName[ 0 ] != '\0' )
 		{
@@ -2200,7 +2209,7 @@ void pglTexImage2D( GLenum        target,
 					GLenum        type,
 					const GLvoid* pixels )
 {
-	if( target == GL_TEXTURE_2D )
+	if( target == GL_TEXTURE_2D || target == GL_TEXTURE_RECTANGLE_EXT )
 	{
 		if( rg_currentTexture2DName )
 		{
