@@ -865,6 +865,10 @@ typedef struct rt_cvars_t
 		rt_ef_vintage,
 		rt_ef_water,
 		
+	    _rt_labcoat,
+	    rt_labcoat_force,
+	    rt_labcoat_model,
+		
 		_rt_dlss_available;
 } rt_cvars_t;
 extern rt_cvars_t rt_cvars;
