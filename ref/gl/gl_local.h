@@ -897,6 +897,7 @@ typedef struct rt_cvars_t
 	rt_me_water_g,
 	rt_me_water_b,
 	
+	rt_bloom,
 	rt_bloom_intensity,
 	rt_bloom_threshold,
 	rt_bloom_emis_mult,
