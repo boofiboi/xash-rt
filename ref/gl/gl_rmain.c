@@ -1190,6 +1190,8 @@ void R_EndFrame( void )
 	{
 		RT_OnBeforeDrawFrame();
 
+		qboolean is_camera_under_water = ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2;
+
 		RgDirectionalLightUploadInfo sun = {
 			.uniqueID               = 0,
 			.isExportable           = false,
@@ -1205,7 +1207,7 @@ void R_EndFrame( void )
 			.sType                   = RG_STRUCTURE_TYPE_REFLECTREFRACT,
 			.pNext                   = NULL,
 			.maxReflectRefractDepth  = 1,
-			.typeOfMediaAroundCamera = RG_MEDIA_TYPE_VACUUM,
+			.typeOfMediaAroundCamera = is_camera_under_water ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM,
 			.indexOfRefractionGlass  = 1.52f,
 			.indexOfRefractionWater  = 1.33f,
 			.waterWaveSpeed          = METRIC_TO_QUAKEUNIT( 0.4f ),
