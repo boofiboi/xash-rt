@@ -896,6 +896,8 @@ typedef struct rt_cvars_t
 	    rt_labcoat_force,
 	    rt_labcoat_model,
 		
+		rt_forcecvars,
+		
 		_rt_dlss_available;
 } rt_cvars_t;
 extern rt_cvars_t rt_cvars;

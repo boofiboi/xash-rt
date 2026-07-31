@@ -1097,6 +1097,48 @@ void R_BeginFrame( qboolean clearScene )
 	pglDrawBuffer( GL_BACK );
 
 #if XASH_RAYTRACING
+
+    if( RT_CVAR_TO_BOOL( rt_forcecvars ) )
+    {
+		// CVAR_TO_BOOL but without NULL check
+    #define TO_BOOL( x ) ( ( ( x )->value != 0.0f ) ? true : false )
+
+        // if classic present, use slower pipeline
+        if( RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f )
+        {
+            if( CVAR_TO_BOOL( r_fullbright ) )
+            {
+                // disable fullbright
+                gEngfuncs.Cvar_Set( r_fullbright->name, "0" );
+            }
+        }
+        else
+        {
+            if( !TO_BOOL( r_fullbright ) )
+            {
+                // enable fullbright to reduce CPU-side calculations
+                gEngfuncs.Cvar_Set( r_fullbright->name, "1" );
+            }
+        }
+
+        // dynamic lightmaps not supported
+        if( CVAR_TO_BOOL( r_dynamic ) )
+        {
+            gEngfuncs.Cvar_Set( r_dynamic->name, "0" );
+        }
+        // always disable culling / PVS
+        if( r_nocull.value <= 0.5f )
+        {
+            gEngfuncs.Cvar_Set( r_nocull.name, "1" );
+        }
+        if( r_novis.value <= 0.5f )
+        {
+            gEngfuncs.Cvar_Set( r_novis.name, "1" );
+        }
+
+    #undef TO_BOOL
+    }
+
 	{
 		char mapname_storage[ 64 ] = "";
 
