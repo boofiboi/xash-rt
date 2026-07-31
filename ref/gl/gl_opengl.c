@@ -2308,12 +2308,29 @@ static struct
 	RgMeshPrimitiveInfo primitive;
 } rt_batch = { 0 };
 
+static void FlushResidue( void )
+{
+	if( rt_batch.valid )
+	{
+		rgUtilImScratchSetToPrimitive( rg_instance, &rt_batch.primitive );
+
+		RgResult r = rgUploadMeshPrimitive( rg_instance, &rt_batch.mesh, &rt_batch.primitive );
+		RG_CHECK( r );
+
+		rgUtilImScratchClear( rg_instance );
+	}
+
+	rt_batch.valid = false;
+}
+
 static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology )
 {
 	if( glState.in2DMode )
 	{
 		if( glbegin )
 		{
+			FlushResidue();
+
 			rgUtilImScratchClear( rg_instance );
 			rgUtilImScratchStart( rg_instance, glbegin_topology );
 		}
@@ -2345,6 +2362,8 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 	{
 		if( glbegin )
 		{
+			FlushResidue();
+
 			rgUtilImScratchClear( rg_instance );
 			rgUtilImScratchStart( rg_instance, glbegin_topology );
 		}
@@ -2383,11 +2402,17 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 
 	if( !RI.currententity || RI.currententity->index < 0 )
 	{
+		if( glbegin )
+			FlushResidue();
+
 		return;
 	}
 
 	if( !RI.currentmodel )
 	{
+		if( glbegin )
+			FlushResidue();
+
 		return;
 	}
 
@@ -2400,6 +2425,8 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 	{
 		if( glbegin )
 		{
+			FlushResidue();
+
 			rgUtilImScratchClear( rg_instance );
 			rgUtilImScratchStart( rg_instance, glbegin_topology );
 		}
@@ -2422,6 +2449,8 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 			{
 				mesh.uniqueObjectID = rt_state.curTempEntityIndex;
 			}
+
+			assert( mesh.uniqueObjectID != 0 );
 
 			if( RI.currententity->player )
 			{
@@ -2527,12 +2556,7 @@ void pglEnd( void )
 	TryBatch( false, 0 );
 }
 
-void RT_StartBatch( void )
-{
-	RT_EndBatch();
-}
-
-void RT_EndBatch( void )
+void RT_OnBeforeDrawFrame( void )
 {
 	if( rt_batch.valid )
 	{
