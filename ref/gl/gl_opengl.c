@@ -1272,8 +1272,8 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 
 	CVAR_DEF_T( rt_volume_type,				"1",	"0 - none, 1 - volumetric, 2 - distance based" )
-	CVAR_DEF_T( rt_volume_far,				"1000",	"" )
-	CVAR_DEF_T( rt_volume_scatter,			"0.3",	"" )
+	CVAR_DEF_T( rt_volume_far,				"3000",	"" )
+	CVAR_DEF_T( rt_volume_scatter,			"1",	"" )
 	CVAR_DEF_T( rt_volume_ambient,			"0.5",	"" )
 	CVAR_DEF_T( rt_volume_lintensity,		"1",	"" )
 	CVAR_DEF_T( rt_volume_lassymetry,		"0.75",	"" )
@@ -1292,6 +1292,9 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( rt_labcoat_model,			"rt/valve/models_rt/gordon_scientist.mdl", "path to Gordon's model without the HEV suit" )
 	
 	CVAR_DEF_T( rt_forcecvars,				"1",	"force original cvars to be set to be compatible with RT mode: disable culling, no lightmaps" )
+
+	CVAR_DEF_T( _rt_chapter,				"",		"chapter logo name; checking folder: rt/mat/resource/ch/" )
+	CVAR_DEF_T( _rt_chaptershow,			"0",	"show chapter logo" )
 
     CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; for menu" )
 
