@@ -1575,17 +1575,9 @@ static void R_DrawTextureChains( void )
 			continue;	// draw transparent surfaces later
 		}
 
-#if XASH_RAYTRACING
-		RT_StartBatch();
-#endif
-
 		for( ; s != NULL; s = s->texturechain )
 			R_RenderBrushPoly( s, CULL_VISIBLE );
 		t->texturechain = NULL;
-
-#if XASH_RAYTRACING
-		RT_EndBatch();
-#endif
 	}
 }
 
@@ -1628,17 +1620,9 @@ void R_DrawAlphaTextureChains( void )
 		if( !s || !FBitSet( s->flags, SURF_TRANSPARENT ))
 			continue;
 
-#if XASH_RAYTRACING
-		RT_StartBatch();
-#endif
-
 		for( ; s != NULL; s = s->texturechain )
 			R_RenderBrushPoly( s, CULL_VISIBLE );
 		t->texturechain = NULL;
-
-#if XASH_RAYTRACING
-		RT_EndBatch();
-#endif
 	}
 
 	R_ResetSeparatePass( &draw_alpha_surfaces );
@@ -1927,7 +1911,6 @@ void R_DrawBrushModel( cl_entity_t *e )
 		GL_PushPolygonOffset( -0.5f, -gl_polyoffset_bmodels.value );
 
 	// draw sorted translucent surfaces
-#if !XASH_RAYTRACING
 	for( int i = 0; i < num_sorted; i++ )
 	{
 		if( !allow_vbo || !R_AddSurfToVBO( gpGlobals->draw_surfaces[i].surf, true ))
@@ -1935,14 +1918,6 @@ void R_DrawBrushModel( cl_entity_t *e )
 	}
 
 	R_DrawVBO( R_HasLightmap(), true );
-#else
-	for( int i = 0; i < num_sorted; i++ )
-	{
-		RT_StartBatch();
-		R_RenderBrushPoly( gpGlobals->draw_surfaces[i].surf, gpGlobals->draw_surfaces[i].cull );
-		RT_EndBatch();
-	}
-#endif
 
 	if( e->curstate.rendermode == kRenderTransColor )
 		pglEnable( GL_TEXTURE_2D );
