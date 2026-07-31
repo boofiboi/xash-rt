@@ -1144,6 +1144,14 @@ void GL_ClearExtensions( void )
 
 //=======================================================================
 
+#if XASH_RAYTRACING
+static void RT_ClassicSwitch()
+{
+    int newval = !RT_CVAR_TO_BOOL( rt_classic );
+    gEngfuncs.Cvar_SetValue( rt_cvars.rt_classic->name, ( float )newval );
+}
+#endif
+
 /*
 =================
 GL_InitCommands
@@ -1202,12 +1210,11 @@ static void GL_InitCommands( void )
 #if XASH_RAYTRACING
 
     // NOTE: if start with '_' then the cvar won't be archived
-    #define CVAR_DEF_T( name, default_value, description )                                      \
-        rt_cvars.name =                                                                         \
-            gEngfuncs.Cvar_Get( ( #name ),                                                      \
-                                ( default_value ),                                              \
-                                ( ( #name )[ 0 ] == '_' ? 0 : FCVAR_ARCHIVE | FCVAR_GLCONFIG ), \
-                                ( description ) );
+    #define CVAR_DEF_T( name, default_value, description )                                  \
+        rt_cvars.name = gEngfuncs.Cvar_Get( ( #name ),                                      \
+                                            ( default_value ),                              \
+                                            ( ( #name )[ 0 ] == '_' ? 0 : FCVAR_GLCONFIG ), \
+                                            ( description ) );
 
     // clang-format off
 
@@ -1286,6 +1293,10 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; for menu" )
 
 	// clang-format on
+
+    gEngfuncs.Cmd_AddCommand(
+        "rt_classic_switch", &RT_ClassicSwitch, "switch between classic and ray traced renderer" );
+
 #endif
 }
 
