@@ -4302,6 +4302,14 @@ static int GAME_EXPORT pfnCheckVisibility( const edict_t *ent, byte *pset )
 	if( !SV_IsValidEdict( ent ))
 		return 0;
 
+#if XASH_RAYTRACING
+	/*{
+		// disable culling for server->client messages?
+		// r_nocull  / r_novis / rt_forcecvars
+		return 1;
+	}*/
+#endif
+
 	// vis not set - fullvis enabled
 	if( !pset ) return 1;
 
