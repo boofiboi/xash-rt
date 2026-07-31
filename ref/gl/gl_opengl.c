@@ -1229,6 +1229,16 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_sky,						"1",	"sky intensity")
 	CVAR_DEF_T( rt_sky_saturation,			"1",	"sky saturation")
 
+	CVAR_DEF_T( rt_sun,						"70",	"sun intensity")
+	CVAR_DEF_T( rt_sun_diameter,			"0.5",	"sun angular diameter in degrees")
+
+	CVAR_DEF_T( rt_flsh,					"1",	"flashlight intensity")
+	CVAR_DEF_T( rt_flsh_radius,				"0.05",	"flashlight source disk radius in meters")
+	CVAR_DEF_T( rt_flsh_angle,				"20",	"flashlight width in degrees")
+	CVAR_DEF_T( rt_flsh_x,					"-0.2",	"flashlight position offset: X")
+	CVAR_DEF_T( rt_flsh_y,					"-0.3",	"flashlight position offset: Y")
+	CVAR_DEF_T( _rt_flsh_key,				"-1",	"internal variable; d-light key of the player's flashlight")
+
 	CVAR_DEF_T( rt_reflrefr_depth,			"2",	"") 
 	CVAR_DEF_T( rt_refr_glass,				"1.52",	"") 
 	CVAR_DEF_T( rt_refr_water,				"1.33",	"") 
@@ -1252,7 +1262,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_ef_vintage,				"0",	"[0, 4] vintage effects, disabled if rt_renderscale>0" )
 	CVAR_DEF_T( rt_ef_water,				"1",	"warp screen while under water" )
 	
-	CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable" )
+	CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; for menu" )
 
 	// clang-format on
 #endif
@@ -1416,6 +1426,8 @@ qboolean R_Init( void )
 
 				.curBrushSurface        = -1,
 				.curBrushSurfaceIsWater = false,
+
+				.flashlight_uniqueid = 0,
 			};
 			memcpy( &rt_state, &nullstate, sizeof( rt_state ) );
 		}
