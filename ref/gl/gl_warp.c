@@ -346,6 +346,7 @@ void R_DrawSkyBox( void )
 {
 #if XASH_RAYTRACING
 	rt_state.curIsSky = true;
+	RI.isSkyVisible = true;
 #endif
 
 	// don't fogging skybox (this fix old Half-Life bug)

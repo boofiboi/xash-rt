@@ -163,6 +163,9 @@ typedef struct
 
 	float		viewplanedist;
 	mplane_t		clipPlane;
+#if XASH_RAYTRACING
+	qboolean		isSkyVisible;
+#endif
 } ref_instance_t;
 
 typedef struct
