@@ -1253,7 +1253,7 @@ qboolean R_Init( void )
 	r_temppool = Mem_AllocPool( "Render Zone" );
 
 	// create the window and set up the context
-	if( !gEngfuncs.R_Init_Video( REF_GL )) // request GL context
+	if( !gEngfuncs.R_Init_Video( REF_RT )) // request GL context
 	{
 		GL_RemoveCommands();
 		gEngfuncs.R_Free_Video();
