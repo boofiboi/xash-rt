@@ -933,6 +933,11 @@ R_DrawAliasModel
 */
 void R_DrawAliasModel( cl_entity_t *e )
 {
+#if XASH_RAYTRACING
+	assert( !"R_DrawAliasModel: obsolete" );
+	return;
+#endif
+
 	model_t *clmodel = RI.currententity->model;
 
 	vec3_t absmin, absmax;

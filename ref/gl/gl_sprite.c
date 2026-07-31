@@ -289,6 +289,9 @@ static void R_DrawSpriteQuad( mspriteframe_t *frame, vec3_t org, vec3_t v_right,
 	r_stats.c_sprite_polys++;
 
 	pglBegin( GL_QUADS );
+#if XASH_RAYTRACING
+		rt_state.curIsRasterized = true;
+#endif
 		pglTexCoord2f( 0.0f, 1.0f );
 		VectorMA( org, frame->down * scale, v_up, point );
 		VectorMA( point, frame->left * scale, v_right, point );
@@ -305,6 +308,9 @@ static void R_DrawSpriteQuad( mspriteframe_t *frame, vec3_t org, vec3_t v_right,
 		VectorMA( org, frame->down * scale, v_up, point );
 		VectorMA( point, frame->right * scale, v_right, point );
 		pglVertex3fv( point );
+#if XASH_RAYTRACING
+		rt_state.curIsRasterized = false;
+#endif
 	pglEnd();
 }
 
@@ -461,6 +467,12 @@ void R_DrawSpriteModel( cl_entity_t *e )
 		lerp = R_GetSpriteFrameInterpolant( e, &oldframe, &frame );
 	else frame = oldframe = gEngfuncs.R_GetSpriteFrame( model, e->curstate.frame, e->angles[YAW] );
 
+#if XASH_RAYTRACING
+	qboolean HasLightmap = false;
+#else
+	qboolean HasLightmap = R_SpriteHasLightmap( e, psprite->texFormat );
+#endif
+
 	int type = psprite->type;
 
 	// automatically roll parallel sprites if requested
@@ -543,11 +555,15 @@ void R_DrawSpriteModel( cl_entity_t *e )
 	}
 
 	// draw the sprite 'lightmap' :-)
-	if( R_SpriteHasLightmap( e, psprite->texFormat ))
+	if( HasLightmap )
 	{
+#if XASH_RAYTRACING
+		pglEnable( GL_BLEND );
+#else
 		if( !r_lightmap->value )
 			pglEnable( GL_BLEND );
 		else pglDisable( GL_BLEND );
+#endif
 		pglDepthFunc( GL_EQUAL );
 		pglDisable( GL_ALPHA_TEST );
 		pglBlendFunc( GL_ZERO, GL_SRC_COLOR );
@@ -556,7 +572,11 @@ void R_DrawSpriteModel( cl_entity_t *e )
 		pglColor4f( color2[0], color2[1], color2[2], tr.blend );
 		GL_Bind( XASH_TEXTURE0, tr.whiteTexture );
 		R_DrawSpriteQuad( frame, origin, v_right, v_up, scale );
+#if XASH_RAYTRACING
+		pglAlphaFunc( GL_GREATER, 0.0f );
+#else
 		pglAlphaFunc( GL_GREATER, DEFAULT_ALPHATEST );
+#endif
 		pglDepthFunc( GL_LEQUAL );
 		pglDisable( GL_BLEND );
 	}
