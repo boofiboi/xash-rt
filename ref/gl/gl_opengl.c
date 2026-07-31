@@ -1351,6 +1351,7 @@ qboolean R_Init( void )
 				.curTexture2DName       = NULL,
 				.curTextureNearest      = false,
 				.curTextureClamped      = false,
+				.curIsRasterized        = false,
 				.curEntityID            = -1,
 				.curModelName           = NULL,
 				.curStudioBodyPartIndex = -1,
@@ -1454,6 +1455,7 @@ obsolete
 */
 void GL_CheckForErrors_( const char *filename, const int fileline )
 {
+#if !XASH_RAYTRACING
 	if( !gl_check_errors.value || !gpGlobals->developer )
 		return;
 
@@ -1463,6 +1465,7 @@ void GL_CheckForErrors_( const char *filename, const int fileline )
 		return;
 
 	gEngfuncs.Con_Printf( S_OPENGL_ERROR "%s (at %s:%i)\n", GL_ErrorString( err ), filename, fileline );
+#endif
 }
 
 void GL_SetupAttributes( int safegl )
@@ -2236,9 +2239,45 @@ void pglEnd( void )
 {
 	if( !glState.in2DMode )
 	{
-		if( rt_state.curEntityID >= 0 && rt_state.curModelName &&
-			rt_state.curStudioBodyPartIndex >= 0 && rt_state.curStudioModelIndex >= 0 &&
-			rt_state.curStudioMeshIndex >= 0 )
+		if( rt_state.curIsRasterized )
+		{
+			RgMeshInfo mesh = {
+				.uniqueObjectID = UINT32_MAX,
+				.pMeshName      = NULL,
+				.transform      = RG_TRANSFORM_IDENTITY,
+				.isExportable   = false,
+				.animationName  = NULL,
+				.animationTime  = 0.0f,
+			};
+
+			RgMeshPrimitiveInfo info = {
+				.primitiveIndexInMesh = 0,
+				.flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
+										( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ),
+				.pTextureName         = rt_state.curTexture2DName,
+				.textureFrame         = 0,
+				.color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+				.emissive             = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
+				.pEditorInfo          = NULL,
+			};
+			rgUtilImScratchSetToPrimitive( rg_instance, &info );
+
+			RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
+			RG_CHECK( r );
+			return;
+		}
+
+		qboolean isstudiomodel = rt_state.curEntityID >= 0 && rt_state.curModelName &&
+								 rt_state.curStudioBodyPartIndex >= 0 &&
+								 rt_state.curStudioModelIndex >= 0 &&
+								 rt_state.curStudioMeshIndex >= 0;
+
+		if( rt_state.curEntityID == 0 )
+		{
+			isstudiomodel = false;
+		}
+
+		if( isstudiomodel )
 		{
 			static int glendIndex = 0;
 			{
