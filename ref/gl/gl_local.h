@@ -823,7 +823,7 @@ typedef struct rt_cvars_t
 		rt_normalmap_stren,
 		rt_emis_mapboost,
 		rt_emis_maxscrcolor,
-		rt_emis_fullbright_dflt,
+		rt_emis_additive_dflt,
 		
 		rt_sky,
 		rt_sky_saturation,
@@ -860,6 +860,7 @@ typedef struct rt_cvars_t
 		rt_volume_lassymetry,
 		
 		rt_bloom_intensity,
+		rt_bloom_threshold,
 		rt_bloom_emis_mult,
 		
 		rt_ef_crt,
