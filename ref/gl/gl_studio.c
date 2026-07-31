@@ -1619,6 +1619,10 @@ static void R_StudioDrawNormalMesh( short *ptricmds, vec3_t *pstudionorms, float
 		}
 
 		pglEnd();
+
+#if XASH_RAYTRACING
+		rt_state.curStudioGlend++;
+#endif
 	}
 }
 
@@ -1650,6 +1654,10 @@ static void R_StudioDrawFloatMesh( short *ptricmds, vec3_t *pstudionorms )
 		}
 
 		pglEnd();
+
+#if XASH_RAYTRACING
+		rt_state.curStudioGlend++;
+#endif
 	}
 }
 
@@ -1700,6 +1708,10 @@ static void R_StudioDrawChromeMesh( short *ptricmds, vec3_t *pstudionorms, float
 		}
 
 		pglEnd();
+
+#if XASH_RAYTRACING
+		rt_state.curStudioGlend++;
+#endif
 	}
 }
 
@@ -2081,12 +2093,10 @@ static void R_StudioDrawPoints( void )
 		void* bodypartbase = ( byte* )m_pStudioHeader + m_pStudioHeader->bodypartindex;
 		void* modelbase    = ( byte* )m_pStudioHeader + m_pBodyPart->modelindex;
 
-		rt_state.curEntityID  = RI.currententity->index;
-		rt_state.curModelName = RI.currentmodel->name;
-		rt_state.curStudioBodyPartIndex =
-			( int )( m_pBodyPart - ( mstudiobodyparts_t* )bodypartbase );
-		rt_state.curStudioSubmodelIndex = ( int )( m_pSubModel - ( mstudiomodel_t* )modelbase );
-		rt_state.curStudioMeshIndex  = j;
+		rt_state.curStudioBodyPart = ( int )( m_pBodyPart - ( mstudiobodyparts_t* )bodypartbase );
+		rt_state.curStudioSubmodel = ( int )( m_pSubModel - ( mstudiomodel_t* )modelbase );
+		rt_state.curStudioMesh     = j;
+		rt_state.curStudioGlend    = 0;
 #endif
 
 #if !XASH_RAYTRACING
@@ -2111,11 +2121,10 @@ static void R_StudioDrawPoints( void )
 		}
 
 #if XASH_RAYTRACING
-		rt_state.curEntityID            = -1;
-		rt_state.curModelName           = NULL;
-		rt_state.curStudioBodyPartIndex = -1;
-		rt_state.curStudioSubmodelIndex    = -1;
-		rt_state.curStudioMeshIndex     = -1;
+		rt_state.curStudioBodyPart = -1;
+		rt_state.curStudioSubmodel = -1;
+		rt_state.curStudioMesh     = -1;
+		rt_state.curStudioGlend    = -1;
 #endif
 
 		if( FBitSet( g_nFaceFlags, STUDIO_NF_MASKED ))
