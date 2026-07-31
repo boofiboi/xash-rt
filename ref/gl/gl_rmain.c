@@ -1414,6 +1414,12 @@ void R_EndFrame( void )
 		ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
 		UpscaleCvarsToRtgl( &resolution_params );
 
+		float lightstyles[ RT_ARRAYSIZE( g_lightstylevalue ) ];
+		for( uint32_t i = 0; i < RT_ARRAYSIZE( g_lightstylevalue ); i++ )
+		{
+			lightstyles[ i ] = ( float )bound( 0, g_lightstylevalue[ i ], 255 ) / 255.0f;
+		}
+
 		RgDrawFrameIlluminationParams illum_params = {
 			.sType                              = RG_STRUCTURE_TYPE_ILLUMINATION,
 			.pNext                              = &resolution_params,
@@ -1425,7 +1431,9 @@ void R_EndFrame( void )
 			.specularSensitivityToChange        = 1.0f,
 			.polygonalLightSpotlightFactor      = 2.0f,
 			.lightUniqueIdIgnoreFirstPersonViewerShadows =
-				rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL
+				rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL,
+			.lightstyleValuesCount = RT_ARRAYSIZE( lightstyles ),
+			.pLightstyleValues     = lightstyles,
 		};
 
 		RgDrawFrameTonemappingParams tnmp_params = {

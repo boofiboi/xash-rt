@@ -410,20 +410,6 @@ void RT_ParseStaticLightEntities()
 }
 
 
-#define RT_ARRAYSIZE( arr ) ( sizeof( arr ) / sizeof( arr[ 0 ] ) )
-
-
-static float GetLightStyleIntensity( int light_style )
-{
-    assert( light_style >= 0 && light_style < ( int )RT_ARRAYSIZE( g_lightstylevalue ) );
-    // from CL_LightVecInternal and R_RecursiveLightPoint, assuming lm = (1, 1, 1)
-
-    uint style_scale = g_lightstylevalue[ light_style ];
-
-    return ( float )bound( 0, style_scale, 255 ) / 255.0f;
-}
-
-
 static qboolean IsPlayerFlashlight( const dlight_t* l )
 {
     int flashlight_key = RT_CVAR_TO_INT32( _rt_flsh_key );
@@ -494,14 +480,14 @@ void RT_UploadAllLights( void )
             RgSpotLightUploadInfo info = {
                 .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
                 .isExportable = true,
+                .extra        = { .exists = true, .lightstyle = src->light_style },
                 .color        = src->pcolor,
-                .intensity    = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity *
-                             GetLightStyleIntensity( src->light_style ),
-                .position   = RT_VEC3( src->abs_position ),
-                .direction  = RT_VEC3( src->dir ),
-                .radius     = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
-                .angleOuter = src->spot_outer_cone_rad,
-                .angleInner = src->spot_inner_cone_rad,
+                .intensity    = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity,
+                .position     = RT_VEC3( src->abs_position ),
+                .direction    = RT_VEC3( src->dir ),
+                .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+                .angleOuter   = src->spot_outer_cone_rad,
+                .angleInner   = src->spot_inner_cone_rad,
             };
 
             RgResult r = rgUploadSpotLight( rg_instance, &info );
@@ -512,11 +498,11 @@ void RT_UploadAllLights( void )
             RgSphericalLightUploadInfo info = {
                 .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
                 .isExportable = true,
+                .extra        = { .exists = true, .lightstyle = src->light_style },
                 .color        = src->pcolor,
-                .intensity    = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity *
-                             GetLightStyleIntensity( src->light_style ),
-                .position = RT_VEC3( src->abs_position ),
-                .radius   = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+                .intensity    = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity,
+                .position     = RT_VEC3( src->abs_position ),
+                .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
             };
 
             RgResult r = rgUploadSphericalLight( rg_instance, &info );
