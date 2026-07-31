@@ -774,10 +774,20 @@ extern RgInstance rg_instance;
 #define QUAKEUNIT_TO_METRIC( x ) ( ( x ) * QUAKEUNIT_IN_METERS )
 #define METRIC_TO_QUAKEUNIT( x ) ( ( x ) / QUAKEUNIT_IN_METERS )
 
-extern const RgViewport* rg_GetViewport( void );
-extern const float*      rg_Get2DProjectionMatrix( void );
-extern qboolean          rg_currentTextureNearest;
-extern qboolean          rg_currentTextureClamped;
+typedef struct rt_state_s
+{
+    RgViewport  viewport;
+    float       projMatrixFor2D[ 16 ];
+    const char* curTexture2DName;
+    qboolean    curTextureNearest;
+    qboolean    curTextureClamped;
+    int         curEntityID;
+    const char* curModelName;
+    int         curStudioBodyPartIndex;
+    int         curStudioModelIndex;
+    int         curStudioMeshIndex;
+} rt_state_t;
+extern rt_state_t rt_state;
 #endif
 
 //
