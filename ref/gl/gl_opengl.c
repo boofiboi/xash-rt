@@ -1267,7 +1267,8 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_refr_water,				"1.33",	"") 
 
 	CVAR_DEF_T( rt_mzlflash,				"1",	"muzzle flash light source" )
-	CVAR_DEF_T( rt_studio_norms,			"1",	"regenerate smooth normals for studio models" )
+	CVAR_DEF_T( rt_norms_studio,			"1",	"use original normals for studio models" )
+	CVAR_DEF_T( rt_norms_brush,				"1",	"use original normals for brushes" )
 	CVAR_DEF_T( rt_texture_nearest,			"1",	"nearest texture filter for the world" )
 	CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 
@@ -2744,7 +2745,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.pEditorInfo  = NULL,
 		};
 
-		if( RT_CVAR_TO_BOOL( rt_studio_norms ) )
+		if( RT_CVAR_TO_BOOL( rt_norms_studio ) )
         {
             prim.flags |= RG_MESH_PRIMITIVE_DONT_GENERATE_NORMALS;
         }
@@ -2784,6 +2785,11 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 		};
 
 		prim.pEditorInfo = &additional;
+
+        if( RT_CVAR_TO_BOOL( rt_norms_brush ) )
+        {
+            prim.flags |= RG_MESH_PRIMITIVE_DONT_GENERATE_NORMALS;
+        }
 
 		TryBeginBatch_Finalize( curtype, &mesh, &prim );
 	}
