@@ -1448,8 +1448,9 @@ typedef enum RT_VINTAGE
     RT_VINTAGE_480,
     RT_VINTAGE_720,
 
-    RT_VINTAGE__COUNT
+	RT_VINTAGE__COUNT
 };
+// this enum must match pVintageNames from VideoModes.cpp
 
 static void ResolutionToRtgl( RgDrawFrameRenderResolutionParams* dst,
                               const RgExtent2D                   winsize,
