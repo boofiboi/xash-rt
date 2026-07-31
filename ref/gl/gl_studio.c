@@ -2085,7 +2085,7 @@ static void R_StudioDrawPoints( void )
 		rt_state.curModelName = RI.currentmodel->name;
 		rt_state.curStudioBodyPartIndex =
 			( int )( m_pBodyPart - ( mstudiobodyparts_t* )bodypartbase );
-		rt_state.curStudioModelIndex = ( int )( m_pSubModel - ( mstudiomodel_t* )modelbase );
+		rt_state.curStudioSubmodelIndex = ( int )( m_pSubModel - ( mstudiomodel_t* )modelbase );
 		rt_state.curStudioMeshIndex  = j;
 #endif
 
@@ -2114,7 +2114,7 @@ static void R_StudioDrawPoints( void )
 		rt_state.curEntityID            = -1;
 		rt_state.curModelName           = NULL;
 		rt_state.curStudioBodyPartIndex = -1;
-		rt_state.curStudioModelIndex    = -1;
+		rt_state.curStudioSubmodelIndex    = -1;
 		rt_state.curStudioMeshIndex     = -1;
 #endif
 
