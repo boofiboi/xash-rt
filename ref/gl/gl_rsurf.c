@@ -1549,6 +1549,12 @@ static void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 	const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
 	rt_state.curBrushSurface        = ( int )( fa - surfbase );
 	rt_state.curBrushSurfaceIsWater = false;
+	{
+		texture_t* base = fa->texinfo->texture;
+		rt_state.curBrushSurfaceIsAnimated =
+			( base->anim_total > 0 ) ||
+			( base->alternate_anims && base->alternate_anims->anim_total > 0 );
+	}
 	RT_BindLightmapTexture( tr.lightmapTextures[ fa->lightmaptexturenum ] );
 	{
 		vec3_t faceNormal = RT_VEC3( fa->plane->normal );
@@ -1559,8 +1565,9 @@ static void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 #endif
 	DrawGLPoly( fa->polys, 0.0f, 0.0f );
 #if XASH_RAYTRACING
-	rt_state.curBrushSurface        = -1;
-	rt_state.curBrushSurfaceIsWater = false;
+	rt_state.curBrushSurface            = -1;
+	rt_state.curBrushSurfaceIsWater     = false;
+	rt_state.curBrushSurfaceIsAnimated  = false;
 	RT_BindLightmapTexture( 0 );
 #endif
 

@@ -798,6 +798,7 @@ typedef struct rt_state_s
 
 	int			curBrushSurface;
 	qboolean	curBrushSurfaceIsWater;
+	qboolean	curBrushSurfaceIsAnimated;
 
 	uint64_t	flashlight_uniqueid;
 
