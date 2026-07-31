@@ -1169,6 +1169,193 @@ void R_RenderFrame( const ref_viewpass_t *rvp )
 	return;
 }
 
+#if XASH_RAYTRACING
+// clang-format off
+typedef enum RT_VINTAGE
+{
+    RT_VINTAGE_OFF,
+
+    RT_VINTAGE_CRT,
+    RT_VINTAGE_200,
+    RT_VINTAGE_480,
+    RT_VINTAGE_720,
+
+    RT_VINTAGE__COUNT
+};
+
+static void ResolutionToRtgl( RgDrawFrameRenderResolutionParams* dst,
+                              const RgExtent2D                   winsize,
+                              RgExtent2D*                        storage )
+{
+    const float aspect = ( float )winsize.width / ( float )winsize.height;
+
+    if( RT_CVAR_TO_INT32( rt_renderscale ) > 0 )
+    {
+        float scale = ( float )RT_CVAR_TO_INT32( rt_renderscale ) / 100.0f;
+        scale       = RT_CLAMP( scale, 0.2f, 1.0f );
+
+        dst->customRenderSize.width  = ( uint32_t )( scale * ( float )winsize.width );
+        dst->customRenderSize.height = ( uint32_t )( scale * ( float )winsize.height );
+        dst->pPixelizedRenderSize    = NULL;
+
+        return;
+    }
+    else
+    {
+        if( RT_CVAR_TO_INT32( rt_ef_vintage ) != RT_VINTAGE_OFF )
+        {
+            uint32_t h_pixelized = 0;
+            uint32_t h_render    = 0;
+
+            switch( RT_CVAR_TO_INT32( rt_ef_vintage ) )
+            {
+                case RT_VINTAGE_200:
+                    h_pixelized = 200;
+                    h_render    = 400;
+                    break;
+
+                case RT_VINTAGE_480:
+                    h_pixelized = 480;
+                    h_render    = 600;
+                    break;
+
+                case RT_VINTAGE_CRT:
+                    h_pixelized = 480;
+                    h_render    = 480;
+                    break;
+
+                case RT_VINTAGE_720:
+                    h_pixelized = 720;
+                    h_render    = 720;
+                    break;
+
+                default:
+                    gEngfuncs.Cvar_SetValue( rt_cvars.rt_ef_vintage->name, 0 );
+                    dst->customRenderSize     = winsize;
+                    dst->pPixelizedRenderSize = NULL;
+                    return;
+            }
+
+            assert( h_render > 0 && h_pixelized > 0 );
+
+            storage->height              = h_pixelized;
+            storage->width               = ( uint32_t )( h_pixelized * aspect );
+            dst->pPixelizedRenderSize    = storage;
+            dst->customRenderSize.height = h_render;
+            dst->customRenderSize.width  = ( uint32_t )( h_render * aspect );
+
+            return;
+        }
+    }
+
+    dst->customRenderSize     = winsize;
+    dst->pPixelizedRenderSize = NULL;
+}
+
+static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar()
+{
+    int vintage = RT_CVAR_TO_INT32( rt_ef_vintage );
+    int t       = RT_CVAR_TO_INT32( rt_sharpen );
+
+    switch( t )
+    {
+        case 2: return RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
+        case 1: return RG_RENDER_SHARPEN_TECHNIQUE_NAIVE;
+        default:
+            // to accentuate a chunky look, because of the linear (not nearest) downscale mode
+            if( vintage == RT_VINTAGE_200 || vintage == RT_VINTAGE_480 )
+            {
+                return RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
+            }
+            return RG_RENDER_SHARPEN_TECHNIQUE_NONE;
+    }
+}
+
+static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
+{
+    RgBool32 dlss_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS );
+    RgBool32 fsr2_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2 );
+	gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_available->name, dlss_ok ? "1" : "0" );
+
+    int nvDlss = dlss_ok ? RT_CVAR_TO_INT32( rt_upscale_dlss ) : 0;
+    int amdFsr = fsr2_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr2 ) : 0;
+
+    switch( nvDlss )
+    {
+        case 1:
+            // start with Quality
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_QUALITY;
+            break;
+        case 2:
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_BALANCED;
+            break;
+        case 3:
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
+            break;
+        case 4:
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE;
+            break;
+
+        case 5:
+            // use DLSS with rt_renderscale
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_CUSTOM;
+            break;
+
+        default: nvDlss = 0; break;
+    }
+
+    switch( amdFsr )
+    {
+        case 1:
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_QUALITY;
+            break;
+        case 2:
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_BALANCED;
+            break;
+        case 3:
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
+            break;
+        case 4:
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE;
+            break;
+
+        case 5:
+            // use FSR2 with rt_renderscale
+            pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2;
+            pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_CUSTOM;
+            break;
+
+        default: amdFsr = 0; break;
+    }
+
+    // both disabled
+    if( nvDlss == 0 && amdFsr == 0 )
+    {
+        pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NEAREST;
+        pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_CUSTOM;
+    }
+
+    if( amdFsr )
+    {
+        pDst->sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
+    }
+    else
+    {
+        pDst->sharpenTechnique = GetSharpenTechniqueFromCvar();
+    }
+}
+// clang-format on
+#endif
+
 /*
 ===============
 R_EndFrame
@@ -1191,7 +1378,39 @@ void R_EndFrame( void )
 		RT_OnBeforeDrawFrame();
 		RT_UploadAllLights();
 
-		qboolean is_camera_under_water = ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2;
+		RgExtent2D       pixstorage = { 0 };
+		const RgExtent2D winsize    = { .width = gpGlobals->width, .height = gpGlobals->height };
+
+		RgDrawFrameRenderResolutionParams resolution_params = {
+			.sType = RG_STRUCTURE_TYPE_RENDER_RESOLUTION,
+			.pNext = NULL,
+		};
+		ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
+		UpscaleCvarsToRtgl( &resolution_params );
+
+		RgDrawFrameIlluminationParams illum_params = {
+			.sType                              = RG_STRUCTURE_TYPE_ILLUMINATION,
+			.pNext                              = &resolution_params,
+			.maxBounceShadows                   = RT_CVAR_TO_UINT32( rt_shadowrays ),
+			.enableSecondBounceForIndirect      = RT_CVAR_TO_BOOL( rt_indir2bounces ),
+			.cellWorldSize                      = METRIC_TO_QUAKEUNIT( 2.0f ),
+			.directDiffuseSensitivityToChange   = 0.5f,
+			.indirectDiffuseSensitivityToChange = 0.2f,
+			.specularSensitivityToChange        = 0.5f,
+			.polygonalLightSpotlightFactor      = 2.0f,
+			.lightUniqueIdIgnoreFirstPersonViewerShadows = NULL,
+		};
+
+		RgDrawFrameBloomParams bloom_params = {
+			.sType                   = RG_STRUCTURE_TYPE_BLOOM,
+			.pNext                   = &illum_params,
+			.bloomIntensity          = RT_CVAR_TO_FLOAT( rt_bloom_intensity ),
+			.inputThreshold          = 0.0f,
+			.bloomEmissionMultiplier = RT_CVAR_TO_FLOAT( rt_bloom_emis_mult ),
+		};
+
+		RgMediaType cameramedia =
+			ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2 ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM;
 
 		RgDirectionalLightUploadInfo sun = {
 			.uniqueID               = 0,
@@ -1206,11 +1425,11 @@ void R_EndFrame( void )
 
 		RgDrawFrameReflectRefractParams refl_refr_params = {
 			.sType                   = RG_STRUCTURE_TYPE_REFLECTREFRACT,
-			.pNext                   = NULL,
-			.maxReflectRefractDepth  = 1,
-			.typeOfMediaAroundCamera = is_camera_under_water ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM,
-			.indexOfRefractionGlass  = 1.52f,
-			.indexOfRefractionWater  = 1.33f,
+			.pNext                   = &bloom_params,
+			.maxReflectRefractDepth  = RT_CVAR_TO_UINT32( rt_reflrefr_depth ),
+			.typeOfMediaAroundCamera = cameramedia,
+			.indexOfRefractionGlass  = RT_CVAR_TO_FLOAT( rt_refr_glass ),
+			.indexOfRefractionWater  = RT_CVAR_TO_FLOAT( rt_refr_water ),
 			.waterWaveSpeed          = METRIC_TO_QUAKEUNIT( 0.4f ),
 			.waterWaveNormalStrength = 1.0f,
 			.waterColor              = { 171 / 255.0f, 193 / 255.0f, 210 / 255.0f },
@@ -1233,11 +1452,78 @@ void R_EndFrame( void )
 			.pNext                       = &refl_refr_params,
 			.skyType                     = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
 			.skyColorDefault             = { 0, 0, 0 },
-			.skyColorMultiplier          = 1.0f,
-			.skyColorSaturation          = 1.0f,
-			.skyViewerPosition           = { RI.vieworg[ 0 ], RI.vieworg[ 1 ], RI.vieworg[ 2 ] },
+			.skyColorMultiplier          = RT_CVAR_TO_FLOAT( rt_sky ),
+			.skyColorSaturation          = RT_CVAR_TO_FLOAT( rt_sky_saturation ),
+			.skyViewerPosition           = RT_VEC3( RI.vieworg ),
 			.pSkyCubemapTextureName      = NULL,
 			.skyCubemapRotationTransform = RG_TRANSFORM_IDENTITY,
+		};
+
+		vec3_t volume_light_dir;
+		vec3_t volume_light_color;
+		vec3_t volume_light_ambient;
+		// if( sun )
+		{
+			VectorSet( volume_light_dir, -1, -1, -1 );
+			VectorSet( volume_light_color, 20.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f );
+			VectorSet( volume_light_ambient,
+					   RT_CVAR_TO_FLOAT( rt_volume_ambient ),
+					   RT_CVAR_TO_FLOAT( rt_volume_ambient ),
+					   RT_CVAR_TO_FLOAT( rt_volume_ambient ) );
+		}
+
+		RgDrawFrameVolumetricParams volumetric_params = {
+			.sType                   = RG_STRUCTURE_TYPE_VOLUMETRIC,
+			.pNext                   = &skyParams,
+			.enable                  = RT_CVAR_TO_UINT32( rt_volume_type ) != 0,
+			.useSimpleDepthBased     = RT_CVAR_TO_UINT32( rt_volume_type ) == 1,
+			.volumetricFar           = RT_CVAR_TO_FLOAT( rt_volume_far ),
+			.ambientColor            = RT_VEC3( volume_light_ambient ),
+			.scaterring              = RT_CVAR_TO_FLOAT( rt_volume_scatter ),
+			.assymetry               = RT_CVAR_TO_FLOAT( rt_volume_lassymetry ),
+			.useIlluminationVolume   = false,
+			.fallbackSourceColor     = RT_VEC3_MULT( volume_light_color, RT_CVAR_TO_FLOAT( rt_volume_lintensity ) ),
+			.fallbackSourceDirection = RT_VEC3( volume_light_dir ),
+			.lightMultiplier         = 1.0f,
+		};
+
+		RgDrawFrameTexturesParams texture_params = {
+			.sType                  = RG_STRUCTURE_TYPE_TEXTURES,
+			.pNext                  = &volumetric_params,
+			.dynamicSamplerFilter   = RT_CVAR_TO_BOOL( rt_texture_nearest ) ? RG_SAMPLER_FILTER_NEAREST
+																			: RG_SAMPLER_FILTER_LINEAR,
+			.normalMapStrength      = RT_CVAR_TO_FLOAT( rt_normalmap_stren ),
+			.emissionMapBoost       = RT_CVAR_TO_FLOAT( rt_emis_mapboost ),
+			.emissionMaxScreenColor = RT_CVAR_TO_FLOAT( rt_emis_maxscrcolor ),
+		};
+
+		RgPostEffectCRT crt_effect = {
+			.isActive =
+				RT_CVAR_TO_BOOL( rt_ef_crt ) || RT_CVAR_TO_INT32( rt_ef_vintage ) == RT_VINTAGE_CRT,
+		};
+
+		RgPostEffectChromaticAberration chromatic_aberration_effect = {
+			.isActive              = RT_CVAR_TO_FLOAT( rt_ef_chraber ) > 0.0f,
+			.transitionDurationIn  = 0,
+			.transitionDurationOut = 0,
+			.intensity             = RT_CVAR_TO_FLOAT( rt_ef_chraber ),
+		};
+
+		RgPostEffectWaves waves_effect = {
+			.isActive              = cameramedia != RG_MEDIA_TYPE_VACUUM,
+			.transitionDurationIn  = 0.1f,
+			.transitionDurationOut = 0.75f,
+			.amplitude             = RT_CVAR_TO_FLOAT( rt_ef_water ) * 0.01f,
+			.speed                 = 1.0f,
+			.xMultiplier           = 0.5f,
+		};
+
+		RgDrawFramePostEffectsParams posteffect_params = {
+			.sType                = RG_STRUCTURE_TYPE_POSTEFFECTS,
+			.pNext                = &texture_params,
+			.pChromaticAberration = &chromatic_aberration_effect,
+			.pWaves               = RT_CVAR_TO_FLOAT( rt_ef_water ) > 0.001f ? &waves_effect : NULL,
+			.pCRT                 = &crt_effect,
 		};
 
 		RgDrawFrameInfo info = {
@@ -1247,9 +1533,9 @@ void R_EndFrame( void )
 			.rayLength        = R_GetFarClip(),
 			.rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
 								RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
-			.currentTime      = gpGlobals->realtime,
-			.vsync            = true,
-			.pParams          = &skyParams,
+			.currentTime      = gp_cl->time,
+			.vsync            = RT_CVAR_TO_BOOL( rt_vsync ),
+			.pParams          = &posteffect_params,
 		};
 
 		// reinterpret cast to make matrices column-major
