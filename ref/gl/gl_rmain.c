@@ -1466,7 +1466,7 @@ void R_EndFrame( void )
 		RgDrawFrameSkyParams skyParams = {
 			.sType                       = RG_STRUCTURE_TYPE_SKY,
 			.pNext                       = &refl_refr_params,
-			.skyType                     = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
+			.skyType                     = RI.isSkyVisible ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
 			.skyColorDefault             = { 0, 0, 0 },
 			.skyColorMultiplier          = RT_CVAR_TO_FLOAT( rt_sky ),
 			.skyColorSaturation          = RT_CVAR_TO_FLOAT( rt_sky_saturation ),
