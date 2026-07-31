@@ -536,6 +536,24 @@ static qboolean VID_GetDisplayBounds( int display_index, SDL_Window *hWnd, SDL_R
 
 static rserr_t VID_SetScreenResolution( int width, int height, window_mode_t window_mode, window_mode_t prev_window_mode )
 {
+#if XASH_RAYTRACING
+	// never change screen resolution
+	if( window_mode != WINDOW_MODE_WINDOWED )
+	{
+		SDL_DisplayMode displayMode;
+		if( SDL_GetDesktopDisplayMode( VID_GetDisplayIndex( __func__, host.hWnd ), &displayMode ) >= 0 )
+		{
+			SDL_SetWindowBordered( host.hWnd, SDL_FALSE );
+			SDL_SetWindowSize( host.hWnd, displayMode.w, displayMode.h );
+		}
+
+		SDL_SetWindowPosition( host.hWnd, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
+		SDL_SetWindowGrab( host.hWnd, SDL_TRUE );
+	}
+
+	VID_SaveWindowSize( width, height );
+	return rserr_ok;
+#else
 	const int display_index = VID_GetDisplayIndex( __func__, host.hWnd );
 	int out_width, out_height;
 
@@ -639,10 +657,14 @@ static rserr_t VID_SetScreenResolution( int width, int height, window_mode_t win
 	VID_SetWindowIcon( host.hWnd );
 
 	return rserr_ok;
+#endif
 }
 
 void VID_RestoreScreenResolution( window_mode_t window_mode )
 {
+#if XASH_RAYTRACING
+	return;
+#else
 	// on mobile platform fullscreen is designed to be always on
 	// and code below minimizes our window if we're in full screen
 	// don't do that on mobile devices
@@ -657,6 +679,7 @@ void VID_RestoreScreenResolution( window_mode_t window_mode )
 		break;
 	}
 #endif // !XASH_MOBILE_PLATFORM
+#endif // !XASH_RAYTRACING
 }
 
 /*
