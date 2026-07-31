@@ -683,11 +683,23 @@ static inline uint LinearGammaTable( uint b )
 
 static inline qboolean GL_Support( int r_ext )
 {
+#if XASH_RAYTRACING
+	switch( r_ext )
+	{
+		case GL_OPENGL_110:
+		case GL_TEXTURE_2D_RECT_EXT:
+			return true;
+
+		default:
+			return false;
+	}
+#else
 	if( r_ext >= 0 && r_ext < GL_EXTCOUNT )
 		return glConfig.extension[r_ext] ? true : false;
 	gEngfuncs.Con_Printf( S_ERROR "%s: invalid extension %d\n", __func__, r_ext );
 
 	return false;
+#endif
 }
 
 static inline int GL_MaxTextureUnits( void )
