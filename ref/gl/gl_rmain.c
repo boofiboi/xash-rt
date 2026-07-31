@@ -1047,6 +1047,18 @@ void R_BeginFrame( qboolean clearScene )
 	// draw buffer stuff
 	pglDrawBuffer( GL_BACK );
 
+#if XASH_RAYTRACING
+	{
+		RgStartFrameInfo info = {
+			.pMapName               = NULL,
+			.ignoreExternalGeometry = false,
+		};
+
+		RgResult r = rgStartFrame( rg_instance, &info );
+		RG_CHECK( r );
+	}
+#endif
+
 	// update texture parameters
 	if( FBitSet( gl_texture_nearest.flags|gl_lightmap_nearest.flags|gl_texture_anisotropy.flags|gl_texture_lodbias.flags, FCVAR_CHANGED ))
 		R_SetTextureParameters();
@@ -1124,6 +1136,23 @@ void R_EndFrame( void )
 	// flush any remaining 2D bits
 	R_Set2DMode( false );
 	gEngfuncs.GL_SwapBuffers();
+
+#if XASH_RAYTRACING
+	{
+		RgDrawFrameInfo frameInfo = {
+			.fovYRadians      = (float)M_PI * 0.5f,
+			.cameraNear       = 0.1f,
+			.cameraFar        = 10000.0f,
+			.rayLength        = 10000.0f,
+			.rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT,
+			.currentTime      = gpGlobals->realtime,
+			.vsync            = true,
+		};
+
+		RgResult r = rgDrawFrame( rg_instance, &frameInfo );
+		RG_CHECK( r );
+	}
+#endif
 }
 
 /*
