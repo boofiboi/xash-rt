@@ -1473,8 +1473,9 @@ qboolean R_Init( void )
 				.curStudioMesh     = -1,
 				.curStudioGlend    = -1,
 
-				.curBrushSurface        = -1,
-				.curBrushSurfaceIsWater = false,
+				.curBrushSurface           = -1,
+				.curBrushSurfaceIsWater    = false,
+				.curBrushSurfaceIsAnimated = false,
 
 				.flashlight_uniqueid = 0,
 			};
@@ -2525,7 +2526,8 @@ static qboolean AreMeshesSame( rt_batchtype_t    a_type,
 			assert( a_mesh != NULL && b_mesh != NULL );
 
 			return a_mesh->uniqueObjectID == b_mesh->uniqueObjectID &&
-				   a_mesh->pMeshName == b_mesh->pMeshName;
+				   a_mesh->pMeshName == b_mesh->pMeshName &&
+				   a_mesh->isExportable == b_mesh->isExportable;
 		}
 		else
 		{
@@ -2779,9 +2781,10 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.uniqueObjectID = RI.currententity->index,
 			.pMeshName      = RI.currentmodel->name,
 			.transform      = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
-			.isExportable   = ( RI.currentmodel == WORLDMODEL ),
-			.animationName  = NULL,
-			.animationTime  = 0.0f,
+			.isExportable =
+				( RI.currentmodel == WORLDMODEL ) && !rt_state.curBrushSurfaceIsAnimated,
+			.animationName = NULL,
+			.animationTime = 0.0f,
 		};
 
 		RgMeshPrimitiveInfo prim = {
