@@ -1277,7 +1277,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_sun_diameter,			"0.5",	"sun angular diameter in degrees")
 
 	CVAR_DEF_T( rt_flsh,					"800",	"flashlight intensity")
-	CVAR_DEF_T( rt_flsh_radius,				"0.05",	"flashlight source disk radius in meters")
+    CVAR_DEF_T( rt_flsh_radius,				"0.02",	"flashlight source disk radius in meters")
 	CVAR_DEF_T( rt_flsh_angle,				"20",	"flashlight width in degrees")
 	CVAR_DEF_T( rt_flsh_r,					"-0.2",	"flashlight position offset - right")
 	CVAR_DEF_T( rt_flsh_u,					"-0.3",	"flashlight position offset - up")

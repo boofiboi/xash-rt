@@ -1742,7 +1742,7 @@ void R_EndFrame( void )
 			.skyColorDefault             = { 0, 0, 0 },
 			.skyColorMultiplier          = RT_CVAR_TO_FLOAT( rt_sky ),
 			.skyColorSaturation          = RT_CVAR_TO_FLOAT( rt_sky_saturation ),
-			.skyViewerPosition           = RT_VEC3( RI.vieworg ),
+			.skyViewerPosition           = RT_VEC3( RI.rvp.vieworigin ),
 			.pSkyCubemapTextureName      = NULL,
 			.skyCubemapRotationTransform = RG_TRANSFORM_IDENTITY,
 		};
