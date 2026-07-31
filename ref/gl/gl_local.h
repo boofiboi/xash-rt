@@ -865,10 +865,11 @@ typedef struct rt_cvars_t
 		rt_light_tram,
 		rt_light_radius,
 		
-		rt_reflrefr_depth,
-		rt_refr_glass,
-		rt_refr_water,
-		
+	rt_reflrefr_depth,
+	rt_refr_glass,
+	rt_refr_water,
+	rt_refr_thinwidth,
+	
 		rt_mzlflash,
 		rt_mzlflash_life,
 		rt_mzlflash_f,
