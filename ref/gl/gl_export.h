@@ -23,7 +23,10 @@ GNU General Public License for more details.
 	#define APIENTRY_LINKAGE extern
 #endif
 
-#if XASH_NANOGL || XASH_WES || XASH_REGAL
+#if XASH_RAYTRACING
+	#define XASH_GL_STATIC 1
+	#define REF_GL_KEEP_MANGLED_FUNCTIONS 1
+#elif XASH_NANOGL || XASH_WES || XASH_REGAL
 	#define XASH_GLES 1
 	#define XASH_GL_STATIC 1
 	#define REF_GL_KEEP_MANGLED_FUNCTIONS 1
