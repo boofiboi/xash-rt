@@ -914,7 +914,7 @@ static void DrawGLPoly( glpoly2_t *p, float xScale, float yScale )
 
 		pglVertex3fv( v );
 #if XASH_RAYTRACING
-        rgUtilImScratchTexCoord_LayerLightmap(
+        rgUtilImScratchTexCoord_Layer1(
             rg_instance, v[ 5 ] - lightmap_soffset, v[ 6 ] - lightmap_toffset );
 #endif
 	}
