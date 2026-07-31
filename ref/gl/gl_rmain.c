@@ -265,12 +265,23 @@ qboolean R_AddEntity( struct cl_entity_s *clent, int type )
 
 		return true;
 	}
+
+#if XASH_RAYTRACING
+	#define RT_ORDINARY_CLENTITIES_COUNT MAX_EDICTS
+	assert( clent->index >= 0 );
+	assert( clent->index < RT_ORDINARY_CLENTITIES_COUNT );
+#endif
+
 	else if( R_OpaqueEntity( clent ))
 	{
 		// opaque
 		if( tr.draw_list->num_solid_entities >= MAX_VISIBLE_PACKET )
 			return false;
 
+#if XASH_RAYTRACING
+		tr.draw_list->solid_entities_indexfortemp[tr.draw_list->num_solid_entities] =
+			type == ET_TEMPENTITY ? RT_ORDINARY_CLENTITIES_COUNT + r_stats.c_active_tents_count : 0;
+#endif
 		tr.draw_list->solid_entities[tr.draw_list->num_solid_entities] = clent;
 		tr.draw_list->num_solid_entities++;
 	}
@@ -280,6 +291,10 @@ qboolean R_AddEntity( struct cl_entity_s *clent, int type )
 		if( tr.draw_list->num_trans_entities >= MAX_VISIBLE_PACKET )
 			return false;
 
+#if XASH_RAYTRACING
+		tr.draw_list->trans_entities_indexfortemp[tr.draw_list->num_trans_entities] =
+			type == ET_TEMPENTITY ? RT_ORDINARY_CLENTITIES_COUNT + r_stats.c_active_tents_count : 0;
+#endif
 		tr.draw_list->trans_entities[tr.draw_list->num_trans_entities] = clent;
 		tr.draw_list->num_trans_entities++;
 	}
@@ -809,6 +824,9 @@ static void R_DrawEntitiesOnList( void )
 	{
 		RI.currententity = tr.draw_list->solid_entities[i];
 		RI.currentmodel = RI.currententity->model;
+#if XASH_RAYTRACING
+		rt_state.curTempEntityIndex = tr.draw_list->solid_entities_indexfortemp[i];
+#endif
 
 		if( !RI.currentmodel && RI.currententity->player && !FBitSet( RI.rvp.flags, RF_DRAW_WORLD ))
 			continue;
@@ -830,6 +848,10 @@ static void R_DrawEntitiesOnList( void )
 		default:
 			break;
 		}
+
+#if XASH_RAYTRACING
+		rt_state.curTempEntityIndex = 0;
+#endif
 	}
 
 	GL_CheckForErrors();
@@ -844,6 +866,9 @@ static void R_DrawEntitiesOnList( void )
 	{
 		RI.currententity = tr.draw_list->solid_entities[i];
 		RI.currentmodel = RI.currententity->model;
+#if XASH_RAYTRACING
+		rt_state.curTempEntityIndex = tr.draw_list->solid_entities_indexfortemp[i];
+#endif
 
 		if( !RI.currentmodel && RI.currententity->player && !FBitSet( RI.rvp.flags, RF_DRAW_WORLD ))
 			continue;
@@ -857,6 +882,10 @@ static void R_DrawEntitiesOnList( void )
 			R_DrawSpriteModel( RI.currententity );
 			break;
 		}
+
+#if XASH_RAYTRACING
+		rt_state.curTempEntityIndex = 0;
+#endif
 	}
 
 	GL_CheckForErrors();
@@ -878,6 +907,9 @@ static void R_DrawEntitiesOnList( void )
 	{
 		RI.currententity = tr.draw_list->trans_entities[i];
 		RI.currentmodel = RI.currententity->model;
+#if XASH_RAYTRACING
+		rt_state.curTempEntityIndex = tr.draw_list->trans_entities_indexfortemp[i];
+#endif
 
 		// handle studiomodels with custom rendermodes on texture
 		if( RI.currententity->curstate.rendermode != kRenderNormal )
@@ -909,6 +941,10 @@ static void R_DrawEntitiesOnList( void )
 		default:
 			break;
 		}
+
+#if XASH_RAYTRACING
+		rt_state.curTempEntityIndex = 0;
+#endif
 	}
 
 	GL_CheckForErrors();
