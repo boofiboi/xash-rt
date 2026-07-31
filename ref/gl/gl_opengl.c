@@ -1418,9 +1418,11 @@ qboolean R_Init( void )
 
 		{
 			const rt_state_t nullstate = {
-				.curTexture2DName       = NULL,
-				.curTextureNearest      = false,
-				.curTextureClamped      = false,
+.curTexture2DName       = NULL,
+.curTextureNearest      = false,
+.curTexturePreferLinear = false,
+.curTextureIsHUD        = false,
+.curTextureClamped      = false,
 				.curIsSky               = false,
 				.curIsRasterized        = false,
 				.curStudioBodyPart = -1,
@@ -2735,8 +2737,11 @@ void pglTexImage2D( GLenum        target,
 					.pTextureName = rt_state.curTexture2DName,
 					.pPixels      = pixels,
 					.size         = { width, height },
-					.filter       = rt_state.curTextureNearest ? RG_SAMPLER_FILTER_NEAREST
-															   : RG_SAMPLER_FILTER_AUTO,
+				.filter       = ( rt_state.curTextureNearest || rt_state.curTextureIsHUD )
+									? RG_SAMPLER_FILTER_NEAREST
+									: rt_state.curTexturePreferLinear
+										? RG_SAMPLER_FILTER_LINEAR
+										: RG_SAMPLER_FILTER_AUTO,
 					.addressModeU = rt_state.curTextureClamped ? RG_SAMPLER_ADDRESS_MODE_CLAMP
 															   : RG_SAMPLER_ADDRESS_MODE_REPEAT,
 					.addressModeV = rt_state.curTextureClamped ? RG_SAMPLER_ADDRESS_MODE_CLAMP
