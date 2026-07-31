@@ -955,6 +955,8 @@ static void EmitWaterPolys( msurface_t *warp, qboolean reverse, qboolean ripples
 
 		pglNormal3fv( faceNormal );
 	}
+	// disable poly height transformation
+	waveHeight = 0.0f;
 #endif
 
 	// reset fog color for nonlightmapped water
