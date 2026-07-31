@@ -121,7 +121,9 @@ typedef struct
 
 // studio-related cvars
 CVAR_DEFINE_AUTO( r_studio_sort_textures, "0", FCVAR_GLCONFIG, "change draw order for additive meshes" );
+#if !XASH_RAYTRACING
 CVAR_DEFINE_AUTO( r_studio_drawelements, "1", FCVAR_GLCONFIG, "use glDrawElements for studiomodels" );
+#endif
 static cvar_t			*cl_righthand = NULL;
 
 static r_studio_interface_t	*pStudioDraw;
@@ -2073,6 +2075,7 @@ static void R_StudioDrawPoints( void )
 
 		R_StudioSetupSkin( m_pStudioHeader, pskinref[pmesh->skinref] );
 
+#if !XASH_RAYTRACING
 		if( r_studio_drawelements.value )
 		{
 			if( FBitSet( g_nFaceFlags, STUDIO_NF_CHROME ))
@@ -2084,6 +2087,7 @@ static void R_StudioDrawPoints( void )
 			R_StudioDrawArrays( startArrayVerts, startArrayElems );
 		}
 		else
+#endif
 		{
 			if( FBitSet( g_nFaceFlags, STUDIO_NF_CHROME ))
 				R_StudioDrawChromeMesh( ptricmds, pstudionorms, s, t, shellscale );
