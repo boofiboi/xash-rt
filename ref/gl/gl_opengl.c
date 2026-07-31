@@ -1242,7 +1242,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_volume_scatter,			"0.3",	"" )
 	CVAR_DEF_T( rt_volume_ambient,			"0.5",	"" )
 	CVAR_DEF_T( rt_volume_lintensity,		"1",	"" )
-	CVAR_DEF_T( rt_volume_lassymetry,		"0.0",	"" )
+	CVAR_DEF_T( rt_volume_lassymetry,		"0.75",	"" )
 
 	CVAR_DEF_T( rt_bloom_intensity,			"1",	"bloom intensity" )
 	CVAR_DEF_T( rt_bloom_emis_mult,			"0",	"bloom multiplier for emissive" )
@@ -1311,10 +1311,10 @@ static void PrintMessage( const char *pMessage, RgMessageSeverityFlags severity,
 {
 	if( severity & RG_MESSAGE_SEVERITY_ERROR )
 	{
-		gEngfuncs.Host_Error( pMessage );
+		gEngfuncs.Host_Error( "%s\n", pMessage );
 	}
 
-	gEngfuncs.Con_Printf( pMessage );
+	gEngfuncs.Con_Printf( "%s\n", pMessage );
 }
 #endif
 
