@@ -1346,8 +1346,6 @@ qboolean R_Init( void )
 
 		{
 			const rt_state_t nullstate = {
-				.viewport               = { 0 },
-				.projMatrixFor2D        = { 0 },
 				.curTexture2DName       = NULL,
 				.curTextureNearest      = false,
 				.curTextureClamped      = false,
@@ -2321,34 +2319,16 @@ static rt_batchtype_t GetGlBeginEndType( void )
 }
 
 
+static RgViewport rt_2d_viewport                = { 0 };
+static float      rt_2d_viewprojection[ 16 ]    = { 0 };
+static qboolean   rt_2d_viewport_viewroj_changed = false;
+
 static struct
 {
 	rt_batchtype_t      type;
 	RgMeshInfo          mesh;
 	RgMeshPrimitiveInfo primitive;
 } rt_batch = { 0 };
-
-static void FlushBatch( void )
-{
-	if( rt_batch.type != RT_BATCH_TYPE_NONE )
-	{
-		rgUtilImScratchSetToPrimitive( rg_instance, &rt_batch.primitive );
-
-		if( rt_batch.type != RT_BATCH_TYPE_2D )
-		{
-			RgResult r = rgUploadMeshPrimitive( rg_instance, &rt_batch.mesh, &rt_batch.primitive );
-			RG_CHECK( r );
-		}
-		else
-		{
-			RgResult r = rgUploadNonWorldPrimitive(
-				rg_instance, &rt_batch.primitive, rt_state.projMatrixFor2D, &rt_state.viewport );
-			RG_CHECK( r );
-		}
-	}
-
-	rgUtilImScratchClear( rg_instance );
-}
 
 static qboolean AreTransformsAlwaysIdentity( rt_batchtype_t type )
 {
@@ -2369,9 +2349,44 @@ static qboolean AreViewParamsSame( rt_batchtype_t type )
 {
 	if( type == RT_BATCH_TYPE_2D )
 	{
-		// TODO: compare rt_state.projMatrixFor2D / rt_state.viewport with previous
+		// TODO: console is not rendered properly
+		// if( rt_2d_viewport_viewroj_changed )
+		{
+			return false;
+		}
 	}
 	return true;
+}
+
+static qboolean AreMeshesSame( rt_batchtype_t    a_type,
+							   const RgMeshInfo* a_mesh,
+							   rt_batchtype_t    b_type,
+							   const RgMeshInfo* b_mesh )
+{
+	if( a_type == RT_BATCH_TYPE_NONE || b_type == RT_BATCH_TYPE_NONE )
+	{
+		assert( a_mesh == NULL && b_mesh == NULL );
+		return false;
+	}
+
+	if( a_type == b_type )
+	{
+		if( a_type != RT_BATCH_TYPE_2D )
+		{
+			assert( a_mesh != NULL && b_mesh != NULL );
+
+			return a_mesh->uniqueObjectID == b_mesh->uniqueObjectID &&
+				   a_mesh->pMeshName == b_mesh->pMeshName;
+		}
+		else
+		{
+			// should be &&, but &rt_batch is never NULL
+			assert( a_mesh == NULL || b_mesh == NULL );
+			return true;
+		}
+	}
+
+	return false;
 }
 
 static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
@@ -2387,46 +2402,53 @@ static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
 	}
 	assert( a_primitive && b_primitive );
 
-	if( a_type != b_type )
+	if( a_type == b_type )
 	{
-		return false;
-	}
-
-	qboolean meshes;
-	if( a_mesh && b_mesh )
-	{
-		meshes = a_mesh->uniqueObjectID == b_mesh->uniqueObjectID &&
-				 a_mesh->pMeshName == b_mesh->pMeshName;
-	}
-	else if( !a_mesh && !b_mesh )
-	{
-		meshes = true;
-	}
-	else
-	{
-		return false;
-	}
-
-	if( meshes )
-	{
-		if( a_primitive->flags == b_primitive->flags && a_primitive->color == b_primitive->color &&
-			a_primitive->pTextureName == b_primitive->pTextureName &&
-			AreFloatsClose( a_primitive->emissive, b_primitive->emissive ) )
+		if( AreMeshesSame( a_type, a_mesh, b_type, b_mesh ) )
 		{
-			assert( a_type == b_type );
-
-			if( AreTransformsAlwaysIdentity( a_type ) ||
-				AreTransformsClose( &a_mesh->transform, &b_mesh->transform ) )
+			if( a_primitive->flags == b_primitive->flags && a_primitive->color == b_primitive->color &&
+				a_primitive->pTextureName == b_primitive->pTextureName &&
+				AreFloatsClose( a_primitive->emissive, b_primitive->emissive ) )
 			{
-				if( AreViewParamsSame( a_type ) )
+				assert( a_type == b_type );
+
+				if( AreTransformsAlwaysIdentity( a_type ) ||
+					AreTransformsClose( &a_mesh->transform, &b_mesh->transform ) )
 				{
-					return true;
+					if( AreViewParamsSame( a_type ) )
+					{
+						return true;
+					}
 				}
 			}
 		}
 	}
 
 	return false;
+}
+
+
+static void FlushBatch( void )
+{
+	if( rt_batch.type != RT_BATCH_TYPE_NONE )
+	{
+		rgUtilImScratchSetToPrimitive( rg_instance, &rt_batch.primitive );
+
+		if( rt_batch.type != RT_BATCH_TYPE_2D )
+		{
+			RgResult r = rgUploadMeshPrimitive( rg_instance, &rt_batch.mesh, &rt_batch.primitive );
+			RG_CHECK( r );
+		}
+		else
+		{
+			RgResult r = rgUploadNonWorldPrimitive(
+				rg_instance, &rt_batch.primitive, rt_2d_viewprojection, &rt_2d_viewport );
+			RG_CHECK( r );
+			rt_2d_viewport_viewroj_changed = false;
+		}
+	}
+
+	rgUtilImScratchClear( rg_instance );
 }
 
 
@@ -2589,6 +2611,7 @@ void RT_OnBeforeDrawFrame( void )
 {
 	// flush residue
 	TryBeginBatch_Finalize( RT_BATCH_TYPE_NONE, NULL, NULL );
+	rt_2d_viewport_viewroj_changed = true;
 }
 
 void pglBindTexture( GLenum target, GLuint texture, const char* textureName )
@@ -2669,16 +2692,20 @@ void pglBlendFunc( GLenum sfactor, GLenum dfactor )
 
 void pglViewport( GLint x, GLint y, GLsizei width, GLsizei height )
 {
-	rt_state.viewport.x      = ( float )x;
-	rt_state.viewport.y      = ( float )y;
-	rt_state.viewport.width  = ( float )width;
-	rt_state.viewport.height = ( float )height;
+	rt_2d_viewport.x      = ( float )x;
+	rt_2d_viewport.y      = ( float )y;
+	rt_2d_viewport.width  = ( float )width;
+	rt_2d_viewport.height = ( float )height;
+
+	rt_2d_viewport_viewroj_changed = true;
 }
 
 void pglDepthRange( GLclampd zNear, GLclampd zFar )
 {
-	rt_state.viewport.minDepth = ( float )zNear;
-	rt_state.viewport.maxDepth = ( float )zFar;
+	rt_2d_viewport.minDepth = ( float )zNear;
+	rt_2d_viewport.maxDepth = ( float )zFar;
+
+	rt_2d_viewport_viewroj_changed = true;
 }
 
 
@@ -2694,7 +2721,9 @@ void pglLoadIdentity( void )
 {
 	if( rt_matrix_mode == GL_PROJECTION )
 	{
-		Matrix4x4_LoadIdentity( rt_state.projMatrixFor2D );
+		Matrix4x4_LoadIdentity( rt_2d_viewprojection );
+		rt_2d_viewport_viewroj_changed = true;
+
 		Matrix4x4_LoadIdentity( rt_matrix_proj );
 	}
 }
@@ -2708,7 +2737,9 @@ void pglLoadMatrixf( const GLfloat* m )
 {
 	if( rt_matrix_mode == GL_PROJECTION )
 	{
-		memcpy( rt_state.projMatrixFor2D, m, 16 * sizeof( float ) );
+		memcpy( rt_2d_viewprojection, m, 16 * sizeof( float ) );
+		rt_2d_viewport_viewroj_changed = true;
+
 		Matrix4x4_FromArrayFloatGL( rt_matrix_proj, m );
 	}
 }
@@ -2741,7 +2772,8 @@ void pglOrtho( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLd
 
 		Matrix4x4_Concat( rt_matrix_proj, ortho, prev );
 
-		Matrix4x4_ToArrayFloatGL( rt_matrix_proj, rt_state.projMatrixFor2D );
+		Matrix4x4_ToArrayFloatGL( rt_matrix_proj, rt_2d_viewprojection );
+		rt_2d_viewport_viewroj_changed = true;
 	}
 }
 

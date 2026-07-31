@@ -777,8 +777,6 @@ extern RgInstance rg_instance;
 
 typedef struct rt_state_s
 {
-    RgViewport  viewport;
-    float       projMatrixFor2D[ 16 ];
     const char* curTexture2DName;
 	qboolean    curTextureNearest;
 	qboolean    curTextureClamped;
