@@ -808,8 +808,9 @@ extern rt_state_t rt_state;
 
 	void RT_OnBeforeDrawFrame( void );
 	void RT_ParseStaticLightEntities( void );
-	void RT_UploadAllLights( void );
-	void RT_BindLightmapTexture( int texnum );
+void RT_UploadAllLights( void );
+void RT_BindLightmapTexture( int texnum );
+void RT_ResetChapterLogo( void );
 
 // clang-format off
 typedef cvar_t* cvar_ptr_t;
@@ -898,6 +899,9 @@ typedef struct rt_cvars_t
 		
 		rt_forcecvars,
 		
+		_rt_chapter,
+		_rt_chaptershow,
+		
 		_rt_dlss_available;
 } rt_cvars_t;
 extern rt_cvars_t rt_cvars;
@@ -912,6 +916,7 @@ extern rt_cvars_t rt_cvars;
 #define RT_CVAR_TO_FLOAT( x )  CVAR_TO_FLOAT( rt_cvars.x )
 #define RT_CVAR_TO_UINT32( x ) CVAR_TO_UINT32( rt_cvars.x )
 #define RT_CVAR_TO_INT32( x )  CVAR_TO_INT32( rt_cvars.x )
+#define RT_CVAR_TO_STR( x )    CVAR_TO_STR( rt_cvars.x )
 
 #define RT_ARRAYSIZE( arr ) ( sizeof( arr ) / sizeof( ( arr )[ 0 ] ) )
 

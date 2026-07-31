@@ -438,6 +438,7 @@ static void R_NewMap( void )
 
 #if XASH_RAYTRACING
 	RT_ParseStaticLightEntities();
+	RT_ResetChapterLogo();
 #endif
 }
 
