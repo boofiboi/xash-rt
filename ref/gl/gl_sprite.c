@@ -53,6 +53,10 @@ static float R_GetSpriteFrameInterpolant( cl_entity_t *ent, mspriteframe_t **old
 		if( m_fDoInterp )
 		{
 			if( ent->latched.prevblending[0] >= psprite->numframes || psprite->frames[ent->latched.prevblending[0]].type != FRAME_SINGLE )
+#if XASH_RAYTRACING
+    rt_state.curTexturePreferLinear = true;
+#endif
+
 			{
 				// this can be happens when rendering switched between single and angled frames
 				// or change model on replace delta-entity
@@ -73,6 +77,10 @@ static float R_GetSpriteFrameInterpolant( cl_entity_t *ent, mspriteframe_t **old
 				else lerpFrac = (gp_cl->time - ent->latched.sequencetime) * 11.0f;
 			}
 			else
+#if XASH_RAYTRACING
+    rt_state.curTexturePreferLinear = false;
+#endif
+
 			{
 				ent->latched.prevblending[0] = ent->latched.prevblending[1] = frame;
 				ent->latched.sequencetime = gp_cl->time;

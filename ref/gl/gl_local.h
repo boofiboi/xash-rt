@@ -778,8 +778,10 @@ extern RgInstance rg_instance;
 typedef struct rt_state_s
 {
     const char* curTexture2DName;
-	qboolean    curTextureNearest;
-	qboolean    curTextureClamped;
+    qboolean    curTextureNearest;
+    qboolean    curTexturePreferLinear;
+    qboolean    curTextureIsHUD;
+    qboolean    curTextureClamped;
 	qboolean    curIsSky;
 	qboolean    curIsRasterized;
 	int         curStudioBodyPart;
