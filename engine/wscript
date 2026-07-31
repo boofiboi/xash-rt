@@ -250,6 +250,8 @@ def build(bld):
 
 	if bld.env.CLIENT:
 		defines = []
+		if bld.env.RAYTRACING:
+			defines += ['XASH_RAYTRACING=1']
 		if bld.env.XASH_SDL:
 			libs += ['SDL%d' % bld.env.XASH_SDL]
 			source += bld.path.ant_glob(['platform/sdl%d/*.c' % bld.env.XASH_SDL])

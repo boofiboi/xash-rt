@@ -33,13 +33,42 @@ def build(bld):
 		libs += [ 'public', 'M' ]
 
 	source = bld.path.ant_glob(['*.c', 'gl2_shim/*.c'])
-	includes = '.'
+	includes = ['.']
+	libpath = []
+	extra_libs = []
+	extra_defines = []
+
+	if bld.env.RAYTRACING:
+		rtgl1_sdk = os.environ.get('RTGL1_SDK_PATH', r'E:\Xash-RT\RayTracedGL1')
+		includes.append(os.path.join(rtgl1_sdk, 'Include'))
+		libpath.extend([
+			os.path.join(rtgl1_sdk, 'Build', 'Release'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release'),
+			os.path.join(rtgl1_sdk, 'Build', 'Debug'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Debug'),
+		])
+		extra_libs.extend(['RayTracedGL1', 'opengl32', 'user32', 'gdi32'])
+		extra_defines.extend(['XASH_RAYTRACING=1', 'XASH_GL_STATIC=1'])
+
+		def copy_rtgl1_dll(bld_ctx):
+			import shutil
+			src_dll = os.path.join(rtgl1_sdk, 'Build', 'Release', 'RayTracedGL1.dll')
+			if not os.path.exists(src_dll):
+				src_dll = os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RayTracedGL1.dll')
+			if os.path.exists(src_dll):
+				dst = bld_ctx.bldnode.abspath()
+				shutil.copy(src_dll, dst)
+				src_ffx = os.path.join(os.path.dirname(src_dll), 'amd_fidelityfx_vk.dll')
+				if os.path.exists(src_ffx):
+					shutil.copy(src_ffx, dst)
+
+		bld.add_post_fun(copy_rtgl1_dll)
 
 	targets = {
 		'ref_gl': {
 			'enable':  bld.env.GL,
-			'libs':    ['GL'] if bld.env.GL_STATIC else [],
-			'defines': ['XASH_GL_STATIC=1'] if bld.env.GL_STATIC else [],
+			'libs':    (['GL'] if bld.env.GL_STATIC else []) + extra_libs,
+			'defines': (['XASH_GL_STATIC=1'] if bld.env.GL_STATIC else []) + extra_defines,
 		},
 		'ref_gles1': {
 			'enable':  bld.env.NANOGL,
@@ -70,6 +99,8 @@ def build(bld):
 		bld.shlib(source = source,
 			target = k,
 			includes = includes,
-			use = libs + v['libs'],
+			libpath = libpath,
+			lib = v['libs'],
+			use = libs,
 			defines = v['defines'] + ['REF_DLL=1'],
 			install_path = bld.env.LIBDIR)

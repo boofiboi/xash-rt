@@ -206,6 +206,9 @@ def options(opt):
 	grp.add_option('--enable-all-renderers', action='store_true', dest='ALL_RENDERERS', default=False,
 		help = 'enable all renderers supported by Xash3D FWGS [default: %(default)s]')
 
+	grp.add_option('--enable-raytracing', '--enable-rt', '--enable_rt', action='store_true', dest='RAYTRACING', default=False,
+		help = 'enable ray tracing support [default: %(default)s]')
+
 	for dll in REFDLLS:
 		dll.register_option(grp)
 
@@ -227,6 +230,8 @@ def options(opt):
 		opt.add_subproject(i.name)
 
 def configure(conf):
+	conf.env.RAYTRACING = conf.options.RAYTRACING
+
 	conf.load('fwgslib reconfigure compiler_optimizations')
 	if conf.options.ALLOW64:
 		conf.env.MSVC_TARGETS = ['x64']
@@ -466,6 +471,9 @@ def configure(conf):
 
 	for refdll in REFDLLS:
 		refdll.register_env(conf.env, conf.options, conf.options.ALL_RENDERERS)
+
+	if conf.env.RAYTRACING:
+		conf.env.SOFT = False
 
 	conf.env.GAMEDIR = conf.options.GAMEDIR
 	conf.define('XASH_GAMEDIR', conf.options.GAMEDIR)
