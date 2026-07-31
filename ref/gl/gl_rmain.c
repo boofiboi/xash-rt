@@ -1420,9 +1420,9 @@ void R_EndFrame( void )
 			.maxBounceShadows                   = RT_CVAR_TO_UINT32( rt_shadowrays ),
 			.enableSecondBounceForIndirect      = RT_CVAR_TO_BOOL( rt_indir2bounces ),
 			.cellWorldSize                      = METRIC_TO_QUAKEUNIT( 2.0f ),
-			.directDiffuseSensitivityToChange   = 0.5f,
-			.indirectDiffuseSensitivityToChange = 0.2f,
-			.specularSensitivityToChange        = 0.5f,
+			.directDiffuseSensitivityToChange   = 1.0f,
+			.indirectDiffuseSensitivityToChange = 0.75f,
+			.specularSensitivityToChange        = 1.0f,
 			.polygonalLightSpotlightFactor      = 2.0f,
 			.lightUniqueIdIgnoreFirstPersonViewerShadows =
 				rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL
