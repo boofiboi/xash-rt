@@ -37,6 +37,8 @@ typedef struct rt_static_light_t
     uint32_t          index;
     int               light_style;
     qboolean          is_spot;
+    float             spot_inner_cone_rad;
+    float             spot_outer_cone_rad;
 } rt_static_light_t;
 
 #define RT_MAX_STATIC_LIGHTS        256
@@ -61,7 +63,9 @@ static void AddStaticLight( const vec3_t      abs_position,
                             RgColor4DPacked32 pcolor,
                             float             intensity,
                             int               light_style,
-                            qboolean          is_spot )
+                            qboolean          is_spot,
+                            float             spot_cone,
+                            float             spot_cone2 )
 {
     uint32_t index = g_lights.static_lights_count;
     assert( index < RT_MAX_STATIC_LIGHTS );
@@ -75,6 +79,9 @@ static void AddStaticLight( const vec3_t      abs_position,
         dst->index       = index;
         dst->light_style = light_style;
         dst->is_spot     = is_spot;
+
+        dst->spot_inner_cone_rad = DEG2RAD( Q_min( spot_cone, spot_cone2 ) );
+        dst->spot_outer_cone_rad = DEG2RAD( Q_max( spot_cone, spot_cone2 ) );
     }
 
     g_lights.static_lights_count++;
@@ -137,6 +144,8 @@ void RT_ParseStaticLightEntities()
         float             pitch;
         float             angle;
         int               style;
+        float             cone;
+        float             cone2;
     } light = { 0 };
 
     enum
@@ -149,6 +158,8 @@ void RT_ParseStaticLightEntities()
         LT_HAS_SKY       = 32,
         LT_HAS_STYLE     = 64,
         LT_HAS_ALLANGLES = 128,
+        LT_HAS_CONE      = 256,
+        LT_HAS_CONE2     = 512,
     };
 
 
@@ -184,8 +195,6 @@ void RT_ParseStaticLightEntities()
             {
                 qboolean has_info = !!( has & LT_HAS_ORIGIN ) && !!( has & LT_HAS_COLOR );
 
-                qboolean has_light_style = !!( has & LT_HAS_STYLE );
-
                 vec3_t direction = { 0 };
 
                 if( classname == LT_CLASS_SPOT )
@@ -194,7 +203,17 @@ void RT_ParseStaticLightEntities()
                     {
                         AngleVectors( light.allangles, direction, NULL, NULL );
                     }
+                    else if( ( has & LT_HAS_PITCH ) && ( has & LT_HAS_ANGLE ) )
+                    {
+                        vec3_t angles = { -light.pitch, light.angle, 0 };
+                        AngleVectors( angles, direction, NULL, NULL );
+                    }
                     else
+                    {
+                        has_info = false;
+                    }
+
+                    if( !( has & LT_HAS_CONE ) )
                     {
                         has_info = false;
                     }
@@ -206,8 +225,10 @@ void RT_ParseStaticLightEntities()
                                     direction,
                                     light.pcolor,
                                     light.intensity,
-                                    has_light_style ? light.style : 0,
-                                    classname == LT_CLASS_SPOT );
+                                    has & LT_HAS_STYLE ? light.style : 0,
+                                    classname == LT_CLASS_SPOT,
+                                    has & LT_HAS_CONE ? light.cone : 0,
+                                    has & LT_HAS_CONE2 ? light.cone2 : 90 );
                 }
             }
             else if( classname == LT_CLASS_SUN_POTENTIAL || ( has & LT_HAS_SKY ) )
@@ -361,6 +382,28 @@ void RT_ParseStaticLightEntities()
                 has |= LT_HAS_STYLE;
             }
         }
+        else if( Q_strcmp( key, "_cone" ) == 0 )
+        {
+            float     tmp;
+            const int components = sscanf( value, "%f", &tmp );
+
+            if( components == 1 )
+            {
+                light.cone = tmp;
+                has |= LT_HAS_CONE;
+            }
+        }
+        else if( Q_strcmp( key, "_cone2" ) == 0 )
+        {
+            float     tmp;
+            const int components = sscanf( value, "%f", &tmp );
+
+            if( components == 1 )
+            {
+                light.cone2 = tmp;
+                has |= LT_HAS_CONE2;
+            }
+        }
     }
 
     FilterTheSunFromPotential( WORLDMODEL->name );
@@ -457,8 +500,8 @@ void RT_UploadAllLights( void )
                 .position   = RT_VEC3( src->abs_position ),
                 .direction  = RT_VEC3( src->dir ),
                 .radius     = METRIC_TO_QUAKEUNIT( 0.1f ),
-                .angleOuter = ( float )M_PI / 2,
-                .angleInner = 0,
+                .angleOuter = src->spot_outer_cone_rad,
+                .angleInner = src->spot_inner_cone_rad,
             };
 
             RgResult r = rgUploadSpotLight( rg_instance, &info );
