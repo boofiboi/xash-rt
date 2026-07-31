@@ -2809,9 +2809,10 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.uniqueObjectID = RI.currententity->index,
 			.pMeshName      = RI.currentmodel->name,
 			.transform      = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
-			.isExportable   = immovable && !rt_state.curBrushSurfaceIsAnimated,
-			.animationName  = NULL,
-			.animationTime  = 0.0f,
+			.isExportable   = immovable && !rt_state.curBrushSurfaceIsAnimated &&
+							!rt_state.curBrushSurfaceIsWater,
+			.animationName = NULL,
+			.animationTime = 0.0f,
 		};
 
 		RgMeshPrimitiveInfo prim = {
