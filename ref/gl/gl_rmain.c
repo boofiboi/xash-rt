@@ -1144,6 +1144,18 @@ void R_EndFrame( void )
 
 #if XASH_RAYTRACING
 	{
+		RgDrawFrameSkyParams skyParams = {
+			.sType                       = RG_STRUCTURE_TYPE_SKY,
+			.pNext                       = NULL,
+			.skyType                     = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
+			.skyColorDefault             = { 0, 0, 0 },
+			.skyColorMultiplier          = 1.0f,
+			.skyColorSaturation          = 1.0f,
+			.skyViewerPosition           = { 0, 0, 0 },
+			.pSkyCubemapTextureName      = NULL,
+			.skyCubemapRotationTransform = RG_TRANSFORM_IDENTITY,
+		};
+
 		RgDrawFrameInfo info = {
 			.fovYRadians      = DEG2RAD( RI.rvp.fov_y ),
 			.cameraNear       = R_GetNearClip(),
@@ -1153,6 +1165,7 @@ void R_EndFrame( void )
 								RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
 			.currentTime      = gpGlobals->realtime,
 			.vsync            = true,
+			.pParams          = &skyParams,
 		};
 
 		// reinterpret cast to make matrices column-major
