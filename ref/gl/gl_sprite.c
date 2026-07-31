@@ -231,6 +231,7 @@ static float R_SpriteGlowBlend( vec3_t origin, int rendermode, int renderfx, flo
 	VectorSubtract( origin, RI.rvp.vieworigin, glowDist );
 	float dist = VectorLength( glowDist );
 
+#if !XASH_RAYTRACING
 	if( !FBitSet( RI.rvp.flags, RF_DRAW_CUBEMAP ))
 	{
 		pmtrace_t *tr = gEngfuncs.EV_VisTraceLine( RI.rvp.vieworigin, origin, r_traceglow.value ? PM_GLASS_IGNORE : (PM_GLASS_IGNORE|PM_STUDIO_IGNORE));
@@ -238,6 +239,7 @@ static float R_SpriteGlowBlend( vec3_t origin, int rendermode, int renderfx, flo
 		if(( 1.0f - tr->fraction ) * dist > 8.0f )
 			return 0.0f;
 	}
+#endif
 
 	if( renderfx == kRenderFxNoDissipation )
 		return 1.0f;
@@ -285,6 +287,11 @@ static qboolean R_SpriteOccluded( cl_entity_t *e, vec3_t origin, float *pscale )
 	return false;
 }
 
+#if XASH_RAYTRACING
+qboolean          rt_lensflare_enable = false;
+RgColor4DPacked32 rt_lensflare_color  = 0;
+#endif
+
 /*
 =================
 R_DrawSpriteQuad
@@ -296,10 +303,53 @@ static void R_DrawSpriteQuad( mspriteframe_t *frame, vec3_t org, vec3_t v_right,
 
 	r_stats.c_sprite_polys++;
 
-	pglBegin( GL_QUADS );
 #if XASH_RAYTRACING
-		rt_state.curIsRasterized = true;
+    if( rt_lensflare_enable )
+    {
+        RgPrimitiveVertex verts[] = {
+            { .texCoord = { 0, 1 }, .color = rt_lensflare_color },
+            { .texCoord = { 0, 0 }, .color = rt_lensflare_color },
+            { .texCoord = { 1, 0 }, .color = rt_lensflare_color },
+            { .texCoord = { 1, 1 }, .color = rt_lensflare_color },
+        };
+
+        VectorMA( org, frame->down * scale, v_up, point );
+        VectorMA( point, frame->left * scale, v_right, point );
+        VectorCopy( point, verts[ 0 ].position );
+
+        VectorMA( org, frame->up * scale, v_up, point );
+        VectorMA( point, frame->left * scale, v_right, point );
+        VectorCopy( point, verts[ 1 ].position );
+
+        VectorMA( org, frame->up * scale, v_up, point );
+        VectorMA( point, frame->right * scale, v_right, point );
+        VectorCopy( point, verts[ 2 ].position );
+
+        VectorMA( org, frame->down * scale, v_up, point );
+        VectorMA( point, frame->right * scale, v_right, point );
+        VectorCopy( point, verts[ 3 ].position );
+
+		uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
+
+		RgLensFlareUploadInfo info = {
+            .vertexCount  = sizeof( verts ) / sizeof( verts[ 0 ] ),
+            .pVertices    = verts,
+            .indexCount   = sizeof( indices ) / sizeof( indices[ 0 ] ),
+            .pIndices     = indices,
+            .pTextureName = rt_state.curTexture2DName,
+            .pointToCheck = RT_VEC3( org ),
+        };
+
+        RgResult r = rgUploadLensFlare( rg_instance, &info );
+        RG_CHECK( r );
+
+        return;
+    }
+
+    rt_state.curIsRasterized = true;
 #endif
+
+	pglBegin( GL_QUADS );
 		pglTexCoord2f( 0.0f, 1.0f );
 		VectorMA( org, frame->down * scale, v_up, point );
 		VectorMA( point, frame->left * scale, v_right, point );
@@ -534,6 +584,18 @@ void R_DrawSpriteModel( cl_entity_t *e )
 	if( psprite->facecull == SPR_CULL_NONE )
 		GL_Cull( GL_NONE );
 
+#if XASH_RAYTRACING
+    if( e->curstate.rendermode == kRenderGlow )
+    {
+        rt_lensflare_enable = true;
+        rt_lensflare_color = rgUtilPackColorFloat4D( color[ 0 ], color[ 1 ], color[ 2 ], tr.blend );
+    }
+    else
+    {
+        rt_lensflare_enable = false;
+    }
+#endif
+
 	if( oldframe == frame )
 	{
 		// draw the single non-lerped frame
@@ -561,6 +623,10 @@ void R_DrawSpriteModel( cl_entity_t *e )
 			R_DrawSpriteQuad( frame, origin, v_right, v_up, scale );
 		}
 	}
+
+#if XASH_RAYTRACING
+    rt_lensflare_enable = false;
+#endif
 
 	// draw the sprite 'lightmap' :-)
 	if( HasLightmap )
