@@ -879,10 +879,11 @@ typedef struct rt_cvars_t
 		rt_volume_type,
 		rt_volume_far,
 		rt_volume_scatter,
-		rt_volume_ambient,
-		rt_volume_lintensity,
-		rt_volume_lassymetry,
-		
+	rt_volume_ambient,
+	rt_volume_lintensity,
+	rt_volume_lassymetry,
+	rt_volume_illumgrid,
+	
 		rt_bloom_intensity,
 		rt_bloom_threshold,
 		rt_bloom_emis_mult,

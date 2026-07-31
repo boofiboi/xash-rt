@@ -439,7 +439,8 @@ static void CalculateFlaslightPosition( vec3_t out_position )
           ( out )[ 2 ] = powf( ( in )[ 2 ], ( pw ) ) )
 
 
-    #define RT_IDBASE_SUN         0
+    #define RT_ID_LIGHTNONE			0
+    #define RT_IDBASE_SUN			1
     #define RT_IDBASE_FLASHLIGHT  256
     #define RT_IDBASE_DLIGHT      512
     #define RT_IDBASE_ELIGHT      768
@@ -448,7 +449,7 @@ static void CalculateFlaslightPosition( vec3_t out_position )
 
 void RT_UploadAllLights( void )
 {
-    rt_state.flashlight_uniqueid = 0;
+    rt_state.flashlight_uniqueid = RT_ID_LIGHTNONE;
 
     if( g_lights.sun_exists && RI.isSkyVisible )
     {
