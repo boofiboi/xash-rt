@@ -1189,6 +1189,7 @@ void R_EndFrame( void )
 #if XASH_RAYTRACING
 	{
 		RT_OnBeforeDrawFrame();
+		RT_UploadAllLights();
 
 		qboolean is_camera_under_water = ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2;
 
