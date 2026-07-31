@@ -74,6 +74,7 @@ void Matrix4x4_CreateProjection( matrix4x4 out, float xMax, float xMin, float yM
 void Matrix4x4_CreateOrtho( matrix4x4 m, float xLeft, float xRight, float yBottom, float yTop, float zNear, float zFar );
 void Matrix4x4_CreateModelview( matrix4x4 out );
 void Matrix4x4_ToArrayFloatGL( const matrix4x4 in, float out[16] );
+void Matrix4x4_FromArrayFloatGL( matrix4x4 out, const float in[16] );
 
 //
 // ref_light.c

@@ -118,6 +118,26 @@ void Matrix4x4_ToArrayFloatGL( const matrix4x4 in, float out[16] )
 	out[15] = in[3][3];
 }
 
+void Matrix4x4_FromArrayFloatGL( matrix4x4 out, const float in[16] )
+{
+	out[0][0] = in[0];
+	out[1][0] = in[1];
+	out[2][0] = in[2];
+	out[3][0] = in[3];
+	out[0][1] = in[4];
+	out[1][1] = in[5];
+	out[2][1] = in[6];
+	out[3][1] = in[7];
+	out[0][2] = in[8];
+	out[1][2] = in[9];
+	out[2][2] = in[10];
+	out[3][2] = in[11];
+	out[0][3] = in[12];
+	out[1][3] = in[13];
+	out[2][3] = in[14];
+	out[3][3] = in[15];
+}
+
 static void Matrix4x4_CreateTranslate( matrix4x4 out, float x, float y, float z )
 {
 	out[0][0] = 1.0f;
