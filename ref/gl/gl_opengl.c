@@ -1355,9 +1355,13 @@ qboolean R_Init( void )
 				.curIsRasterized        = false,
 				.curEntityID            = -1,
 				.curModelName           = NULL,
+
 				.curStudioBodyPartIndex = -1,
 				.curStudioModelIndex    = -1,
 				.curStudioMeshIndex     = -1,
+
+				.curBrushSurfaceIndex   = -1,
+				.curBrushGLPolyIndex    = -1,
 			};
 			memcpy( &rt_state, &nullstate, sizeof( rt_state ) );
 		}
@@ -2294,6 +2298,9 @@ void pglEnd( void )
 							 rt_state.curStudioModelIndex >= 0 &&
 							 rt_state.curStudioMeshIndex >= 0;
 
+	qboolean isbrush = rt_state.curEntityID >= 0 && rt_state.curModelName &&
+					   rt_state.curBrushSurfaceIndex >= 0 && rt_state.curBrushGLPolyIndex >= 0;
+
 	// TODO: remove
 	if( rt_state.curEntityID == 0 )
 	{
@@ -2341,6 +2348,41 @@ void pglEnd( void )
 															 rt_state.curStudioModelIndex,
 															 rt_state.curStudioMeshIndex,
 															 glendIndex ),
+				.flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
+				.pTextureName         = rt_state.curTexture2DName,
+				.textureFrame         = 0,
+				.color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+				.emissive             = 0.0f,
+				.pEditorInfo          = NULL,
+			};
+			rgUtilImScratchSetToPrimitive( rg_instance, &info );
+
+			RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
+			RG_CHECK( r );
+		}
+
+		if( isbrush )
+		{
+#define MATRIX4_TO_RGTRANSFORM( m )                                             \
+			{{                                                                          \
+				{ ( m )[ 0 ][ 0 ], ( m )[ 0 ][ 1 ], ( m )[ 0 ][ 2 ], ( m )[ 0 ][ 3 ] }, \
+				{ ( m )[ 1 ][ 0 ], ( m )[ 1 ][ 1 ], ( m )[ 1 ][ 2 ], ( m )[ 1 ][ 3 ] }, \
+				{ ( m )[ 2 ][ 0 ], ( m )[ 2 ][ 1 ], ( m )[ 2 ][ 2 ], ( m )[ 2 ][ 3 ] }, \
+			}}
+
+			RgMeshInfo mesh = {
+				.uniqueObjectID = rt_state.curEntityID,
+				.pMeshName      = rt_state.curModelName,
+				.transform      = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
+				.isExportable   = false,
+				.animationName  = NULL,
+				.animationTime  = 0.0f,
+			};
+
+			// TODO: rt_state.curBrushGLPolyIndex?
+
+			RgMeshPrimitiveInfo info = {
+				.primitiveIndexInMesh = rt_state.curBrushSurfaceIndex,
 				.flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
 				.pTextureName         = rt_state.curTexture2DName,
 				.textureFrame         = 0,

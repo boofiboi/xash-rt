@@ -1144,6 +1144,17 @@ void R_EndFrame( void )
 
 #if XASH_RAYTRACING
 	{
+		RgDirectionalLightUploadInfo sun = {
+			.uniqueID               = 0,
+			.isExportable           = false,
+			.extra                  = { 0 },
+			.color                  = rgUtilPackColorByte4D( 10, 10, 10, 255 ),
+			.intensity              = 1.0f,
+			.direction              = { -1, -1, -1 },
+			.angularDiameterDegrees = 0.5f,
+		};		RgResult r2 = rgUploadDirectionalLight( rg_instance, &sun );
+		RG_CHECK( r2 );
+
 		RgDrawFrameSkyParams skyParams = {
 			.sType                       = RG_STRUCTURE_TYPE_SKY,
 			.pNext                       = NULL,
