@@ -1522,6 +1522,12 @@ void R_EndFrame( void )
 			.emissionMaxScreenColor = RT_CVAR_TO_FLOAT( rt_emis_maxscrcolor ),
 		};
 
+		RgDrawFrameLightmapParams lightmap_params = {
+			.sType                  = RG_STRUCTURE_TYPE_LIGHTMAP,
+			.pNext                  = &texture_params,
+			.lightmapScreenCoverage = RT_CVAR_TO_FLOAT( rt_classic ),
+		};
+
 		RgPostEffectCRT crt_effect = {
 			.isActive =
 				RT_CVAR_TO_BOOL( rt_ef_crt ) || RT_CVAR_TO_INT32( rt_ef_vintage ) == RT_VINTAGE_CRT,
@@ -1545,7 +1551,7 @@ void R_EndFrame( void )
 
 		RgDrawFramePostEffectsParams posteffect_params = {
 			.sType                = RG_STRUCTURE_TYPE_POSTEFFECTS,
-			.pNext                = &texture_params,
+			.pNext                = &lightmap_params,
 			.pChromaticAberration = &chromatic_aberration_effect,
 			.pWaves               = ENGINE_GET_PARM( PARM_CONNSTATE ) == ca_active ? &waves_effect : NULL,
 			.pCRT                 = &crt_effect,
