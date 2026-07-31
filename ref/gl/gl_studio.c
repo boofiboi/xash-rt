@@ -3103,6 +3103,10 @@ static int R_StudioDrawPlayer( int flags, entity_state_t *pplayer )
 
 		if( pplayer->weaponmodel )
 		{
+#if XASH_RAYTRACING
+			rt_state.curStudioWeaponModel = pplayer->weaponmodel;
+#endif
+
 			cl_entity_t	saveent = *RI.currententity;
 			model_t		*pweaponmodel = CL_ModelHandle( pplayer->weaponmodel );
 
@@ -3114,6 +3118,10 @@ static int R_StudioDrawPlayer( int flags, entity_state_t *pplayer )
 			R_StudioCalcAttachments( );
 
 			*RI.currententity = saveent;
+
+#if XASH_RAYTRACING
+			rt_state.curStudioWeaponModel = 0;
+#endif
 		}
 	}
 
@@ -3221,7 +3229,11 @@ R_StudioDrawModelInternal
 */
 static void R_StudioDrawModelInternal( cl_entity_t *e, int flags )
 {
+#if !XASH_RAYTRACING
 	if( !FBitSet( RI.rvp.flags, RF_DRAW_WORLD ))
+#else
+	if( 1 )
+#endif
 	{
 		if( e->player )
 			R_StudioDrawPlayer( flags, &e->curstate );
@@ -3261,7 +3273,21 @@ void R_DrawStudioModel( cl_entity_t *e )
 
 	if( e->player )
 	{
+#if !XASH_RAYTRACING
 		R_StudioDrawModelInternal( e, STUDIO_RENDER|STUDIO_EVENTS );
+#else
+		if( RP_LOCALCLIENT( e ) && !ENGINE_GET_PARM( PARM_THIRDPERSON ))
+		{
+			// if trying to draw a local player viewer model (not viewmodel) from first-person:
+			// skip third person model events, so muzzle flashes aren't drawn,
+			// gluon and tau beams have correct source position
+			R_StudioDrawModelInternal( e, STUDIO_RENDER );
+		}
+		else
+		{
+			R_StudioDrawModelInternal( e, STUDIO_RENDER | STUDIO_EVENTS );
+		}
+#endif
 	}
 	else if( e->curstate.movetype == MOVETYPE_FOLLOW )
 	{
