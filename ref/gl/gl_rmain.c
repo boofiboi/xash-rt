@@ -1751,6 +1751,13 @@ void R_EndFrame( void )
 			.lightmapScreenCoverage = RT_CVAR_TO_FLOAT( rt_classic ),
 		};
 
+		qboolean skipframe = false;
+		if( rt_cvars._rt_skipframe )
+		{
+			skipframe = RT_CVAR_TO_BOOL( _rt_skipframe );
+			gEngfuncs.Cvar_Set( rt_cvars._rt_skipframe->name, "0" );
+		}
+
 		RgPostEffectCRT crt_effect = {
 			.isActive =
 				RT_CVAR_TO_BOOL( rt_ef_crt ) || RT_CVAR_TO_INT32( rt_ef_vintage ) == RT_VINTAGE_CRT,
@@ -1787,6 +1794,7 @@ void R_EndFrame( void )
 			.rayLength        = R_GetFarClip(),
 			.rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
 								RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
+			.presentPrevFrame = skipframe,
 			.currentTime      = gp_cl->time,
 			.vsync            = RT_CVAR_TO_BOOL( rt_vsync ),
 			.pParams          = &posteffect_params,
