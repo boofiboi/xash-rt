@@ -562,7 +562,9 @@ void V_PostRender( void )
 		R_ShowTree();
 		Con_DrawConsole();
 		UI_UpdateMenu( host.realtime );
+#if !XASH_RAYTRACING
 		Con_DrawVersion();
+#endif
 		Con_DrawDebug(); // must be last
 		Touch_Draw();
 		OSK_Draw();
