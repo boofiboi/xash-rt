@@ -2301,10 +2301,12 @@ static uint32_t hashStudioPrimitive( int bodypart, int submodel, int mesh, int w
 		   ( uint32_t )bodypart;
 }
 
-static qboolean rt_isbatching = false;
-
-static RgMeshInfo          batch_mesh      = { 0 };
-static RgMeshPrimitiveInfo batch_primitive = { 0 };
+static struct
+{
+	qboolean            valid;
+	RgMeshInfo          mesh;
+	RgMeshPrimitiveInfo primitive;
+} rt_batch = { 0 };
 
 static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology )
 {
@@ -2450,12 +2452,6 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 
 	if( isbrush )
 	{
-		// TODO: remove
-		if( !rt_isbatching )
-		{
-			return;
-		}
-
 		RgMeshInfo mesh = {
 			.uniqueObjectID = RI.currententity->index,
 			.pMeshName      = RI.currentmodel->name,
@@ -2478,21 +2474,35 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 
 		if( glbegin )
 		{
-			if( ArePrimitivesSame( &mesh, &info, &batch_mesh, &batch_primitive ) )
+			if( rt_batch.valid )
 			{
-				rgUtilImScratchStart( rg_instance, glbegin_topology );
+				if( ArePrimitivesSame( &mesh, &info, &rt_batch.mesh, &rt_batch.primitive ) )
+				{
+					rgUtilImScratchStart( rg_instance, glbegin_topology );
+				}
+				else
+				{
+					rgUtilImScratchSetToPrimitive( rg_instance, &rt_batch.primitive );
+
+					RgResult r =
+						rgUploadMeshPrimitive( rg_instance, &rt_batch.mesh, &rt_batch.primitive );
+					RG_CHECK( r );
+
+					// start new
+					rgUtilImScratchClear( rg_instance );
+					rt_batch.valid     = true;
+					rt_batch.mesh      = mesh;
+					rt_batch.primitive = info;
+					rgUtilImScratchStart( rg_instance, glbegin_topology );
+				}
 			}
 			else
 			{
-				rgUtilImScratchSetToPrimitive( rg_instance, &batch_primitive );
-
-				RgResult r = rgUploadMeshPrimitive( rg_instance, &batch_mesh, &batch_primitive );
-				RG_CHECK( r );
-
 				// start new
-				batch_mesh      = mesh;
-				batch_primitive = info;
 				rgUtilImScratchClear( rg_instance );
+				rt_batch.valid     = true;
+				rt_batch.mesh      = mesh;
+				rt_batch.primitive = info;
 				rgUtilImScratchStart( rg_instance, glbegin_topology );
 			}
 		}
@@ -2512,28 +2522,22 @@ void pglEnd( void )
 
 void RT_StartBatch( void )
 {
-	assert( !rt_isbatching );
-
-	rt_isbatching = true;
-	memset( &batch_mesh, 0, sizeof( batch_mesh ) );
-	memset( &batch_primitive, 0, sizeof( batch_primitive ) );
+	RT_EndBatch();
 }
 
 void RT_EndBatch( void )
 {
-	if( rt_isbatching )
+	if( rt_batch.valid )
 	{
-		rgUtilImScratchSetToPrimitive( rg_instance, &batch_primitive );
+		rgUtilImScratchSetToPrimitive( rg_instance, &rt_batch.primitive );
 
-		RgResult r = rgUploadMeshPrimitive( rg_instance, &batch_mesh, &batch_primitive );
+		RgResult r = rgUploadMeshPrimitive( rg_instance, &rt_batch.mesh, &rt_batch.primitive );
 		RG_CHECK( r );
 
 		rgUtilImScratchClear( rg_instance );
 	}
 
-	rt_isbatching = false;
-	memset( &batch_mesh, 0, sizeof( batch_mesh ) );
-	memset( &batch_primitive, 0, sizeof( batch_primitive ) );
+	rt_batch.valid = false;
 }
 
 
