@@ -848,7 +848,11 @@ static void R_DrawTriangleOutlines( void )
 DrawGLPoly
 ================
 */
+#if XASH_RAYTRACING
+void DrawGLPoly( msurface_t *surf, glpoly2_t *p, float xScale, float yScale )
+#else
 static void DrawGLPoly( glpoly2_t *p, float xScale, float yScale )
+#endif
 {
 	float sOffset, tOffset;
 
@@ -898,6 +902,15 @@ static void DrawGLPoly( glpoly2_t *p, float xScale, float yScale )
 
 	const qboolean hasScale = xScale != 0.0f && yScale != 0.0f;
 
+#if XASH_RAYTRACING
+	msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
+
+	rt_state.curEntityID          = RI.currententity->index;
+	rt_state.curModelName         = RI.currentmodel->name;
+	rt_state.curBrushSurfaceIndex = ( int )( surf - surfbase );
+	rt_state.curBrushGLPolyIndex  = 0;
+#endif
+
 	pglBegin( GL_POLYGON );
 
 	float *v = p->verts[0];
@@ -911,6 +924,13 @@ static void DrawGLPoly( glpoly2_t *p, float xScale, float yScale )
 	}
 
 	pglEnd();
+
+#if XASH_RAYTRACING
+	rt_state.curEntityID          = -1;
+	rt_state.curModelName         = NULL;
+	rt_state.curBrushSurfaceIndex = -1;
+	rt_state.curBrushGLPolyIndex  = -1;
+#endif
 
 	if( FBitSet( p->flags, SURF_DRAWTILED ))
 		GL_SetupFogColorForSurfaces();
@@ -1274,7 +1294,7 @@ static void R_RenderFullbrights( qboolean allow_vbo )
 		GL_Bind( XASH_TEXTURE0, i );
 
 		for( mextrasurf_t *p = es; p; p = p->lumachain )
-			DrawGLPoly( p->surf->polys, 0.0f, 0.0f );
+			DrawGLPoly( p->surf, p->surf->polys, 0.0f, 0.0f );
 
 		fullbright_surfaces[i] = NULL;
 		es->lumachain = NULL;
@@ -1328,7 +1348,7 @@ static void R_RenderDetails( int passes )
 		{
 			msurface_t *fa = p->surf;
 			gl_texture_t *glt = R_GetTexture( fa->texinfo->texture->gl_texturenum ); // get texture scale
-			DrawGLPoly( fa->polys, glt->xscale, glt->yscale );
+			DrawGLPoly( fa, fa->polys, glt->xscale, glt->yscale );
 		}
 
 		detail_surfaces[i] = NULL;
@@ -1500,7 +1520,7 @@ static void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 
 	R_RenderFullbrightForSurface( fa, t );
 	R_RenderDetailsForSurface( fa, t );
-	DrawGLPoly( fa->polys, 0.0f, 0.0f );
+	DrawGLPoly( fa, fa->polys, 0.0f, 0.0f );
 	R_RenderDecalsForSurface( fa, cull_type );
 	R_RenderLightmapForSurface( fa );
 }

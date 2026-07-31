@@ -373,6 +373,9 @@ void R_DrawWorld( void );
 void R_DrawWaterSurfaces( void );
 void R_DrawBrushModel( cl_entity_t *e );
 void GL_SubdivideSurface( model_t *mod, msurface_t *fa );
+#if XASH_RAYTRACING
+void DrawGLPoly( msurface_t *surf, glpoly2_t *p, float xScale, float yScale );
+#endif
 void GL_SetupFogColorForSurfaces( void );
 void R_DrawAlphaTextureChains( void );
 void GL_RebuildLightmaps( void );
@@ -688,6 +691,7 @@ static inline qboolean GL_Support( int r_ext )
 	{
 		case GL_OPENGL_110:
 		case GL_TEXTURE_2D_RECT_EXT:
+		case GL_ARB_VERTEX_BUFFER_OBJECT_EXT:
 			return true;
 
 		default:
@@ -784,10 +788,14 @@ typedef struct rt_state_s
 	qboolean    curIsSky;
 	qboolean    curIsRasterized;
 	int         curEntityID;
-    const char* curModelName;
-    int         curStudioBodyPartIndex;
-    int         curStudioModelIndex;
-    int         curStudioMeshIndex;
+	const char* curModelName;
+
+	int			curStudioBodyPartIndex;
+	int			curStudioModelIndex;
+	int			curStudioMeshIndex;
+
+	int			curBrushSurfaceIndex;
+	int			curBrushGLPolyIndex;
 } rt_state_t;
 extern rt_state_t rt_state;
 #endif
