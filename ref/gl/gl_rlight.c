@@ -499,7 +499,7 @@ void RT_UploadAllLights( void )
                              GetLightStyleIntensity( src->light_style ),
                 .position   = RT_VEC3( src->abs_position ),
                 .direction  = RT_VEC3( src->dir ),
-                .radius     = METRIC_TO_QUAKEUNIT( 0.1f ),
+                .radius     = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
                 .angleOuter = src->spot_outer_cone_rad,
                 .angleInner = src->spot_inner_cone_rad,
             };
@@ -516,7 +516,7 @@ void RT_UploadAllLights( void )
                 .intensity    = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity *
                              GetLightStyleIntensity( src->light_style ),
                 .position = RT_VEC3( src->abs_position ),
-                .radius   = METRIC_TO_QUAKEUNIT( 0.1f ),
+                .radius   = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
             };
 
             RgResult r = rgUploadSphericalLight( rg_instance, &info );
@@ -578,7 +578,7 @@ void RT_UploadAllLights( void )
                     .color     = rgUtilPackColorByte4D( l->color.r, l->color.g, l->color.b, 255 ),
                     .intensity = RT_CVAR_TO_FLOAT( rt_light_d ) * falloff_mult,
                     .position  = RT_VEC3( l->origin ),
-                    .radius    = METRIC_TO_QUAKEUNIT( 0.1f ),
+                    .radius    = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
                 };
 
                 RgResult r = rgUploadSphericalLight( rg_instance, &info );

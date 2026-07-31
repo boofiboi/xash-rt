@@ -856,8 +856,9 @@ typedef struct rt_cvars_t
 		rt_flsh_u,
 		_rt_flsh_key,
 		
-	    rt_light_d,
-	    rt_light_s,
+		rt_light_d,
+		rt_light_s,
+		rt_light_radius,
 		
 		rt_reflrefr_depth,
 		rt_refr_glass,
