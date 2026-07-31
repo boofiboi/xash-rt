@@ -490,7 +490,7 @@ static qboolean GL_CheckExtension( const char *name, const dllfunc_t *funcs, siz
 	{
 		gEngfuncs.Con_Reportf( "- disabled\n" );
 		GL_SetExtension( r_ext, false );
-		return false; // nothing to process at
+		return; // nothing to process at
 	}
 
 	const char *extensions_string = glConfig.extensions_string;
@@ -499,7 +499,7 @@ static qboolean GL_CheckExtension( const char *name, const dllfunc_t *funcs, siz
 	{
 		GL_SetExtension( r_ext, false );	// update render info
 		gEngfuncs.Con_Reportf( "- ^1failed\n" );
-		return false;
+		return;
 	}
 
 #if !XASH_GL_STATIC
@@ -1285,7 +1285,7 @@ qboolean R_Init( void )
 // Why? Host_Error again???
 //		gEngfuncs.Host_Error( "Can't initialize video subsystem\nProbably driver was not installed" );
 		Mem_FreePool( &r_temppool );
-		return false;
+		return;
 	}
 
 #if XASH_RAYTRACING
@@ -2113,7 +2113,7 @@ EMPTY_LINKAGE void *EMPTY_FUNCTION( glMapBufferRange )(GLenum target, GLsizei of
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawRangeElementsBaseVertex )( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, GLuint vertex ){}
 
 
-static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology );
+static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology );
 
 void pglBegin( GLenum mode )
 {
@@ -2219,7 +2219,7 @@ static qboolean AreTransformsClose( const RgTransform* a, const RgTransform* b )
 		{
 			if( !AreFloatsClose( a->matrix[ i ][ j ], b->matrix[ i ][ j ] ))
 			{
-				return false;
+				return;
 			}
 		}
 	}
@@ -2306,7 +2306,7 @@ static qboolean rt_isbatching = false;
 static RgMeshInfo          batch_mesh      = { 0 };
 static RgMeshPrimitiveInfo batch_primitive = { 0 };
 
-static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology )
+static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology )
 {
 	if( glState.in2DMode )
 	{
@@ -2336,7 +2336,7 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
 			RG_CHECK( r );
 		}
 
-		return false;
+		return;
 	}
 
 	if( rt_state.curIsRasterized || rt_state.curIsSky )
@@ -2376,17 +2376,17 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
 			RG_CHECK( r );
 		}
 
-		return false;
+		return;
 	}
 
 	if( !RI.currententity || RI.currententity->index < 0 )
 	{
-		return false;
+		return;
 	}
 
 	if( !RI.currentmodel )
 	{
-		return false;
+		return;
 	}
 
 	qboolean isstudiomodel = rt_state.curStudioBodyPart >= 0 && rt_state.curStudioSubmodel >= 0 &&
@@ -2445,7 +2445,7 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
 			RG_CHECK( r );
 		}
 
-		return false;
+		return;
 	}
 
 	if( isbrush )
@@ -2453,7 +2453,7 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
 		// TODO: remove
 		if( !rt_isbatching )
 		{
-			return false;
+			return;
 		}
 
 		RgMeshInfo mesh = {
@@ -2501,10 +2501,8 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
 			rgUtilImScratchEnd( rg_instance );
 		}
 
-		return false;
+		return;
 	}
-
-	return false;
 }
 
 void pglEnd( void )
