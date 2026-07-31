@@ -2365,6 +2365,15 @@ static qboolean AreTransformsAlwaysIdentity( rt_batchtype_t type )
 	}
 }
 
+static qboolean AreViewParamsSame( rt_batchtype_t type )
+{
+	if( type == RT_BATCH_TYPE_2D )
+	{
+		// TODO: compare rt_state.projMatrixFor2D / rt_state.viewport with previous
+	}
+	return true;
+}
+
 static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
 								   const RgMeshInfo*          a_mesh,
 								   const RgMeshPrimitiveInfo* a_primitive,
@@ -2409,7 +2418,10 @@ static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
 			if( AreTransformsAlwaysIdentity( a_type ) ||
 				AreTransformsClose( &a_mesh->transform, &b_mesh->transform ) )
 			{
-				return true;
+				if( AreViewParamsSame( a_type ) )
+				{
+					return true;
+				}
 			}
 		}
 	}
