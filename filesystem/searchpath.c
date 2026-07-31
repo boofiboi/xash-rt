@@ -444,6 +444,14 @@ void FS_Rescan( uint32_t flags, const char *language )
 	if( !COM_StringEmptyOrNULL( str ))
 		FS_MountArchive_Fullpath( str, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
 
+	{
+		char rtGame[MAX_OSPATH] = "";
+
+		Q_strcat( rtGame, "rt/", sizeof( rtGame ));
+		Q_strcat( rtGame, GI->gamefolder, sizeof( rtGame ));
+		FS_AddGameHierarchy( rtGame, 0 );
+	}
+
 	if( Q_stricmp( GI->basedir, GI->gamefolder ))
 		FS_AddGameHierarchy( GI->basedir, flags );
 
