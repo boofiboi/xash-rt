@@ -2346,6 +2346,39 @@ void R_StudioResetPlayerModels( void )
 	memset( g_studio.player_models, 0, sizeof( g_studio.player_models ));
 }
 
+#if XASH_RAYTRACING
+static model_t* RT_GetCurrentLocalPlayerModel()
+{
+    qboolean labcoat = RT_CVAR_TO_BOOL( _rt_labcoat );
+
+	if( RT_CVAR_TO_UINT32( rt_labcoat_force ) == 1 )
+    {
+        labcoat = true;
+    }
+    else if( RT_CVAR_TO_UINT32( rt_labcoat_force ) == 2 )
+    {
+        labcoat = false;
+    }
+	
+    if( labcoat )
+    {
+        char labcoat_model_path[ MAX_OSPATH ];
+        Q_snprintf( labcoat_model_path,
+                    sizeof( labcoat_model_path ),
+                    "%s",
+                    rt_cvars.rt_labcoat_model->string );
+
+        gEngfuncs.fsapi->AllowDirectPaths( true );
+        model_t* mdl = gEngfuncs.Mod_ForName( labcoat_model_path, false, false );
+        gEngfuncs.fsapi->AllowDirectPaths( false );
+
+		return mdl;
+    }
+
+    return NULL;
+}
+#endif
+
 /*
 ===============
 R_StudioSetupPlayerModel
@@ -2360,6 +2393,21 @@ static model_t *R_StudioSetupPlayerModel( int index )
 		return NULL;
 
 	player_model_t *state = &g_studio.player_models[index];
+
+#if XASH_RAYTRACING
+    if( ENGINE_GET_PARM( PARM_SINGLEPLAYER_GAME ) )
+    {
+        model_t* ovrd_model = RT_GetCurrentLocalPlayerModel();
+
+        if( ovrd_model != NULL )
+        {
+            state->model     = ovrd_model;
+            state->name[ 0 ] = 0;
+
+            return state->model;
+        }
+    }
+#endif
 
 	// g-cont: force for "dev-mode", non-local games and menu preview
 	if(( gpGlobals->developer || !ENGINE_GET_PARM( PARM_SINGLEPLAYER_GAME ) || !FBitSet( RI.rvp.flags, RF_DRAW_WORLD ) ) && info->model[0] )
