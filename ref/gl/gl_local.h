@@ -373,10 +373,7 @@ void R_DrawWorld( void );
 void R_DrawWaterSurfaces( void );
 void R_DrawBrushModel( cl_entity_t *e );
 void GL_SubdivideSurface( model_t *mod, msurface_t *fa );
-#if XASH_RAYTRACING
-void DrawGLPoly( msurface_t *surf, glpoly2_t *p, float xScale, float yScale );
-#endif
-void GL_SetupFogColorForSurfaces( void );
+void DrawGLPoly( glpoly2_t *p, float xScale, float yScale );void GL_SetupFogColorForSurfaces( void );
 void R_DrawAlphaTextureChains( void );
 void GL_RebuildLightmaps( void );
 void GL_BuildLightmaps( void );
@@ -794,9 +791,12 @@ typedef struct rt_state_s
 	int         curStudioGlend;
 
 	int			curBrushSurface;
-	int			curBrushGlend;
 } rt_state_t;
 extern rt_state_t rt_state;
+
+void RT_StartBatch( void );
+void RT_EndBatch( void );
+
 #endif
 
 //
