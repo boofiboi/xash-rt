@@ -490,7 +490,7 @@ static qboolean GL_CheckExtension( const char *name, const dllfunc_t *funcs, siz
 	{
 		gEngfuncs.Con_Reportf( "- disabled\n" );
 		GL_SetExtension( r_ext, false );
-		return; // nothing to process at
+		return false; // nothing to process at
 	}
 
 	const char *extensions_string = glConfig.extensions_string;
@@ -499,7 +499,7 @@ static qboolean GL_CheckExtension( const char *name, const dllfunc_t *funcs, siz
 	{
 		GL_SetExtension( r_ext, false );	// update render info
 		gEngfuncs.Con_Reportf( "- ^1failed\n" );
-		return;
+		return false;
 	}
 
 #if !XASH_GL_STATIC
@@ -1453,7 +1453,7 @@ qboolean R_Init( void )
 // Why? Host_Error again???
 //		gEngfuncs.Host_Error( "Can't initialize video subsystem\nProbably driver was not installed" );
 		Mem_FreePool( &r_temppool );
-		return;
+		return false;
 	}
 
 #if XASH_RAYTRACING
@@ -2402,7 +2402,7 @@ static qboolean AreTransformsClose( const RgTransform* a, const RgTransform* b )
 		{
 			if( !AreFloatsClose( a->matrix[ i ][ j ], b->matrix[ i ][ j ] ))
 			{
-				return;
+				return false;
 			}
 		}
 	}
