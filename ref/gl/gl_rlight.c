@@ -404,14 +404,6 @@ static void CalculateFlaslightPosition( vec3_t out_position )
 }
 
 
-static float FixupAreaLightIntensity()
-{
-    const float rt_globallightmult      = 1.0f;
-    const float rt_quake_light_area_fix = 1.0f / ( QUAKEUNIT_IN_METERS * QUAKEUNIT_IN_METERS );
-
-    return rt_globallightmult * rt_quake_light_area_fix;
-}
-
     #define VectorPow( in, pw, out )                  \
         ( ( out )[ 0 ] = powf( ( in )[ 0 ], ( pw ) ), \
           ( out )[ 1 ] = powf( ( in )[ 1 ], ( pw ) ), \
@@ -441,7 +433,7 @@ void RT_UploadAllLights( void )
             .uniqueID               = RT_IDBASE_SUN,
             .isExportable           = true,
             .color                  = sun->pcolor,
-            .intensity              = sun->intensity * RT_CVAR_TO_FLOAT( rt_sun ),
+            .intensity              = RT_CVAR_TO_FLOAT( rt_sun ) * sun->intensity,
             .direction              = RT_VEC3( direction ),
             .angularDiameterDegrees = RT_CVAR_TO_FLOAT( rt_sun_diameter ),
         };
@@ -460,8 +452,8 @@ void RT_UploadAllLights( void )
                 .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
                 .isExportable = true,
                 .color        = src->pcolor,
-                .intensity    = 300 * src->intensity * GetLightStyleIntensity( src->light_style ) *
-                             FixupAreaLightIntensity(),
+                .intensity    = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity *
+                             GetLightStyleIntensity( src->light_style ),
                 .position   = RT_VEC3( src->abs_position ),
                 .direction  = RT_VEC3( src->dir ),
                 .radius     = METRIC_TO_QUAKEUNIT( 0.1f ),
@@ -478,8 +470,8 @@ void RT_UploadAllLights( void )
                 .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
                 .isExportable = true,
                 .color        = src->pcolor,
-                .intensity =
-                    300 * GetLightStyleIntensity( src->light_style ) * FixupAreaLightIntensity(),
+                .intensity    = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity *
+                             GetLightStyleIntensity( src->light_style ),
                 .position = RT_VEC3( src->abs_position ),
                 .radius   = METRIC_TO_QUAKEUNIT( 0.1f ),
             };
@@ -515,7 +507,7 @@ void RT_UploadAllLights( void )
                     .uniqueID     = RT_IDBASE_FLASHLIGHT + i,
                     .isExportable = false,
                     .color        = rgUtilPackColorByte4D( 220, 243, 255, 255 ),
-                    .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ) * FixupAreaLightIntensity(),
+                    .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ),
                     .position     = RT_VEC3( pos ),
                     .direction    = RT_VEC3( RI.vforward ),
                     .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_radius ) ),
@@ -541,7 +533,7 @@ void RT_UploadAllLights( void )
                     .uniqueID     = is_e_light ? RT_IDBASE_ELIGHT + i : RT_IDBASE_DLIGHT + i,
                     .isExportable = false,
                     .color     = rgUtilPackColorByte4D( l->color.r, l->color.g, l->color.b, 255 ),
-                    .intensity = 300 * falloff_mult * FixupAreaLightIntensity(),
+                    .intensity = RT_CVAR_TO_FLOAT( rt_light_d ) * falloff_mult,
                     .position  = RT_VEC3( l->origin ),
                     .radius    = METRIC_TO_QUAKEUNIT( 0.1f ),
                 };
