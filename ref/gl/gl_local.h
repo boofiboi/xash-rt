@@ -808,6 +808,7 @@ extern rt_state_t rt_state;
 	void RT_OnBeforeDrawFrame( void );
 	void RT_ParseStaticLightEntities( void );
 void RT_UploadAllLights( void );
+void RT_TryAddParticleLight( const cl_entity_t* e );
 void RT_BindLightmapTexture( int texnum );
 void RT_ResetChapterLogo( void );
 void RT_TryFindTramLights( void );
@@ -864,6 +865,7 @@ typedef struct rt_cvars_t
 		
 	rt_light_d,
 	rt_light_s,
+	rt_light_p,
 	rt_light_tram,
 	rt_light_tram_h,
 	rt_light_tram_ao,
