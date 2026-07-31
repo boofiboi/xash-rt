@@ -1656,6 +1656,16 @@ void R_EndFrame( void )
 		ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
 		UpscaleCvarsToRtgl( &resolution_params );
 
+		{
+			static float prevvalue = 0;
+
+			if( fabsf( RT_CVAR_TO_FLOAT( rt_classic ) - prevvalue ) > 0.9f )
+			{
+				resolution_params.resetUpscalerHistory = true;
+			}
+			prevvalue = RT_CVAR_TO_FLOAT( rt_classic );
+		}
+
 		float lightstyles[ RT_ARRAYSIZE( g_lightstylevalue ) ];
 		for( uint32_t i = 0; i < RT_ARRAYSIZE( g_lightstylevalue ); i++ )
 		{
