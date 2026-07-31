@@ -75,6 +75,7 @@ void Matrix4x4_CreateOrtho( matrix4x4 m, float xLeft, float xRight, float yBotto
 void Matrix4x4_CreateModelview( matrix4x4 out );
 void Matrix4x4_ToArrayFloatGL( const matrix4x4 in, float out[16] );
 void Matrix4x4_FromArrayFloatGL( matrix4x4 out, const float in[16] );
+void Matrix4x4_Transpose( matrix4x4 out, const matrix4x4 in1 );
 
 //
 // ref_light.c
