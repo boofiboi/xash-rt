@@ -181,6 +181,10 @@ void IN_ToggleClientMouse( int newstate, int oldstate )
 	if( newstate == key_menu || newstate == key_console )
 	{
 		Platform_SetCursorType( dc_arrow );
+#if XASH_RAYTRACING
+		if( cls.key_dest == key_menu )
+			SDL_ShowCursor( SDL_TRUE );
+#endif
 
 #if XASH_USE_EVDEV
 		Evdev_SetGrab( false );
