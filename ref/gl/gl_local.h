@@ -889,9 +889,11 @@ typedef struct rt_cvars_t
 	rt_volume_illumgrid,
 	rt_volume_history,
 	
-		rt_bloom_intensity,
-		rt_bloom_threshold,
-		rt_bloom_emis_mult,
+	rt_bloom_intensity,
+	rt_bloom_threshold,
+	rt_bloom_emis_mult,
+	rt_bloom_dirt,
+
 		
 		rt_ef_crt,
 		rt_ef_chraber,
