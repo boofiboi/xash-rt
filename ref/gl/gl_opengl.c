@@ -2445,11 +2445,13 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 				.animationTime  = 0.0f,
 			};
 
-			if( rt_state.curTempEntityIndex > 0 )
+			// tempentity-s have entity index of 0, this fixes it
+			//  but curTempEntityIndex is unstable between frames,
+			// so motion vectors will be invalid
+			if( mesh.uniqueObjectID == 0 )
 			{
 				mesh.uniqueObjectID = rt_state.curTempEntityIndex;
 			}
-
 			assert( mesh.uniqueObjectID != 0 );
 
 			if( RI.currententity->player )
@@ -2486,8 +2488,6 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 
 	if( isbrush )
 	{
-		Assert( rt_state.curTempEntityIndex == 0 );
-
 		RgMeshInfo mesh = {
 			.uniqueObjectID = RI.currententity->index,
 			.pMeshName      = RI.currentmodel->name,

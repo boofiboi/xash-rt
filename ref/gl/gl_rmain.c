@@ -266,27 +266,12 @@ qboolean R_AddEntity( struct cl_entity_s *clent, int type )
 		return true;
 	}
 
-#if XASH_RAYTRACING
-	if( type == ET_TEMPENTITY )
-	{
-		assert( clent->model->type != mod_alias && clent->model->type != mod_brush );
-	}
-
-	#define RT_ORDINARY_CLENTITIES_COUNT MAX_EDICTS
-	assert( clent->index >= 0 );
-	assert( clent->index < RT_ORDINARY_CLENTITIES_COUNT );
-#endif
-
-	else if( R_OpaqueEntity( clent ))
+	if( R_OpaqueEntity( clent ))
 	{
 		// opaque
 		if( tr.draw_list->num_solid_entities >= MAX_VISIBLE_PACKET )
 			return false;
 
-#if XASH_RAYTRACING
-		tr.draw_list->solid_entities_indexfortemp[tr.draw_list->num_solid_entities] =
-			type == ET_TEMPENTITY ? RT_ORDINARY_CLENTITIES_COUNT + r_stats.c_active_tents_count : 0;
-#endif
 		tr.draw_list->solid_entities[tr.draw_list->num_solid_entities] = clent;
 		tr.draw_list->num_solid_entities++;
 	}
@@ -296,10 +281,6 @@ qboolean R_AddEntity( struct cl_entity_s *clent, int type )
 		if( tr.draw_list->num_trans_entities >= MAX_VISIBLE_PACKET )
 			return false;
 
-#if XASH_RAYTRACING
-		tr.draw_list->trans_entities_indexfortemp[tr.draw_list->num_trans_entities] =
-			type == ET_TEMPENTITY ? RT_ORDINARY_CLENTITIES_COUNT + r_stats.c_active_tents_count : 0;
-#endif
 		tr.draw_list->trans_entities[tr.draw_list->num_trans_entities] = clent;
 		tr.draw_list->num_trans_entities++;
 	}
@@ -356,10 +337,12 @@ static float R_GetFarClip( void )
 	return 2048.0f;
 }
 
+#if XASH_RAYTRACING
 static float R_GetNearClip( void )
 {
 	return 4.0f;
 }
+#endif
 
 /*
 ===============
@@ -406,7 +389,11 @@ static void R_SetupProjectionMatrix( matrix4x4 m )
 
 	RI.farClip = R_GetFarClip();
 
+#if !XASH_RAYTRACING
+	GLfloat zNear = 4.0f;
+#else
 	GLfloat zNear = R_GetNearClip();
+#endif
 	GLfloat zFar = Q_max( 256.0f, RI.farClip );
 
 	GLfloat yMax = zNear * tan( RI.rvp.fov_y * M_PI_F / 360.0f );
@@ -814,6 +801,10 @@ void R_DrawFog( void )
 	pglHint( GL_FOG_HINT, GL_NICEST );
 }
 
+#if XASH_RAYTRACING
+#define RT_ORDINARY_CLENTITIES_COUNT MAX_EDICTS
+#endif
+
 /*
 =============
 R_DrawEntitiesOnList
@@ -829,15 +820,19 @@ static void R_DrawEntitiesOnList( void )
 	{
 		RI.currententity = tr.draw_list->solid_entities[i];
 		RI.currentmodel = RI.currententity->model;
-#if XASH_RAYTRACING
-		rt_state.curTempEntityIndex = tr.draw_list->solid_entities_indexfortemp[i];
-#endif
 
 		if( !RI.currentmodel && RI.currententity->player && !FBitSet( RI.rvp.flags, RF_DRAW_WORLD ))
 			continue;
 
 		Assert( RI.currententity != NULL );
 		Assert( RI.currentmodel != NULL );
+
+#if XASH_RAYTRACING
+		assert( RI.currententity->index >= 0 );
+		assert( RI.currententity->index < RT_ORDINARY_CLENTITIES_COUNT );
+		assert( i < RT_ORDINARY_CLENTITIES_COUNT );
+		rt_state.curTempEntityIndex = 1 * RT_ORDINARY_CLENTITIES_COUNT + i;
+#endif
 
 		switch( RI.currentmodel->type )
 		{
@@ -871,15 +866,19 @@ static void R_DrawEntitiesOnList( void )
 	{
 		RI.currententity = tr.draw_list->solid_entities[i];
 		RI.currentmodel = RI.currententity->model;
-#if XASH_RAYTRACING
-		rt_state.curTempEntityIndex = tr.draw_list->solid_entities_indexfortemp[i];
-#endif
 
 		if( !RI.currentmodel && RI.currententity->player && !FBitSet( RI.rvp.flags, RF_DRAW_WORLD ))
 			continue;
 
 		Assert( RI.currententity != NULL );
 		Assert( RI.currentmodel != NULL );
+
+#if XASH_RAYTRACING
+		assert( RI.currententity->index >= 0 );
+		assert( RI.currententity->index < RT_ORDINARY_CLENTITIES_COUNT );
+		assert( i < RT_ORDINARY_CLENTITIES_COUNT );
+		rt_state.curTempEntityIndex = 2 * RT_ORDINARY_CLENTITIES_COUNT + i;
+#endif
 
 		switch( RI.currentmodel->type )
 		{
@@ -912,10 +911,6 @@ static void R_DrawEntitiesOnList( void )
 	{
 		RI.currententity = tr.draw_list->trans_entities[i];
 		RI.currentmodel = RI.currententity->model;
-#if XASH_RAYTRACING
-		// TODO: trans_entities was sorted, so trans_entities_indexfortemp is invalid
-		rt_state.curTempEntityIndex = 0; // tr.draw_list->trans_entities_indexfortemp[i];
-#endif
 
 		// handle studiomodels with custom rendermodes on texture
 		if( RI.currententity->curstate.rendermode != kRenderNormal )
@@ -929,6 +924,13 @@ static void R_DrawEntitiesOnList( void )
 
 		Assert( RI.currententity != NULL );
 		Assert( RI.currentmodel != NULL );
+
+#if XASH_RAYTRACING
+		assert( RI.currententity->index >= 0 );
+		assert( RI.currententity->index < RT_ORDINARY_CLENTITIES_COUNT );
+		assert( i < RT_ORDINARY_CLENTITIES_COUNT );
+		rt_state.curTempEntityIndex = 3 * RT_ORDINARY_CLENTITIES_COUNT + i;
+#endif
 
 		switch( RI.currentmodel->type )
 		{
