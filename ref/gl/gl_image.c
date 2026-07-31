@@ -991,6 +991,11 @@ static qboolean GL_UploadTexture( gl_texture_t *tex, rgbdata_t *pic )
 		}
 	}
 
+#if XASH_RAYTRACING
+	rg_currentTextureNearest = ( tex->flags & TF_NEAREST );
+	rg_currentTextureClamped = ( tex->flags & TF_BORDER ) || ( tex->flags & TF_CLAMP );
+#endif
+
 	GL_SetTextureDimensions( tex, pic->width, pic->height, pic->depth );
 	GL_SetTextureFormat( tex, pic->type, pic->flags );
 

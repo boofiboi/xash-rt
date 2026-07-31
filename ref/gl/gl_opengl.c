@@ -2182,6 +2182,8 @@ void pglColor4ubv( const GLubyte* v )
 }
 
 static const char* rg_currentTexture2DName = NULL;
+qboolean rg_currentTextureNearest = false;
+qboolean rg_currentTextureClamped = false;
 
 void pglEnd( void )
 {
@@ -2248,14 +2250,17 @@ void pglTexImage2D( GLenum        target,
 		{
 			if( level == 0 && format == GL_RGBA && type == GL_UNSIGNED_BYTE && pixels )
 			{
-				RgOriginalTextureInfo info = {
-					.pTextureName = rg_currentTexture2DName,
-					.pPixels      = pixels,
-					.size         = { width, height },
-					.filter       = RG_SAMPLER_FILTER_AUTO,
-					.addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
-					.addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
-				};
+			RgOriginalTextureInfo info = {
+				.pTextureName = rg_currentTexture2DName,
+				.pPixels      = pixels,
+				.size         = { width, height },
+				.filter       = rg_currentTextureNearest ? RG_SAMPLER_FILTER_NEAREST
+														 : RG_SAMPLER_FILTER_AUTO,
+				.addressModeU = rg_currentTextureClamped ? RG_SAMPLER_ADDRESS_MODE_CLAMP
+														 : RG_SAMPLER_ADDRESS_MODE_REPEAT,
+				.addressModeV = rg_currentTextureClamped ? RG_SAMPLER_ADDRESS_MODE_CLAMP
+														 : RG_SAMPLER_ADDRESS_MODE_REPEAT,
+			};
 
 				RgResult r = rgProvideOriginalTexture( rg_instance, &info );
 				RG_CHECK( r );

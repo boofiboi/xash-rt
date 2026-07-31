@@ -776,6 +776,8 @@ extern RgInstance rg_instance;
 
 extern const RgViewport* rg_GetViewport( void );
 extern const float*      rg_Get2DProjectionMatrix( void );
+extern qboolean          rg_currentTextureNearest;
+extern qboolean          rg_currentTextureClamped;
 #endif
 
 //
