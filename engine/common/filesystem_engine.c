@@ -352,7 +352,20 @@ void FS_Init( void )
 		return;
 	}
 	COM_FixSlashes( rootdir );
+
+#if XASH_RAYTRACING
+	// use parent folder as base directory (so to run xash, we can copy
+	// a folder that contains .exe directly into Steam's "Half-Life" directory)
+	{
+		size_t len = Q_strlen( rootdir );
+
+		if( len && ( rootdir[len - 1] == '/' || rootdir[len - 1] == '\\' ))
+			rootdir[len - 1] = 0;
+		Q_strncat( rootdir, XASH_WIN32 ? "\\.." : "/..", sizeof( rootdir ));
+	}
+#else
 	COM_StripDirectorySlash( rootdir );
+#endif
 
 	FS_DetermineReadOnlyRootDirectory( rodir, sizeof( rodir ));
 	COM_FixSlashes( rodir );
