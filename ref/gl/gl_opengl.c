@@ -1811,7 +1811,11 @@ EMPTY_LINKAGE void APIENTRY pglCopyTexSubImage1D(GLenum target, GLint level, GLi
 EMPTY_LINKAGE void APIENTRY pglCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height){}
 EMPTY_LINKAGE void APIENTRY pglCullFace(GLenum mode){}
 EMPTY_LINKAGE void APIENTRY pglDeleteLists(GLuint list, GLsizei range){}
-EMPTY_LINKAGE void APIENTRY pglDeleteTextures(GLsizei n, const GLuint *textures){}
+void pglDeleteTextures( const char* texturename )
+{
+    RgResult r = rgMarkOriginalTextureAsDeleted( rg_instance, texturename );
+    RG_CHECK( r );
+}
 EMPTY_LINKAGE void APIENTRY pglDepthFunc(GLenum func){}
 EMPTY_LINKAGE void APIENTRY pglDepthMask(GLboolean flag){}
 EMPTY_LINKAGE void APIENTRY pglDisableClientState(GLenum array){}
@@ -2756,7 +2760,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.layerLightmap       = { .pTexCoord    = NULL,
 									 .pTextureName = rt_state.curLightmapTextureName,
 									 .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
-									 .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ) },
+									 .color = rgUtilPackColorByte4D( 255 / 2, 255 / 2, 255 / 2, 255 ) },
 		};
 
 		prim.pEditorInfo = &additional;
