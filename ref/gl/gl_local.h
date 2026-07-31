@@ -797,6 +797,7 @@ typedef struct rt_state_s
 extern rt_state_t rt_state;
 
 void RT_OnBeforeDrawFrame( void );
+void RT_UploadAllLights( void );
 
 #endif
 
