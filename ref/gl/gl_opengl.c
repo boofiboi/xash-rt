@@ -1012,6 +1012,7 @@ static void GL_InitExtensionsBigGL( void )
 
 void GL_InitExtensions( void )
 {
+#if !XASH_RAYTRACING
 	char value[MAX_VA_STRING];
 	GLint major = 0, minor = 0;
 
@@ -1119,6 +1120,7 @@ void GL_InitExtensions( void )
 #endif
 
 	R_RenderInfo( true );
+#endif
 
 	tr.framecount = tr.visframecount = 1;
 	glw_state.initialized = true;
@@ -1355,6 +1357,9 @@ qboolean R_Init( void )
 	R_ClearDecals();
 	R_ClearScene();
 
+#if XASH_RAYTRACING
+	glw_state.initialized = true;
+#endif
 	return true;
 }
 
@@ -1644,7 +1649,6 @@ EMPTY_LINKAGE void APIENTRY pglAccum(GLenum op, GLfloat value){}
 EMPTY_LINKAGE void APIENTRY pglAlphaFunc(GLenum func, GLclampf ref){}
 EMPTY_LINKAGE void APIENTRY pglArrayElement(GLint i){}
 EMPTY_LINKAGE void APIENTRY pglBegin(GLenum mode){}
-EMPTY_LINKAGE void APIENTRY pglBindTexture(GLenum target, GLuint texture){}
 EMPTY_LINKAGE void APIENTRY pglBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap){}
 EMPTY_LINKAGE void APIENTRY pglBlendFunc(GLenum sfactor, GLenum dfactor){}
 EMPTY_LINKAGE void APIENTRY pglCallList(GLuint list){}
@@ -1935,7 +1939,6 @@ EMPTY_LINKAGE void APIENTRY pglTexGenfv(GLenum coord, GLenum pname, const GLfloa
 EMPTY_LINKAGE void APIENTRY pglTexGeni(GLenum coord, GLenum pname, GLint param){}
 EMPTY_LINKAGE void APIENTRY pglTexGeniv(GLenum coord, GLenum pname, const GLint *params){}
 EMPTY_LINKAGE void APIENTRY pglTexImage1D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels){}
-EMPTY_LINKAGE void APIENTRY pglTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels){}
 EMPTY_LINKAGE void APIENTRY pglTexParameterf(GLenum target, GLenum pname, GLfloat param){}
 EMPTY_LINKAGE void APIENTRY pglTexParameterfv(GLenum target, GLenum pname, const GLfloat *params){}
 EMPTY_LINKAGE void APIENTRY pglTexParameteri(GLenum target, GLenum pname, GLint param){}
@@ -2100,7 +2103,7 @@ EMPTY_LINKAGE void APIENTRY pglGenVertexArrays( GLsizei n, const GLuint *arrays 
 EMPTY_LINKAGE GLboolean APIENTRY pglIsVertexArray( GLuint array ){ return 0; }
 EMPTY_LINKAGE void APIENTRY pglSwapInterval ( int interval ){}
 EMPTY_LINKAGE void APIENTRY pglTexImage2DMultisample( GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations ){}
-EMPTY_LINKAGE const GLubyte * EMPTY_FUNCTION( glGetStringi )(GLenum name, GLint i){ return "; }
+EMPTY_LINKAGE const GLubyte * EMPTY_FUNCTION( glGetStringi )(GLenum name, GLint i){ return ""; }
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteProgram )(GLuint program){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glGetProgramiv )(GLuint program, GLenum e, GLuint *v){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glGetProgramInfoLog )(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog){}
@@ -2109,5 +2112,40 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glFlushMappedBufferRange )(GLenum target, GLs
 EMPTY_LINKAGE void *EMPTY_FUNCTION( glMapBufferRange )(GLenum target, GLsizei offset, GLsizei length, GLbitfield access){ return NULL; }
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawRangeElementsBaseVertex )( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices, GLuint vertex ){}
 
+
+static GLuint g_currentTex2D = 0;
+
+EMPTY_LINKAGE void EMPTY_FUNCTION(glBindTexture)(GLenum target, GLuint texture)
+{
+	if (target == GL_TEXTURE_2D)
+	{
+		g_currentTex2D = texture;
+	}
+}
+
+EMPTY_LINKAGE void EMPTY_FUNCTION(glTexImage2D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
+{
+	if (g_currentTex2D && target == GL_TEXTURE_2D && level == 0 && format == GL_RGBA && type == GL_UNSIGNED_BYTE && pixels)
+	{
+		char texName[16];
+		snprintf(texName, sizeof(texName), "%d", g_currentTex2D);
+
+		RgOriginalTextureInfo info = {
+			.pTextureName = texName,
+			.pPixels = pixels,
+			.size = {width, height},
+			.filter = RG_SAMPLER_FILTER_AUTO,
+			.addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+			.addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+		};
+
+		RgResult r = rgProvideOriginalTexture(rg_instance, &info);
+		RG_CHECK(r);
+	}
+}
+
+
+#undef EMPTY_LINKAGE
+#undef EMPTY_FUNCTION
 #endif // XASH_RAYTRACING
 
