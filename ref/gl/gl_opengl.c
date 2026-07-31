@@ -1658,7 +1658,7 @@ EMPTY_LINKAGE void APIENTRY pglAccum(GLenum op, GLfloat value){}
 EMPTY_LINKAGE void APIENTRY pglAlphaFunc(GLenum func, GLclampf ref){}
 EMPTY_LINKAGE void APIENTRY pglArrayElement(GLint i){}
 EMPTY_LINKAGE void APIENTRY pglBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap){}
-EMPTY_LINKAGE void APIENTRY pglBlendFunc(GLenum sfactor, GLenum dfactor){}
+EMPTY_LINKAGE void APIENTRY pglBlendColorARB(GLfloat r, GLfloat g, GLfloat b, GLfloat a){}
 EMPTY_LINKAGE void APIENTRY pglCallList(GLuint list){}
 EMPTY_LINKAGE void APIENTRY pglCallLists(GLsizei n, GLenum type, const GLvoid *lists){}
 EMPTY_LINKAGE void APIENTRY pglClear(GLbitfield mask){}
@@ -1704,7 +1704,6 @@ EMPTY_LINKAGE void APIENTRY pglDeleteLists(GLuint list, GLsizei range){}
 EMPTY_LINKAGE void APIENTRY pglDeleteTextures(GLsizei n, const GLuint *textures){}
 EMPTY_LINKAGE void APIENTRY pglDepthFunc(GLenum func){}
 EMPTY_LINKAGE void APIENTRY pglDepthMask(GLboolean flag){}
-EMPTY_LINKAGE void APIENTRY pglDisable(GLenum cap){}
 EMPTY_LINKAGE void APIENTRY pglDisableClientState(GLenum array){}
 EMPTY_LINKAGE void APIENTRY pglDrawArrays(GLenum mode, GLint first, GLsizei count){}
 EMPTY_LINKAGE void APIENTRY pglDrawBuffer(GLenum mode){}
@@ -1713,7 +1712,6 @@ EMPTY_LINKAGE void APIENTRY pglDrawPixels(GLsizei width, GLsizei height, GLenum 
 EMPTY_LINKAGE void APIENTRY pglEdgeFlag(GLboolean flag){}
 EMPTY_LINKAGE void APIENTRY pglEdgeFlagPointer(GLsizei stride, const GLvoid *pointer){}
 EMPTY_LINKAGE void APIENTRY pglEdgeFlagv(const GLboolean *flag){}
-EMPTY_LINKAGE void APIENTRY pglEnable(GLenum cap){}
 EMPTY_LINKAGE void APIENTRY pglEnableClientState(GLenum array){}
 EMPTY_LINKAGE void APIENTRY pglEndList(void){}
 EMPTY_LINKAGE void APIENTRY pglEvalCoord1d(GLdouble u){}
@@ -2191,10 +2189,11 @@ void pglEnd( void )
 	{
 		RgMeshPrimitiveInfo info = {
 			.primitiveIndexInMesh = 0,
-			.flags                = 0,
+			.flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
 			.pTextureName         = rg_currentTexture2DName,
 			.textureFrame         = 0,
 			.color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+			.emissive             = 0.0f,
 			.pEditorInfo          = NULL,
 		};
 		rgUtilImScratchSetToPrimitive( rg_instance, &info );
@@ -2206,10 +2205,12 @@ void pglEnd( void )
 
 	RgMeshPrimitiveInfo info = {
 		.primitiveIndexInMesh = 0,
-		.flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
+		.flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
+								( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ),
 		.pTextureName         = rg_currentTexture2DName,
 		.textureFrame         = 0,
 		.color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+		.emissive             = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
 		.pEditorInfo          = NULL,
 	};
 	rgUtilImScratchSetToPrimitive( rg_instance, &info );
@@ -2261,6 +2262,35 @@ void pglTexImage2D( GLenum        target,
 			}
 		}
 	}
+}
+
+static qboolean rt_raster_additive = false;
+static qboolean rt_raster_blend    = false;
+static qboolean rt_alphatest       = false;
+
+void pglEnable( GLenum cap )
+{
+	switch( cap )
+	{
+		case GL_BLEND: rt_raster_blend = true; break;
+		case GL_ALPHA_TEST: rt_alphatest = true; break;
+		default: break;
+	}
+}
+
+void pglDisable( GLenum cap )
+{
+	switch( cap )
+	{
+		case GL_BLEND: rt_raster_blend = false; break;
+		case GL_ALPHA_TEST: rt_alphatest = false; break;
+		default: break;
+	}
+}
+
+void pglBlendFunc( GLenum sfactor, GLenum dfactor )
+{
+	rt_raster_additive = ( sfactor == GL_ONE || dfactor == GL_ONE );
 }
 
 
