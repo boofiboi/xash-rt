@@ -396,6 +396,53 @@ static const char *R_GetConfigName( void )
 	return "opengl";
 }
 
+#if XASH_RAYTRACING
+static const char* rt_trament_modelname = NULL;
+cl_entity_t*       rt_trament           = NULL;
+
+static void RT_ResetTramLights()
+{
+    rt_trament_modelname = NULL;
+    rt_trament           = NULL;
+
+    struct
+    {
+        const char* mapname;
+        const char* modelname;
+    } traments[] = {
+        { "maps/c0a0.bsp", "*12" },
+    };
+
+    for( int m = 0; m < ( int )RT_ARRAYSIZE( traments ); m++ )
+    {
+        if( Q_strcmp( WORLDMODEL->name, traments[ m ].mapname ) == 0 )
+        {
+            rt_trament_modelname = traments[ m ].modelname;
+            break;
+        }
+    }
+}
+
+void RT_TryFindTramLights()
+{
+	// if not found yet
+    if( rt_trament == NULL )
+    {
+		// if tram may exist
+        if( rt_trament_modelname )
+        {
+            if( RI.currententity && RI.currentmodel )
+            {
+                if( Q_strcmp( RI.currentmodel->name, rt_trament_modelname ) == 0 )
+                {
+                    rt_trament = RI.currententity;
+                }
+            }
+        }
+    }
+}
+#endif
+
 static void R_NewMap( void )
 {
 	tr.worldmodel = gp_cl->models[1];
@@ -439,6 +486,7 @@ static void R_NewMap( void )
 #if XASH_RAYTRACING
 	RT_ParseStaticLightEntities();
 	RT_ResetChapterLogo();
+	RT_ResetTramLights();
 #endif
 }
 

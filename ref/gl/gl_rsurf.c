@@ -1992,6 +1992,10 @@ void R_DrawBrushModel( cl_entity_t *e )
 
 	R_DrawTriangleOutlines();
 
+#if XASH_RAYTRACING
+    RT_TryFindTramLights();
+#endif
+
 	// restore fog here
 	if( e->curstate.rendermode == kRenderTransAdd )
 		R_AllowFog( true );
