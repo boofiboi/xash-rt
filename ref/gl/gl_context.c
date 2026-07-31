@@ -393,7 +393,11 @@ static void* GAME_EXPORT R_GetProcAddress( const char *name )
 
 static const char *R_GetConfigName( void )
 {
+#if !XASH_RAYTRACING
 	return "opengl";
+#else
+	return "rt";
+#endif
 }
 
 #if XASH_RAYTRACING
