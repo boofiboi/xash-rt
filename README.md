@@ -1,6 +1,6 @@
 # Xash-RT
 
-Xash-RT is a heavily modified fork of [xash3d-fwgs](https://github.com/FWGS/xash3d-fwgs) designed to integrate with [RayTracedGL1](https://github.com/boofiboi/RayTracedGL1) for ful path traced lighting, ray traced reflections and other improvements.
+Xash-RT is a heavily modified fork of [xash3d-fwgs](https://github.com/FWGS/xash3d-fwgs) designed to integrate with [RayTracedGL1](https://github.com/boofiboi/RayTracedGL1) for full path traced lighting, ray traced reflections and other improvements.
 
 #### Compared to the original [fork](https://github.com/sultim-t/xash-rt) by sultim-t, this fork brings:
 
