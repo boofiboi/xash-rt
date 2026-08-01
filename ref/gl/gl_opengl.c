@@ -1349,6 +1349,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( _rt_skipframe,				"0",	"skip frame for level change" )
 
     CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; for menu" )
+    CVAR_DEF_T( _rt_fsr3_available,			"0",	"internal variable; for menu" )
 
 	// clang-format on
 
