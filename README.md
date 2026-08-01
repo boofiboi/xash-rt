@@ -4,9 +4,13 @@ Xash-RT is a heavily modified fork of [xash3d-fwgs](https://github.com/FWGS/xash
 
 #### Compared to the original [fork](https://github.com/sultim-t/xash-rt) by sultim-t, this fork brings:
 
+
 Completely synced to upstream (Allows for running a wider-range of mods)
+
 FSR3 support
+
 [NRD](https://github.com/NVIDIA-RTX/NRD) integration (Better denoiser)
+
 
 
  
