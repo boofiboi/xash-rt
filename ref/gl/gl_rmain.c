@@ -1522,6 +1522,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
     RgBool32 dlss_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS );
     RgBool32 fsr2_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
 	gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_available->name, dlss_ok ? "1" : "0" );
+	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr2_ok ? "1" : "0" );
 
     int nvDlss = dlss_ok ? RT_CVAR_TO_INT32( rt_upscale_dlss ) : 0;
     int amdFsr = fsr2_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr3 ) : 0;
@@ -1652,8 +1653,6 @@ void R_EndFrame( void )
 			}
 			prevvalue = RT_CVAR_TO_FLOAT( rt_classic );
 		}
-
-		assert( g_lightstylevalue[ 0 ] == 0 || g_lightstylevalue[ 0 ] == 158 );
 
 		float lightstyles[ RT_ARRAYSIZE( g_lightstylevalue ) ];
 		for( uint32_t i = 0; i < RT_ARRAYSIZE( g_lightstylevalue ); i++ )

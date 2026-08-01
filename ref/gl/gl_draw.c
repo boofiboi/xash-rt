@@ -155,6 +155,10 @@ void R_Set2DMode( qboolean enable )
 		}
 
 		pglMatrixMode( GL_PROJECTION );
+#if XASH_RAYTRACING
+		for( int i = 0; i < 4; i++ )
+			projection_matrix[1][i] = -projection_matrix[1][i];
+#endif
 		GL_LoadMatrix( projection_matrix );
 
 		pglMatrixMode( GL_MODELVIEW );
