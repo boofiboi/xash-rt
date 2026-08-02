@@ -7,7 +7,7 @@ Xash-RT is a heavily modified fork of [xash3d-fwgs](https://github.com/FWGS/xash
 
 - Completely synced to upstream (Allows for running a wider-range of mods, including Counter-Strike: 1.6)
 - FSR3 support
-- [NRD](https://github.com/NVIDIA-RTX/NRD) integration (Better denoiser) [Soon:tm:]
+- [NRD](https://github.com/NVIDIA-RTX/NRD) integration (Better denoiser) [Soon™]
 - Native linux builds
 - Improvements to the RT lighting shaders (Less noise, more accuracy, better performance)
 
