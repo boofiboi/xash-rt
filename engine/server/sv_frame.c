@@ -83,6 +83,15 @@ static void SV_AddEntitiesToPacket( edict_t *pViewEnt, edict_t *pClient, client_
 	}
 
 	svgame.dllFuncs.pfnSetupVisibility( pViewEnt, pClient, &clientpvs, &clientphs );
+#if XASH_RAYTRACING
+	// RTGL1 does visibility testing with ray tracing; culling entities by
+	// the BSP PVS would hide objects that are only reachable through
+	// transparent surfaces (e.g. under water, behind glass) in
+	// reflections/refractions. Act as if sv_novis is enabled, matching
+	// the renderer which already forces r_novis on the client side.
+	clientpvs = NULL;
+	clientphs = NULL;
+#endif
 	if( !clientpvs ) fullvis = true;
 
 	// g-cont: of course we can send world but not want to do it :-)
