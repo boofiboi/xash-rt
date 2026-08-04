@@ -12,6 +12,7 @@ Xash-RT is a heavily modified fork of [xash3d-fwgs](https://github.com/FWGS/xash
 - Improvements to the path traced lighting shaders (Less noise, more accuracy, better performance)
 - Improvements to refraction shader, including ability to have colored glass (No more crystal clear, ultra polished glass)
 
+### DLSS will not be supported until/unless I can get someone with an nVidia GPU to test (I run an RX 7600)
 
 
  
