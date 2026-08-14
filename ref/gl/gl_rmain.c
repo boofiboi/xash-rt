@@ -1708,8 +1708,34 @@ void R_EndFrame( void )
             RT_CVAR_TO_BOOL( rt_bloom_dirt_enable ) ? RT_CVAR_TO_FLOAT( rt_bloom_dirt ) : 0.0f,
 		};
 
-		RgMediaType cameramedia =
-			ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2 ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM;
+		int viewcontents = CONTENTS_EMPTY;
+		cl_entity_t *waterEnt = gEngfuncs.CL_GetWaterEntity( RI.rvp.vieworigin );
+		if( waterEnt && waterEnt->model && waterEnt->model->type == mod_brush && waterEnt->curstate.skin < 0 )
+		{
+			viewcontents = waterEnt->curstate.skin;
+		}
+		else
+		{
+			mleaf_t *leaf = RI.viewleaf;
+			if( !leaf && WORLDMODEL && WORLDMODEL->nodes )
+			{
+				leaf = gEngfuncs.Mod_PointInLeaf( RI.rvp.vieworigin, WORLDMODEL->nodes, WORLDMODEL );
+			}
+			if( leaf )
+			{
+				viewcontents = leaf->contents;
+			}
+		}
+
+		RgMediaType cameramedia = RG_MEDIA_TYPE_VACUUM;
+		if( ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2 || viewcontents == CONTENTS_WATER || ( viewcontents <= CONTENTS_CURRENT_0 && viewcontents >= CONTENTS_CURRENT_DOWN ) )
+		{
+			cameramedia = RG_MEDIA_TYPE_WATER;
+		}
+		else if( viewcontents == CONTENTS_SLIME || viewcontents == CONTENTS_LAVA )
+		{
+			cameramedia = RG_MEDIA_TYPE_ACID;
+		}
 
 		RgDrawFrameReflectRefractParams refl_refr_params = {
 			.sType                   = RG_STRUCTURE_TYPE_REFLECTREFRACT,
