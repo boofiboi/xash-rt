@@ -2019,7 +2019,9 @@ static void R_StudioDrawPoints( void )
 		{
 			R_StudioComputeSkinMatrix( &pvertweight[i], skinMat );
 			Matrix3x4_VectorTransform( skinMat, pstudioverts[i], g_studio.verts[i] );
+#if !XASH_RAYTRACING
 			R_LightStrength( pvertbone[i], pstudioverts[i], g_studio.lightpos[i] );
+#endif
 		}
 
 		for( int i = 0; i < m_pSubModel->numnorms; i++ )
@@ -2033,7 +2035,9 @@ static void R_StudioDrawPoints( void )
 		for( int i = 0; i < m_pSubModel->numverts; i++ )
 		{
 			Matrix3x4_VectorTransform( g_studio.bonestransform[pvertbone[i]], pstudioverts[i], g_studio.verts[i] );
+#if !XASH_RAYTRACING
 			R_LightStrength( pvertbone[i], pstudioverts[i], g_studio.lightpos[i] );
+#endif
 		}
 	}
 
