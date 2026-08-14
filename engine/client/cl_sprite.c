@@ -74,7 +74,7 @@ mspriteframe_t *R_GetSpriteFrame( const model_t *pModel, int frame, float yaw )
 		}
 		pspriteframe = pspritegroup->frames[i];
 	}
-	else if( psprite->frames[frame].type == FRAME_ANGLED )
+	else if( psprite->frames[frame].type == SPR_ANGLED )
 	{
 		int angleframe = (int)( Q_rint(( refState.viewangles[1] - yaw + 45.0f ) / 360 * 8 ) - 4 ) & 7;
 
@@ -216,11 +216,14 @@ static const byte *Mod_SpriteLoadGroup( model_t *mod, const void *pin, mspritefr
 	poutintervals = Mem_Calloc( mod->mempool, numframes * sizeof( float ));
 	pspritegroup->intervals = poutintervals;
 
+	float totalinterval = 0.0f;
 	for( int i = 0; i < numframes; i++ )
 	{
-		*poutintervals = pin_intervals->interval;
-		if( *poutintervals <= 0.0f )
-			*poutintervals = 1.0f; // set error value
+		float interval = pin_intervals->interval;
+		if( interval <= 0.0f )
+			interval = 1.0f; // set error value
+		totalinterval += interval;
+		*poutintervals = totalinterval;
 		poutintervals++;
 		pin_intervals++;
 	}

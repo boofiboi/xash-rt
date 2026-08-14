@@ -220,6 +220,15 @@ void R_ClearScene( void )
 	tr.draw_list->num_trans_entities = 0;
 	tr.draw_list->num_beam_entities = 0;
 
+	RI.viewleaf = NULL;
+	RI.oldviewleaf = NULL;
+#if XASH_RAYTRACING
+	RI.isSkyVisible = false;
+#endif
+
+	if( ENGINE_GET_PARM( PARM_CONNSTATE ) != ca_active )
+		tr.worldmodel = NULL;
+
 	// clear the scene befor start new frame
 	if( gEngfuncs.drawFuncs->R_ClearScene != NULL )
 		gEngfuncs.drawFuncs->R_ClearScene();
@@ -1321,7 +1330,7 @@ void R_BeginFrame( qboolean clearScene )
 		char mapname_storage[ 64 ] = "";
 
 		char* mapname = NULL;
-		if( WORLDMODEL )
+		if( ENGINE_GET_PARM( PARM_CONNSTATE ) == ca_active && WORLDMODEL )
 		{
 			{
 				assert( sizeof( WORLDMODEL->name ) == sizeof( mapname_storage ) );
@@ -1373,6 +1382,10 @@ void R_SetupRefParams( const ref_viewpass_t *rvp )
 	RI.rvp = *rvp;
 
 	RI.farClip = 0;
+	RI.viewleaf = NULL;
+#if XASH_RAYTRACING
+	RI.isSkyVisible = false;
+#endif
 }
 
 /*
@@ -1709,21 +1722,24 @@ void R_EndFrame( void )
 		};
 
 		int viewcontents = CONTENTS_EMPTY;
-		cl_entity_t *waterEnt = gEngfuncs.CL_GetWaterEntity( RI.rvp.vieworigin );
-		if( waterEnt && waterEnt->model && waterEnt->model->type == mod_brush && waterEnt->curstate.skin < 0 )
+		if( ENGINE_GET_PARM( PARM_CONNSTATE ) == ca_active && FBitSet( RI.rvp.flags, RF_DRAW_WORLD ) && WORLDMODEL )
 		{
-			viewcontents = waterEnt->curstate.skin;
-		}
-		else
-		{
-			mleaf_t *leaf = RI.viewleaf;
-			if( !leaf && WORLDMODEL && WORLDMODEL->nodes )
+			cl_entity_t *waterEnt = gEngfuncs.CL_GetWaterEntity( RI.rvp.vieworigin );
+			if( waterEnt && waterEnt->model && waterEnt->model->type == mod_brush && waterEnt->curstate.skin < 0 )
 			{
-				leaf = gEngfuncs.Mod_PointInLeaf( RI.rvp.vieworigin, WORLDMODEL->nodes, WORLDMODEL );
+				viewcontents = waterEnt->curstate.skin;
 			}
-			if( leaf )
+			else
 			{
-				viewcontents = leaf->contents;
+				mleaf_t *leaf = RI.viewleaf;
+				if( !leaf && WORLDMODEL->nodes )
+				{
+					leaf = gEngfuncs.Mod_PointInLeaf( RI.rvp.vieworigin, WORLDMODEL->nodes, WORLDMODEL );
+				}
+				if( leaf )
+				{
+					viewcontents = leaf->contents;
+				}
 			}
 		}
 
@@ -1768,7 +1784,7 @@ void R_EndFrame( void )
 		RgDrawFrameSkyParams skyParams = {
 			.sType                       = RG_STRUCTURE_TYPE_SKY,
 			.pNext                       = &refl_refr_params,
-			.skyType                     = RI.isSkyVisible ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
+			.skyType                     = ( ENGINE_GET_PARM( PARM_CONNSTATE ) == ca_active && RI.isSkyVisible ) ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
 			.skyColorDefault             = { 0, 0, 0 },
 			.skyColorMultiplier          = RT_CVAR_TO_FLOAT( rt_sky ),
 			.skyColorSaturation          = RT_CVAR_TO_FLOAT( rt_sky_saturation ),
@@ -1874,6 +1890,9 @@ void R_EndFrame( void )
 
 		RgResult r = rgDrawFrame( rg_instance, &info );
 		RG_CHECK( r );
+
+		RI.viewleaf = NULL;
+		RI.isSkyVisible = false;
 	}
 #endif
 }

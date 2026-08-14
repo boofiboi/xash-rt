@@ -267,6 +267,10 @@ R_ClearSkyBox
 */
 void R_ClearSkyBox( void )
 {
+#if XASH_RAYTRACING
+	RI.isSkyVisible = false;
+#endif
+
 	for( int i = 0; i < SKYBOX_MAX_SIDES; i++ )
 	{
 #if XASH_RAYTRACING

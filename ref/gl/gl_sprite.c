@@ -53,10 +53,6 @@ static float R_GetSpriteFrameInterpolant( cl_entity_t *ent, mspriteframe_t **old
 		if( m_fDoInterp )
 		{
 			if( ent->latched.prevblending[0] >= psprite->numframes || psprite->frames[ent->latched.prevblending[0]].type != FRAME_SINGLE )
-#if XASH_RAYTRACING
-    rt_state.curTexturePreferLinear = true;
-#endif
-
 			{
 				// this can be happens when rendering switched between single and angled frames
 				// or change model on replace delta-entity
@@ -74,13 +70,13 @@ static float R_GetSpriteFrameInterpolant( cl_entity_t *ent, mspriteframe_t **old
 					ent->latched.sequencetime = gp_cl->time;
 					lerpFrac = 0.0f;
 				}
-				else lerpFrac = (gp_cl->time - ent->latched.sequencetime) * 11.0f;
+				else
+				{
+					float fps = ent->curstate.framerate > 0.0f ? ent->curstate.framerate : 10.0f;
+					lerpFrac = (gp_cl->time - ent->latched.sequencetime) * fps;
+				}
 			}
 			else
-#if XASH_RAYTRACING
-    rt_state.curTexturePreferLinear = false;
-#endif
-
 			{
 				ent->latched.prevblending[0] = ent->latched.prevblending[1] = frame;
 				ent->latched.sequencetime = gp_cl->time;
@@ -111,7 +107,7 @@ static float R_GetSpriteFrameInterpolant( cl_entity_t *ent, mspriteframe_t **old
 		float *pintervals = pspritegroup->intervals;
 		int numframes = pspritegroup->numframes;
 		float fullinterval = pintervals[numframes-1];
-		float jinterval = pintervals[1] - pintervals[0];
+		float jinterval = pintervals[0];
 		float time = gp_cl->time;
 		float jtime = 0.0f;
 
@@ -265,7 +261,8 @@ static qboolean R_SpriteOccluded( cl_entity_t *e, vec3_t origin, float *pscale )
 		float	blend;
 		vec3_t	v;
 
-		TriWorldToScreen( origin, v );
+		if( TriWorldToScreen( origin, v ) )
+			return true; // behind camera
 
 		if( v[0] < RI.rvp.viewport[0] || v[0] > RI.rvp.viewport[0] + RI.rvp.viewport[2] )
 			return true; // do scissor
@@ -524,6 +521,11 @@ void R_DrawSpriteModel( cl_entity_t *e )
 	if( R_SpriteAllowLerping( e, psprite ))
 		lerp = R_GetSpriteFrameInterpolant( e, &oldframe, &frame );
 	else frame = oldframe = gEngfuncs.R_GetSpriteFrame( model, e->curstate.frame, e->angles[YAW] );
+
+	if( !frame )
+		return;
+	if( !oldframe )
+		oldframe = frame;
 
 #if XASH_RAYTRACING
 	qboolean HasLightmap = false;
