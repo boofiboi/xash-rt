@@ -121,10 +121,8 @@ typedef struct
 
 // studio-related cvars
 CVAR_DEFINE_AUTO( r_studio_sort_textures, "0", FCVAR_GLCONFIG, "change draw order for additive meshes" );
-#if !XASH_RAYTRACING
 CVAR_DEFINE_AUTO( r_studio_drawelements, "1", FCVAR_GLCONFIG, "use glDrawElements for studiomodels" );
 CVAR_DEFINE_AUTO( r_studio_builtin_renderer, "0", 0, "use built-in studio model renderer instead of the one provided by client library (debugging)" );
-#endif
 static cvar_t			*cl_righthand = NULL;
 
 static r_studio_interface_t	*pStudioDraw;
@@ -149,7 +147,7 @@ R_StudioInit
 void R_StudioInit( void )
 {
 
-#if XASH_PSVITA
+#if XASH_PSVITA || XASH_RAYTRACING
 	// don't do the same array-building work twice since that's what our FFP shim does anyway
 	gEngfuncs.Cvar_FullSet( "r_studio_drawelements", "0", FCVAR_READ_ONLY );
 #endif
@@ -1955,6 +1953,7 @@ static void R_StudioSubmitMesh( short *ptricmds, vec3_t *pstudionorms, float s, 
 	{
 		// R_StudioDrawTruformMesh( ptricmds, pstudionorms, s, t, shellscale, tesslevel );
 	}
+#if !XASH_RAYTRACING
 	else if( r_studio_drawelements.value )
 	{
 		uint startArrayVerts = g_studio.numverts;
@@ -1969,6 +1968,7 @@ static void R_StudioSubmitMesh( short *ptricmds, vec3_t *pstudionorms, float s, 
 
 		R_StudioDrawArrays( startArrayVerts, startArrayElems );
 	}
+#endif
 	else
 	{
 		if( FBitSet( g_nFaceFlags, STUDIO_NF_CHROME ))
@@ -2162,13 +2162,11 @@ static void R_StudioDrawPoints( void )
 		R_StudioSetupSkin( m_pStudioHeader, pskinref[pmesh->skinref] );
 
 #if XASH_RAYTRACING
-		assert( m_pStudioHeader->bodypartindex % _Alignof( mstudiobodyparts_t ) == 0 );
-		assert( m_pBodyPart->modelindex % _Alignof( mstudiomodel_t ) == 0 );
-		void* bodypartbase = ( byte* )m_pStudioHeader + m_pStudioHeader->bodypartindex;
-		void* modelbase    = ( byte* )m_pStudioHeader + m_pBodyPart->modelindex;
+		byte* bodypartbase = ( byte* )m_pStudioHeader + m_pStudioHeader->bodypartindex;
+		byte* modelbase    = ( byte* )m_pStudioHeader + m_pBodyPart->modelindex;
 
-		rt_state.curStudioBodyPart = ( int )( m_pBodyPart - ( mstudiobodyparts_t* )bodypartbase );
-		rt_state.curStudioSubmodel = ( int )( m_pSubModel - ( mstudiomodel_t* )modelbase );
+		rt_state.curStudioBodyPart = ( int )((( byte* )m_pBodyPart - bodypartbase ) / sizeof( mstudiobodyparts_t ));
+		rt_state.curStudioSubmodel = ( int )((( byte* )m_pSubModel - modelbase ) / sizeof( mstudiomodel_t ));
 		rt_state.curStudioMesh     = j;
 		rt_state.curStudioGlend    = 0;
 #endif
