@@ -1203,6 +1203,13 @@ static void RT_TryDrawCustomChapterIntro()
 		VectorSet( verts_16by9[ 3 ].position, +tx, +ty, 0 );
     }
 
+    static const float identity_mat4[ 16 ] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f,
+    };
+
     // background
     {
         RgMeshPrimitiveInfo prim = {
@@ -1219,8 +1226,7 @@ static void RT_TryDrawCustomChapterIntro()
             .emissive    = 0,
             .pEditorInfo = NULL,
         };
-        static const RgTransform rg_identity_transform = RG_TRANSFORM_IDENTITY;
-        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &prim, (const float*)&rg_identity_transform, NULL );
+        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &prim, identity_mat4, NULL );
         RG_CHECK( r );
     }
     // text
@@ -1240,8 +1246,7 @@ static void RT_TryDrawCustomChapterIntro()
             .pEditorInfo          = NULL,
         };
 
-        static const RgTransform rg_identity_transform = RG_TRANSFORM_IDENTITY;
-        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &prim, (const float*)&rg_identity_transform, NULL );
+        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &prim, identity_mat4, NULL );
         RG_CHECK( r );
     }
 }

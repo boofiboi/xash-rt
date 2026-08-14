@@ -39,23 +39,48 @@ def build(bld):
 	extra_defines = []
 
 	if bld.env.RAYTRACING:
-		rtgl1_sdk = os.environ.get('RTGL1_SDK_PATH', r'E:\Xash-RT\RayTracedGL1')
+		rtgl1_sdk = os.environ.get('RTGL1_SDK_PATH', '')
+		if not rtgl1_sdk or not os.path.exists(rtgl1_sdk):
+			local_sdk = os.path.abspath(os.path.join(bld.path.abspath(), '..', '..', '..', 'RayTracedGL1'))
+			if os.path.exists(local_sdk):
+				rtgl1_sdk = local_sdk
+			else:
+				rtgl1_sdk = r'E:\Xash-RT\RayTracedGL1'
 		includes.append(os.path.join(rtgl1_sdk, 'Include'))
 		libpath.extend([
-			os.path.join(rtgl1_sdk, 'Build', 'Release'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RelWithDebInfo'),
 			os.path.join(rtgl1_sdk, 'Build', 'x64-Release'),
-			os.path.join(rtgl1_sdk, 'Build', 'Debug'),
+			os.path.join(rtgl1_sdk, 'Build', 'Release', 'Release'),
+			os.path.join(rtgl1_sdk, 'Build', 'Release'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'Debug'),
 			os.path.join(rtgl1_sdk, 'Build', 'x64-Debug'),
+			os.path.join(rtgl1_sdk, 'Build', 'Debug', 'Debug'),
+			os.path.join(rtgl1_sdk, 'Build', 'Debug'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release-NonAVX', 'Release'),
 		])
 		extra_libs.extend(['RayTracedGL1', 'opengl32', 'user32', 'gdi32'])
 		extra_defines.extend(['XASH_RAYTRACING=1', 'XASH_GL_STATIC=1'])
 
 		def copy_rtgl1_dll(bld_ctx):
 			import shutil
-			src_dll = os.path.join(rtgl1_sdk, 'Build', 'Release', 'RayTracedGL1.dll')
-			if not os.path.exists(src_dll):
-				src_dll = os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RayTracedGL1.dll')
-			if os.path.exists(src_dll):
+			candidates = [
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', 'RayTracedGL1.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RelWithDebInfo', 'RayTracedGL1.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RayTracedGL1.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'Release', 'Release', 'RayTracedGL1.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'Release', 'RayTracedGL1.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'Debug', 'RayTracedGL1.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'RayTracedGL1.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'Debug', 'Debug', 'RayTracedGL1.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'Debug', 'RayTracedGL1.dll'),
+			]
+			src_dll = None
+			for c in candidates:
+				if os.path.exists(c):
+					src_dll = c
+					break
+			if src_dll:
 				dst = bld_ctx.bldnode.abspath()
 				shutil.copy(src_dll, dst)
 				src_ffx = os.path.join(os.path.dirname(src_dll), 'amd_fidelityfx_vk.dll')
