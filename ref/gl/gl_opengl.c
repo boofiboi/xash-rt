@@ -1103,7 +1103,7 @@ void GL_InitExtensions( void )
 		pglGetIntegerv( GL_MAX_RECTANGLE_TEXTURE_SIZE_EXT, &glConfig.max_2d_rectangle_size );
 
 	Q_snprintf( value, sizeof( value ), "%i", glConfig.max_2d_texture_size );
-	gEngfuncs.Cvar_Get( "gl_max_size", value, 0, "opengl texture max dims" );
+	gEngfuncs.Cvar_Get( "gl_max_size", value, 0, "opengl texture max dims (compatibility cvar, does nothing)" );
 	gEngfuncs.Cvar_SetValue( "gl_anisotropy", bound( 0, gl_texture_anisotropy.value, glConfig.max_texture_anisotropy ));
 
 	if( GL_Support( GL_TEXTURE_COMPRESSION_EXT ))
@@ -1190,6 +1190,7 @@ static void GL_InitCommands( void )
 	gEngfuncs.Cvar_RegisterVariable( &r_studio_sort_textures );
 #if !XASH_RAYTRACING
 	gEngfuncs.Cvar_RegisterVariable( &r_studio_drawelements );
+	gEngfuncs.Cvar_RegisterVariable( &r_studio_builtin_renderer );
 #endif
 	gEngfuncs.Cvar_RegisterVariable( &r_ripple );
 	gEngfuncs.Cvar_RegisterVariable( &r_ripple_updatetime );
