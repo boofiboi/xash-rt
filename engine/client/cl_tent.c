@@ -2790,6 +2790,16 @@ void CL_AddEntityEffects( cl_entity_t *ent )
 			else
 				CL_UpdateFlashlight( ent );
 		}
+#if XASH_RAYTRACING
+		else
+		{
+			convar_t* c = Cvar_FindVar( "_rt_flsh_key" );
+			if( c != NULL )
+			{
+				c->value = -1.0f;
+			}
+		}
+#endif
 	}
 	else
 	{
