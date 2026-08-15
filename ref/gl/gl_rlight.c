@@ -610,6 +610,8 @@ void RT_UploadAllLights( void )
                 RgResult r = rgUploadSpotLight( rg_instance, &info );
                 RG_CHECK( r );
 
+                // uploaded flashlight, reset the index, for future reuse
+                rt_cvars._rt_flsh_key->value = -1;
                 rt_state.flashlight_uniqueid = info.uniqueID;
             }
             else
