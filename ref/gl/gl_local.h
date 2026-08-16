@@ -933,7 +933,9 @@ typedef struct rt_cvars_t
 		_rt_skipframe,
 		
 		_rt_dlss_available,
-		_rt_fsr3_available;
+		_rt_fsr3_available,
+		rt_fsr3_framegen,
+		_rt_fsr3_framegen_available;
 } rt_cvars_t;
 extern rt_cvars_t rt_cvars;
 
