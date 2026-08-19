@@ -1544,38 +1544,16 @@ static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar()
 static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 {
     static int prev_fsr3 = -1;
-    static int prev_fsr4 = -1;
     static int prev_vintage = -1;
 
     RgBool32 fsr3_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
-    RgBool32 fsr4_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR4 );
 	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr3_ok ? "1" : "0" );
-	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr4_available->name, fsr4_ok ? "1" : "0" );
 
     int fsr3 = fsr3_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr3 ) : 0;
-    int fsr4 = fsr4_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr4 ) : 0;
     int vintage = RT_CVAR_TO_INT32( rt_ef_vintage );
 
     if( fsr3 > 0 && fsr3 != prev_fsr3 )
     {
-        if( fsr4 > 0 )
-        {
-            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr4->name, "0" );
-            fsr4 = 0;
-        }
-        if( vintage > 0 )
-        {
-            gEngfuncs.Cvar_Set( rt_cvars.rt_ef_vintage->name, "0" );
-            vintage = 0;
-        }
-    }
-    else if( fsr4 > 0 && fsr4 != prev_fsr4 )
-    {
-        if( fsr3 > 0 )
-        {
-            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr3->name, "0" );
-            fsr3 = 0;
-        }
         if( vintage > 0 )
         {
             gEngfuncs.Cvar_Set( rt_cvars.rt_ef_vintage->name, "0" );
@@ -1589,37 +1567,12 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
             gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr3->name, "0" );
             fsr3 = 0;
         }
-        if( fsr4 > 0 )
-        {
-            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr4->name, "0" );
-            fsr4 = 0;
-        }
-    }
-    else if( fsr3 > 0 && fsr4 > 0 )
-    {
-        gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr4->name, "0" );
-        fsr4 = 0;
     }
 
     prev_fsr3 = fsr3;
-    prev_fsr4 = fsr4;
     prev_vintage = vintage;
 
-    if( fsr4 > 0 )
-    {
-        pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR4;
-        switch( fsr4 )
-        {
-            case 1: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_CUSTOM; break;
-            case 2: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_QUALITY; break;
-            case 3: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_BALANCED; break;
-            case 4: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_PERFORMANCE; break;
-            case 5: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE; break;
-            case 6: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_CUSTOM; break;
-            default: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_QUALITY; break;
-        }
-    }
-    else if( fsr3 > 0 )
+    if( fsr3 > 0 )
     {
         pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
         switch( fsr3 )
@@ -1639,7 +1592,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
         pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_CUSTOM;
     }
 
-    if( fsr3 > 0 || fsr4 > 0 )
+    if( fsr3 > 0 )
     {
         pDst->sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
     }
@@ -1683,7 +1636,7 @@ void R_EndFrame( void )
 		ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
 		UpscaleCvarsToRtgl( &resolution_params );
 
-		if( RT_CVAR_TO_INT32( rt_upscale_fsr3 ) == 1 || RT_CVAR_TO_INT32( rt_upscale_fsr4 ) == 1 )
+		if( RT_CVAR_TO_INT32( rt_upscale_fsr3 ) == 1 )
 		{
 			resolution_params.customRenderSize = winsize;
 		}
