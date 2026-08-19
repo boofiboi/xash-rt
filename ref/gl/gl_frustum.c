@@ -30,41 +30,41 @@ static void GL_FrustumSetPlane( gl_frustum_t *out, int side, const vec3_t vecNor
 
 void GL_FrustumInitProj( gl_frustum_t *out, float flZNear, float flZFar, float flFovX, float flFovY )
 {
-	vec3_t	normal, iforward;
+	vec3_t	normal, iforward, apex;
 	float	xs, xc;
 
-	// horizontal fov used for left and right planes
+	if( flZNear < 0.0f )
+	{
+		VectorMA( RI.cullorigin, flZNear, RI.cull_vforward, apex );
+	}
+	else
+	{
+		VectorCopy( RI.cullorigin, apex );
+	}
+
 	SinCos( DEG2RAD( flFovX ) * 0.5f, &xs, &xc );
 
-	// setup left plane
 	VectorMAM( xs, RI.cull_vforward, -xc, RI.cull_vright, normal );
-	GL_FrustumSetPlane( out, FRUSTUM_LEFT, normal, DotProduct( RI.cullorigin, normal ));
+	GL_FrustumSetPlane( out, FRUSTUM_LEFT, normal, DotProduct( apex, normal ));
 
-	// setup right plane
 	VectorMAM( xs, RI.cull_vforward, xc, RI.cull_vright, normal );
-	GL_FrustumSetPlane( out, FRUSTUM_RIGHT, normal, DotProduct( RI.cullorigin, normal ));
+	GL_FrustumSetPlane( out, FRUSTUM_RIGHT, normal, DotProduct( apex, normal ));
 
-	// vertical fov used for top and bottom planes
 	SinCos( DEG2RAD( flFovY ) * 0.5f, &xs, &xc );
 	VectorNegate( RI.cull_vforward, iforward );
 
-	// setup bottom plane
 	VectorMAM( xs, RI.cull_vforward, -xc, RI.cull_vup, normal );
-	GL_FrustumSetPlane( out, FRUSTUM_BOTTOM, normal, DotProduct( RI.cullorigin, normal ));
+	GL_FrustumSetPlane( out, FRUSTUM_BOTTOM, normal, DotProduct( apex, normal ));
 
-	// setup top plane
 	VectorMAM( xs, RI.cull_vforward, xc, RI.cull_vup, normal );
-	GL_FrustumSetPlane( out, FRUSTUM_TOP, normal, DotProduct( RI.cullorigin, normal ));
+	GL_FrustumSetPlane( out, FRUSTUM_TOP, normal, DotProduct( apex, normal ));
 
-	// setup far plane
 	vec3_t farpoint;
 	VectorMA( RI.cullorigin, flZFar, RI.cull_vforward, farpoint );
 	GL_FrustumSetPlane( out, FRUSTUM_FAR, iforward, DotProduct( iforward, farpoint ));
 
-	// no need to setup backplane for general view.
 	if( flZNear == 0.0f ) return;
 
-	// setup near plane
 	vec3_t nearpoint;
 	VectorMA( RI.cullorigin, flZNear, RI.cull_vforward, nearpoint );
 	GL_FrustumSetPlane( out, FRUSTUM_NEAR, RI.cull_vforward, DotProduct( RI.cull_vforward, nearpoint ));

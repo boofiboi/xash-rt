@@ -53,6 +53,22 @@ qboolean R_CullModel( const cl_entity_t *e, const vec3_t absmin, const vec3_t ab
 		return true;
 	}
 
+#if XASH_RAYTRACING
+	if( RT_CVAR_TO_BOOL( rt_cull ) )
+	{
+		float entity_radius = RT_CVAR_TO_FLOAT( rt_cull_entity_radius );
+		if( entity_radius > 0.0f )
+		{
+			vec3_t ent_center;
+			VectorAverage( absmin, absmax, ent_center );
+			if( VectorDistance2( RI.cullorigin, ent_center ) <= entity_radius * entity_radius )
+			{
+				return false;
+			}
+		}
+	}
+#endif
+
 	return R_CullBox( absmin, absmax );
 }
 

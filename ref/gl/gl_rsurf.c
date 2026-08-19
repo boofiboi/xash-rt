@@ -3850,9 +3850,17 @@ void R_MarkLeaves( void )
 	if( r_novis.value || FBitSet( RI.rvp.flags, RF_DRAW_OVERVIEW ) || !RI.viewleaf || !WORLDMODEL->visdata )
 		novis = true;
 
-	gEngfuncs.R_FatPVS( RI.rvp.vieworigin, r_pvs_radius->value, RI.visbytes, false, novis );
+#if XASH_RAYTRACING
+	float pvs_rad = ( RT_CVAR_TO_BOOL( rt_cull ) && RT_CVAR_TO_BOOL( rt_cull_pvs ) ) ? RT_CVAR_TO_FLOAT( rt_cull_pvs_radius ) : r_pvs_radius->value;
+	if( !RT_CVAR_TO_BOOL( rt_cull ) || !RT_CVAR_TO_BOOL( rt_cull_pvs ) )
+		novis = true;
+#else
+	float pvs_rad = r_pvs_radius->value;
+#endif
+
+	gEngfuncs.R_FatPVS( RI.rvp.vieworigin, pvs_rad, RI.visbytes, false, novis );
 	if( force && !novis )
-		gEngfuncs.R_FatPVS( test, r_pvs_radius->value, RI.visbytes, true, novis );
+		gEngfuncs.R_FatPVS( test, pvs_rad, RI.visbytes, true, novis );
 
 	for( int i = 0; i < WORLDMODEL->numleafs; i++ )
 	{

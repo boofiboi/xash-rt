@@ -378,7 +378,22 @@ void R_SetupFrustum( void )
 	}
 	else
 	{
-		GL_FrustumInitProj( &RI.frustum, 0.0f, R_GetFarClip(), RI.rvp.fov_x, RI.rvp.fov_y ); // NOTE: we ignore nearplane here (mirrors only)
+#if XASH_RAYTRACING
+		if( RT_CVAR_TO_BOOL( rt_cull ) )
+		{
+			float fov_margin = RT_CVAR_TO_FLOAT( rt_cull_fov_margin );
+			float fov_x = Q_min( 170.0f, RI.rvp.fov_x + fov_margin );
+			float fov_y = Q_min( 170.0f, RI.rvp.fov_y + fov_margin );
+			float backdist = -RT_CVAR_TO_FLOAT( rt_cull_backdist );
+			GL_FrustumInitProj( &RI.frustum, backdist, R_GetFarClip(), fov_x, fov_y );
+		}
+		else
+		{
+			GL_FrustumInitProj( &RI.frustum, 0.0f, R_GetFarClip(), RI.rvp.fov_x, RI.rvp.fov_y );
+		}
+#else
+		GL_FrustumInitProj( &RI.frustum, 0.0f, R_GetFarClip(), RI.rvp.fov_x, RI.rvp.fov_y );
+#endif
 	}
 }
 
@@ -1312,15 +1327,6 @@ void R_BeginFrame( qboolean clearScene )
         if( CVAR_TO_BOOL( r_dynamic ) )
         {
             gEngfuncs.Cvar_Set( r_dynamic->name, "0" );
-        }
-        // always disable culling / PVS
-        if( r_nocull.value <= 0.5f )
-        {
-            gEngfuncs.Cvar_Set( r_nocull.name, "1" );
-        }
-        if( r_novis.value <= 0.5f )
-        {
-            gEngfuncs.Cvar_Set( r_novis.name, "1" );
         }
 
     #undef TO_BOOL

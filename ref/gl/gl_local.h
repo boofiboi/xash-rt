@@ -935,7 +935,14 @@ typedef struct rt_cvars_t
 		_rt_fsr3_available,
 		_rt_fsr4_available,
 		rt_fsr3_framegen,
-		_rt_fsr3_framegen_available;
+		_rt_fsr3_framegen_available,
+
+		rt_cull,
+		rt_cull_pvs,
+		rt_cull_pvs_radius,
+		rt_cull_fov_margin,
+		rt_cull_backdist,
+		rt_cull_entity_radius;
 } rt_cvars_t;
 extern rt_cvars_t rt_cvars;
 
