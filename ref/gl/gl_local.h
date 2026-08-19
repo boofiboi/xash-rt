@@ -827,8 +827,8 @@ typedef struct rt_cvars_t
 		rt_vsync,
 		
 		rt_renderscale,
-		rt_upscale_dlss,
 		rt_upscale_fsr3,
+		rt_upscale_fsr4,
 		rt_sharpen,
 
         rt_antifirefly,
@@ -932,8 +932,8 @@ typedef struct rt_cvars_t
 
 		_rt_skipframe,
 		
-		_rt_dlss_available,
 		_rt_fsr3_available,
+		_rt_fsr4_available,
 		rt_fsr3_framegen,
 		_rt_fsr3_framegen_available;
 } rt_cvars_t;

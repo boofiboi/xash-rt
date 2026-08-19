@@ -1245,8 +1245,8 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_vsync,					"1",	"vertical synchronization to prevent tearing" )
 	
 	CVAR_DEF_T( rt_renderscale,				"0",	"[20, 100] resolution scale")
-	CVAR_DEF_T( rt_upscale_dlss,			"0",	"0 - off, 1 - quality, 2 - balanced, 3 - perf, 4 - ultra perf, 5 - DLSS with rt_renderscale" )
     CVAR_DEF_T( rt_upscale_fsr3,			"2",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
+    CVAR_DEF_T( rt_upscale_fsr4,			"0",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
 	CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
 
 	CVAR_DEF_T( rt_antifirefly,				"1",	"" )
@@ -1347,8 +1347,8 @@ static void GL_InitCommands( void )
 
 	CVAR_DEF_T( _rt_skipframe,				"0",	"skip frame for level change" )
 
-    CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; for menu" )
     CVAR_DEF_T( _rt_fsr3_available,			"0",	"internal variable; for menu" )
+    CVAR_DEF_T( _rt_fsr4_available,			"0",	"internal variable; for menu" )
     CVAR_DEF_T( rt_fsr3_framegen,			"0",	"enable FSR3 Frame Generation (restart required)" )
     CVAR_DEF_T( _rt_fsr3_framegen_available,	"0",	"internal variable; for menu" )
 
@@ -1517,13 +1517,13 @@ qboolean R_Init( void )
 		}
 
 		gEngfuncs.Cvar_SetValue(
-			"_rt_dlss_available",
-			rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS )
+			"_rt_fsr3_available",
+			rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 )
 				? 1.0f
 				: 0.0f );
 		gEngfuncs.Cvar_SetValue(
-			"_rt_fsr3_available",
-			rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 )
+			"_rt_fsr4_available",
+			rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR4 )
 				? 1.0f
 				: 0.0f );
 		gEngfuncs.Cvar_SetValue(
