@@ -1347,7 +1347,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( _rt_skipframe,				"0",	"skip frame for level change" )
 
     CVAR_DEF_T( _rt_fsr3_available,			"0",	"internal variable; for menu" )
-    CVAR_DEF_T( rt_fsr3_framegen,			"0",	"enable FSR3 Frame Generation (restart required)" )
+    CVAR_DEF_T( rt_fsr3_framegen,			"0",	"enable FSR3 Frame Generation" )
     CVAR_DEF_T( _rt_fsr3_framegen_available,	"0",	"internal variable; for menu" )
 
 	CVAR_DEF_T( rt_cull,					"1",	"enable ray tracing culling" )
@@ -1512,7 +1512,7 @@ qboolean R_Init( void )
 			.worldForward = { 0, 1, 0 },
 			.worldScale   = QUAKEUNIT_IN_METERS,
 
-			.enableFrameGeneration = RT_CVAR_TO_INT32( rt_fsr3_framegen ) > 0,
+			.enableFrameGeneration = true,
 		};
 
 		RgResult r = rgCreateInstance( &info, &rg_instance );

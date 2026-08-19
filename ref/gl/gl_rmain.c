@@ -1548,6 +1548,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 
     RgBool32 fsr3_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
 	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr3_ok ? "1" : "0" );
+	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_framegen_available->name, rgUtilIsFrameGenerationAvailable( rg_instance ) ? "1" : "0" );
 
     int fsr3 = fsr3_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr3 ) : 0;
     int vintage = RT_CVAR_TO_INT32( rt_ef_vintage );
@@ -1635,6 +1636,9 @@ void R_EndFrame( void )
 		};
 		ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
 		UpscaleCvarsToRtgl( &resolution_params );
+
+		resolution_params.enableFrameGeneration =
+			RT_CVAR_TO_INT32( rt_fsr3_framegen ) > 0 && rgUtilIsFrameGenerationAvailable( rg_instance );
 
 		if( RT_CVAR_TO_INT32( rt_upscale_fsr3 ) == 1 )
 		{
