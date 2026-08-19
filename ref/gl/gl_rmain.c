@@ -1537,6 +1537,10 @@ static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar()
 
 static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 {
+    static int prev_fsr3 = -1;
+    static int prev_fsr4 = -1;
+    static int prev_vintage = -1;
+
     RgBool32 fsr3_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
     RgBool32 fsr4_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR4 );
 	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr3_ok ? "1" : "0" );
@@ -1544,11 +1548,56 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 
     int fsr3 = fsr3_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr3 ) : 0;
     int fsr4 = fsr4_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr4 ) : 0;
+    int vintage = RT_CVAR_TO_INT32( rt_ef_vintage );
 
-    if( fsr4 > 0 )
+    if( fsr3 > 0 && fsr3 != prev_fsr3 )
     {
-        fsr3 = 0;
+        if( fsr4 > 0 )
+        {
+            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr4->name, "0" );
+            fsr4 = 0;
+        }
+        if( vintage > 0 )
+        {
+            gEngfuncs.Cvar_Set( rt_cvars.rt_ef_vintage->name, "0" );
+            vintage = 0;
+        }
     }
+    else if( fsr4 > 0 && fsr4 != prev_fsr4 )
+    {
+        if( fsr3 > 0 )
+        {
+            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr3->name, "0" );
+            fsr3 = 0;
+        }
+        if( vintage > 0 )
+        {
+            gEngfuncs.Cvar_Set( rt_cvars.rt_ef_vintage->name, "0" );
+            vintage = 0;
+        }
+    }
+    else if( vintage > 0 && vintage != prev_vintage )
+    {
+        if( fsr3 > 0 )
+        {
+            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr3->name, "0" );
+            fsr3 = 0;
+        }
+        if( fsr4 > 0 )
+        {
+            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr4->name, "0" );
+            fsr4 = 0;
+        }
+    }
+    else if( fsr3 > 0 && fsr4 > 0 )
+    {
+        gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr4->name, "0" );
+        fsr4 = 0;
+    }
+
+    prev_fsr3 = fsr3;
+    prev_fsr4 = fsr4;
+    prev_vintage = vintage;
 
     if( fsr4 > 0 )
     {
