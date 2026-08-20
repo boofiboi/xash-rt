@@ -1655,20 +1655,10 @@ void R_EndFrame( void )
 			prevvalue = RT_CVAR_TO_FLOAT( rt_classic );
 		}
 
-		static float s_lightstyles_smooth[ RT_ARRAYSIZE( g_lightstylevalue ) ] = { 0 };
-		static double s_lightstyles_prevtime = 0;
-		double curtime = gp_cl->time;
-		float dt = ( float )( s_lightstyles_prevtime > 0 ? ( curtime - s_lightstyles_prevtime ) : 0.016 );
-		s_lightstyles_prevtime = curtime;
-		if( dt < 0.0f || dt > 0.1f ) dt = 0.016f;
-
 		float lightstyles[ RT_ARRAYSIZE( g_lightstylevalue ) ];
-		float lerp_rate = 1.0f - expf( -25.0f * dt );
 		for( uint32_t i = 0; i < RT_ARRAYSIZE( g_lightstylevalue ); i++ )
 		{
-			float target_val = ( float )bound( 0, g_lightstylevalue[ i ], 255 ) / 255.0f;
-			s_lightstyles_smooth[ i ] += ( target_val - s_lightstyles_smooth[ i ] ) * lerp_rate;
-			lightstyles[ i ] = s_lightstyles_smooth[ i ];
+			lightstyles[ i ] = ( float )bound( 0, g_lightstylevalue[ i ], 255 ) / 255.0f;
 		}
 
 		RgDrawFrameIlluminationParams illum_params = {
