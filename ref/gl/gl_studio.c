@@ -2619,7 +2619,6 @@ static void R_StudioClientEvents( void )
 			{
 				if( RI.currententity == gEngfuncs.GetViewModel() )
 				{
-					// fallback to camera position, if from first person view
 					VectorCopy( RI.rvp.vieworigin, offsetted_pos );
 				}
 				else
@@ -2627,11 +2626,9 @@ static void R_StudioClientEvents( void )
 					VectorCopy( original_pos, offsetted_pos );
 				}
 			}
-			// if hit and plane is valid
-			else if( trace.fraction < 1.0f && !trace.allsolid )
+			else if( trace.fraction < 1.0f )
 			{
-				// endpos in on surface, offset a bit along its normal
-				VectorMA( trace.endpos, 1.0f, trace.plane.normal, offsetted_pos );
+				VectorCopy( original_pos, offsetted_pos );
 			}
 
 			VectorCopy( offsetted_pos, el->origin );
