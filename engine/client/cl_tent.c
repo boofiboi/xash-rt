@@ -1402,12 +1402,18 @@ void GAME_EXPORT R_Sprite_Trail( int type, vec3_t start, vec3_t end, int modelIn
 		pTemp->entity.curstate.renderamt = pTemp->entity.baseline.renderamt = renderamt;
 
 #if XASH_RAYTRACING
-		// add light to this sprite model
         {
+            static uint32_t tent_gen[ 1024 ] = { 0 };
+            static float    tent_last_die[ 1024 ] = { 0 };
             uint64_t id = ( ( uint64_t )pTemp - ( uint64_t )cl_tempents ) / sizeof( TEMPENTITY );
-            if( id < 1023 )
+            if( id < 1024 )
             {
-                pTemp->entity.curstate.iuser1 = 1 + ( int )id;
+                if( tent_last_die[ id ] != pTemp->die )
+                {
+                    tent_gen[ id ]++;
+                    tent_last_die[ id ] = pTemp->die;
+                }
+                pTemp->entity.curstate.iuser1 = 1 + ( int )( ( ( id & 0x7F ) << 8 ) | ( tent_gen[ id ] & 0xFF ) );
             }
         }
 #endif
@@ -1638,8 +1644,8 @@ void GAME_EXPORT R_Explosion( vec3_t pos, int model, float scale, float framerat
 			dl->color.r = 250;
 			dl->color.g = 250;
 			dl->color.b = 150;
-			dl->die = cl.time + 0.01f;
-			dl->decay = 800;
+			dl->die = cl.time + 0.15f;
+			dl->decay = 1200;
 
 			// red glow
 			dl = CL_AllocDlight( 0 );

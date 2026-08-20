@@ -502,12 +502,16 @@ extern cl_entity_t* rt_trament;
     #define RT_IDBASE_SUN			1
     #define RT_IDBASE_FLASHLIGHT	256
     #define RT_IDBASE_TRAMLIGHT		384
-    #define RT_IDBASE_DLIGHT		512
-    #define RT_IDBASE_ELIGHT		768
-    #define RT_IDBASE_PARTICLELIGHT	1024
-    #define RT_IDBASE_BEAMLIGHT     2048
-    #define RT_IDBASE_STATICLIGHT   2176
+    #define RT_IDBASE_DLIGHT		10000
+    #define RT_IDBASE_ELIGHT		200000
+    #define RT_IDBASE_PARTICLELIGHT	400000
+    #define RT_IDBASE_BEAMLIGHT     600000
+    #define RT_IDBASE_STATICLIGHT   700000
 
+    static uint32_t rt_dlight_gen[ MAX_DLIGHTS ] = { 0 };
+    static float    rt_dlight_last_die[ MAX_DLIGHTS ] = { 0 };
+    static uint32_t rt_elight_gen[ MAX_ELIGHTS ] = { 0 };
+    static float    rt_elight_last_die[ MAX_ELIGHTS ] = { 0 };
 
 void RT_UploadAllLights( void )
 {
@@ -617,12 +621,20 @@ void RT_UploadAllLights( void )
             else
             {
                 float falloff_mult = QUAKEUNIT_TO_METRIC( l->radius );
-                // Lerp( 1.0f,
-                //       GOLDSRCUNIT_TO_METRIC( l->radius ),
-                //       CVAR_TO_FLOAT( rt_cvars.rt_fLightDlightFalloffToIntensity ) );
+
+                uint32_t* p_gen = is_e_light ? &rt_elight_gen[ i ] : &rt_dlight_gen[ i ];
+                float*    p_die = is_e_light ? &rt_elight_last_die[ i ] : &rt_dlight_last_die[ i ];
+
+                if( *p_die != l->die )
+                {
+                    ( *p_gen )++;
+                    *p_die = l->die;
+                }
+
+                uint32_t unique_id = ( is_e_light ? RT_IDBASE_ELIGHT : RT_IDBASE_DLIGHT ) + ( ( uint32_t )i << 12 ) + ( *p_gen & 0xFFF );
 
                 RgSphericalLightUploadInfo info = {
-                    .uniqueID     = is_e_light ? RT_IDBASE_ELIGHT + i : RT_IDBASE_DLIGHT + i,
+                    .uniqueID     = unique_id,
                     .isExportable = false,
                     .color     = rgUtilPackColorByte4D( l->color.r, l->color.g, l->color.b, 255 ),
                     .intensity = RT_CVAR_TO_FLOAT( rt_light_d ) * falloff_mult,
