@@ -1061,6 +1061,7 @@ static void R_BeamDraw( BEAM *pbeam, float frametime )
 
 #if XASH_RAYTRACING
 	rt_state.curIsRasterized = true;
+	rt_state.curIsBeam = true;
 #endif
 
 	switch( pbeam->type )
@@ -1104,6 +1105,7 @@ static void R_BeamDraw( BEAM *pbeam, float frametime )
 
 #if XASH_RAYTRACING
 	rt_state.curIsRasterized = false;
+	rt_state.curIsBeam = false;
 #endif
 
 	GL_Cull( GL_FRONT );

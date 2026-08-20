@@ -1637,25 +1637,14 @@ void GAME_EXPORT R_Explosion( vec3_t pos, int model, float scale, float framerat
 
 		if( !FBitSet( flags, TE_EXPLFLAG_NODLIGHTS ))
 		{
-			// big flash
 			dlight_t *dl = CL_AllocDlight( 0 );
 			VectorCopy( pos, dl->origin );
-			dl->radius = 200;
-			dl->color.r = 250;
-			dl->color.g = 250;
-			dl->color.b = 150;
-			dl->die = cl.time + 0.15f;
-			dl->decay = 1200;
-
-			// red glow
-			dl = CL_AllocDlight( 0 );
-			VectorCopy( pos, dl->origin );
-			dl->radius = 150;
+			dl->radius = 220;
 			dl->color.r = 255;
-			dl->color.g = 190;
-			dl->color.b = 40;
-			dl->die = cl.time + 1.0f;
-			dl->decay = 200;
+			dl->color.g = 210;
+			dl->color.b = 100;
+			dl->die = cl.time + 0.75f;
+			dl->decay = 300;
 		}
 	}
 
