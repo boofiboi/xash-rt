@@ -1256,7 +1256,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_normalmap_stren_water,	"1",	"normal map influence for water" )
 	CVAR_DEF_T( rt_emis_mapboost,			"100",	"indirect illumination emissiveness" )
 	CVAR_DEF_T( rt_emis_maxscrcolor,		"16",	"burn on-screen emissive colors" )
-	CVAR_DEF_T( rt_emis_additive_dflt,		"2.0",	"" )
+	CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )
 	CVAR_DEF_T( rt_emis_hologram,			"0.2",	"" )
 
 	CVAR_DEF_T( rt_tnmp_ev100_min,			"2.0",	"min brightness for auto-exposure" )
