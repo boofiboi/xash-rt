@@ -791,7 +791,6 @@ typedef struct rt_state_s
 
 	qboolean    curIsSky;
 	qboolean    curIsRasterized;
-	qboolean    curIsBeam;
 	int         curStudioBodyPart;
 	int         curStudioSubmodel;
 	int         curStudioMesh;
