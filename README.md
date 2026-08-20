@@ -9,7 +9,7 @@ Xash-RT is a heavily modified fork of [xash3d-fwgs](https://github.com/FWGS/xash
 - Huge performance + visual improvements (Compared to the original, I went from 40 FPS on *native* resolution without FSR to 70fps)
 - Visual fixes compared to the original.
 - Improved mod support.
-- - [NRD](https://github.com/NVIDIA-RTX/NRD) integration (Better denoiser)
+-  [NRD](https://github.com/NVIDIA-RTX/NRD) integration (Better denoiser)
 ##### In-progress:
 
 - Native linux builds
