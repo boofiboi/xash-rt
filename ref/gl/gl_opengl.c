@@ -2787,9 +2787,11 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.pTextureName = rt_state.curTexture2DName,
 			.textureFrame = 0,
 			.color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = rt_raster_blend && rt_raster_additive
-                                ? RT_CVAR_TO_FLOAT( rt_emis_additive_dflt )
-                                : 0.0f,
+            .emissive     = rt_state.curIsBeam
+                                ? 2.0f
+                                : ( rt_raster_blend && rt_raster_additive
+                                    ? RT_CVAR_TO_FLOAT( rt_emis_additive_dflt )
+                                    : 0.0f ),
 			.pEditorInfo  = NULL,
 		};
 
