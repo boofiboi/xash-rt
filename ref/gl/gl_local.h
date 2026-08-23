@@ -857,6 +857,8 @@ typedef struct rt_cvars_t
 
 		rt_sun,
 		rt_sun_diameter,
+		rt_sun_pitch,
+		rt_sun_angle,
 
 		rt_flsh,
 		rt_flsh_radius,

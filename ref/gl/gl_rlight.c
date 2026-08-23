@@ -521,7 +521,10 @@ void RT_UploadAllLights( void )
     {
         rt_sun_light_t* sun = &g_lights.sun;
 
-        vec3_t angles = { -sun->pitch, sun->angle, 0 };
+        float sun_pitch = ( rt_cvars.rt_sun_pitch && RT_CVAR_TO_FLOAT( rt_sun_pitch ) != 0.0f ) ? RT_CVAR_TO_FLOAT( rt_sun_pitch ) : sun->pitch;
+        float sun_angle = ( rt_cvars.rt_sun_angle && RT_CVAR_TO_FLOAT( rt_sun_angle ) != 0.0f ) ? RT_CVAR_TO_FLOAT( rt_sun_angle ) : sun->angle;
+
+        vec3_t angles = { -sun_pitch, sun_angle, 0 };
         vec3_t direction;
         AngleVectors( angles, direction, NULL, NULL );
 

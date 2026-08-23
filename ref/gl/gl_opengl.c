@@ -1273,6 +1273,8 @@ static void GL_InitCommands( void )
 
 	CVAR_DEF_T( rt_sun,						"7000",	"sun intensity")
 	CVAR_DEF_T( rt_sun_diameter,			"0.5",	"sun angular diameter in degrees")
+	CVAR_DEF_T( rt_sun_pitch,				"0",	"sun pitch override in degrees (0 - map default)")
+	CVAR_DEF_T( rt_sun_angle,				"0",	"sun yaw angle override in degrees (0 - map default)")
 
 	CVAR_DEF_T( rt_flsh,					"800",	"flashlight intensity")
     CVAR_DEF_T( rt_flsh_radius,				"0.02",	"flashlight source disk radius in meters")
