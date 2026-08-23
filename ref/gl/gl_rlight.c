@@ -416,8 +416,12 @@ void RT_ParseStaticLightEntities()
 
 static qboolean IsPlayerFlashlight( const dlight_t* l )
 {
+    if( gp_cl && l->key > 0 && l->key == gp_cl->playernum + 1 )
+    {
+        return true;
+    }
     int flashlight_key = RT_CVAR_TO_INT32( _rt_flsh_key );
-    return l->key == flashlight_key;
+    return flashlight_key > 0 && l->key == flashlight_key;
 }
 
 
