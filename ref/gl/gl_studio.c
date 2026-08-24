@@ -1058,7 +1058,7 @@ static void R_StudioGenerateNormals( void )
 
 						VectorSubtract( g_studio.verts[v1], g_studio.verts[v0], e0 );
 						VectorSubtract( g_studio.verts[v2], g_studio.verts[v0], e1 );
-						CrossProduct( e1, e0, norm );
+						CrossProduct( e0, e1, norm );
 
 						VectorAdd( g_studio.norms[v0], norm, g_studio.norms[v0] );
 						VectorAdd( g_studio.norms[v1], norm, g_studio.norms[v1] );
@@ -1069,39 +1069,46 @@ static void R_StudioGenerateNormals( void )
 				}
 				else
 				{
-					ptricmds += i;
+					ptricmds += i * 4;
 				}
 			}
 			else
 			{
 				if( i > 2 )
 				{
-					qboolean	odd = false;
-					vec3_t e0, e1, norm;
 					int v0 = ptricmds[0]; ptricmds += 4;
 					int v1 = ptricmds[0]; ptricmds += 4;
+					int tri = 0;
 
-					for( i -= 2; i > 0; i--, ptricmds += 4 )
+					for( i -= 2; i > 0; i--, ptricmds += 4, tri++ )
 					{
 						int v2 = ptricmds[0];
+						vec3_t e0, e1, norm;
 
-						VectorSubtract( g_studio.verts[v1], g_studio.verts[v0], e0 );
-						VectorSubtract( g_studio.verts[v2], g_studio.verts[v0], e1 );
-						CrossProduct( e1, e0, norm );
+						if( tri & 1 )
+						{
+							VectorSubtract( g_studio.verts[v0], g_studio.verts[v1], e0 );
+							VectorSubtract( g_studio.verts[v2], g_studio.verts[v1], e1 );
+						}
+						else
+						{
+							VectorSubtract( g_studio.verts[v1], g_studio.verts[v0], e0 );
+							VectorSubtract( g_studio.verts[v2], g_studio.verts[v0], e1 );
+						}
+
+						CrossProduct( e0, e1, norm );
 
 						VectorAdd( g_studio.norms[v0], norm, g_studio.norms[v0] );
 						VectorAdd( g_studio.norms[v1], norm, g_studio.norms[v1] );
 						VectorAdd( g_studio.norms[v2], norm, g_studio.norms[v2] );
 
-						if( odd ) v1 = v2;
-						else v0 = v2;
-
-						odd = !odd;
+						v0 = v1;
+						v1 = v2;
 					}
 				}
 				else
 				{
-					ptricmds += i;
+					ptricmds += i * 4;
 				}
 			}
 		}
@@ -1626,7 +1633,7 @@ static void R_StudioDrawNormalMesh( short *ptricmds, vec3_t *pstudionorms, float
 		{
 			R_StudioSetColorBegin( ptricmds, pstudionorms );
 #if XASH_RAYTRACING
-            pglNormal3fv( g_studio.norms[ ptricmds[ 0 ] ] );
+            pglNormal3fv( g_studio.norms[ ptricmds[ 1 ] ] );
 #endif
 			pglTexCoord2f( ptricmds[2] * s, ptricmds[3] * t );
 			pglVertex3fv( g_studio.verts[ptricmds[0]] );
@@ -1665,7 +1672,7 @@ static void R_StudioDrawFloatMesh( short *ptricmds, vec3_t *pstudionorms )
 			R_StudioSetColorBegin( ptricmds, pstudionorms );
 			pglTexCoord2f( HalfToFloat( ptricmds[2] ), HalfToFloat( ptricmds[3] ));
 #if XASH_RAYTRACING
-            pglNormal3fv( g_studio.norms[ ptricmds[ 0 ] ] );
+            pglNormal3fv( g_studio.norms[ ptricmds[ 1 ] ] );
 #endif
 			pglVertex3fv( g_studio.verts[ptricmds[0]] );
 		}
@@ -1723,7 +1730,7 @@ static void R_StudioDrawChromeMesh( short *ptricmds, vec3_t *pstudionorms, float
 				idx = ptricmds[1];
 				R_StudioSetColorBegin( ptricmds, pstudionorms );
 #if XASH_RAYTRACING
-                pglNormal3fv( g_studio.norms[ ptricmds[ 0 ] ] );
+                pglNormal3fv( g_studio.norms[ ptricmds[ 1 ] ] );
 #endif
 				pglTexCoord2f( g_studio.chrome[idx][0] * s, g_studio.chrome[idx][1] * t );
 				pglVertex3fv( g_studio.verts[ptricmds[0]] );
@@ -2028,6 +2035,7 @@ static void R_StudioDrawPoints( void )
 		{
 			R_StudioComputeSkinMatrix( &pnormweight[i], skinMat );
 			Matrix3x4_VectorRotate( skinMat, pstudionorms[i], g_studio.norms[i] );
+			VectorNormalize( g_studio.norms[i] );
 		}
 	}
 	else
@@ -2039,6 +2047,14 @@ static void R_StudioDrawPoints( void )
 			R_LightStrength( pvertbone[i], pstudioverts[i], g_studio.lightpos[i] );
 #endif
 		}
+
+#if XASH_RAYTRACING
+		for( int i = 0; i < m_pSubModel->numnorms; i++ )
+		{
+			Matrix3x4_VectorRotate( g_studio.bonestransform[pnormbone[i]], pstudionorms[i], g_studio.norms[i] );
+			VectorNormalize( g_studio.norms[i] );
+		}
+#endif
 	}
 
 	// generate shared normals for properly scaling glowing shell
@@ -2047,22 +2063,8 @@ static void R_StudioDrawPoints( void )
 		float factor = (1.0f / 128.0f);
 		shellscale = Q_max( factor, RI.currententity->curstate.renderamt * factor );
 		R_StudioBuildNormalTable();
-#if !XASH_RAYTRACING
 		R_StudioGenerateNormals();
-#else
-        if( !RT_CVAR_TO_BOOL( rt_norms_studio ) )
-        {
-            R_StudioGenerateNormals();
-        }
-#endif
 	}
-
-#if XASH_RAYTRACING
-    if( RT_CVAR_TO_BOOL( rt_norms_studio ) )
-    {
-        R_StudioGenerateNormals();
-    }
-#endif
 
 	int k = 0;
 	for( int j = 0; j < m_pSubModel->nummesh; j++ )
