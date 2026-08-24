@@ -3532,6 +3532,7 @@ loc0:
 	if( node->visframe != tr.visframecount )
 		return;
 
+#if !XASH_RAYTRACING
 	if( clipflags && !r_nocull.value )
 	{
 		for( int i = 0; i < 6; i++ )
@@ -3546,6 +3547,7 @@ loc0:
 			if( clipped == 1 ) ClearBits( clipflags, BIT( i ));
 		}
 	}
+#endif
 
 	// if a leaf node, draw stuff
 	if( node->contents < 0 )

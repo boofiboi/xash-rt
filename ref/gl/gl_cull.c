@@ -32,7 +32,11 @@ Returns true if the box is completely outside the frustum
 */
 qboolean R_CullBox( const vec3_t mins, const vec3_t maxs )
 {
+#if XASH_RAYTRACING
+	return false;
+#else
 	return GL_FrustumCullBox( &RI.frustum, mins, maxs, 0 );
+#endif
 }
 
 /*
@@ -54,22 +58,10 @@ qboolean R_CullModel( const cl_entity_t *e, const vec3_t absmin, const vec3_t ab
 	}
 
 #if XASH_RAYTRACING
-	if( RT_CVAR_TO_BOOL( rt_cull ) )
-	{
-		float entity_radius = RT_CVAR_TO_FLOAT( rt_cull_entity_radius );
-		if( entity_radius > 0.0f )
-		{
-			vec3_t ent_center;
-			VectorAverage( absmin, absmax, ent_center );
-			if( VectorDistance2( RI.cullorigin, ent_center ) <= entity_radius * entity_radius )
-			{
-				return false;
-			}
-		}
-	}
-#endif
-
+	return false;
+#else
 	return R_CullBox( absmin, absmax );
+#endif
 }
 
 /*
@@ -92,6 +84,7 @@ int R_CullSurface( const msurface_t *surf, const gl_frustum_t *frustum, uint cli
 	if( unlikely( !surf->texinfo || !surf->texinfo->texture ))
 		return CULL_OTHER;
 
+#if !XASH_RAYTRACING
 	// only static ents can be culled by frustum
 	if( !R_StaticEntity( e ))
 		frustum = NULL;
@@ -128,6 +121,7 @@ int R_CullSurface( const msurface_t *surf, const gl_frustum_t *frustum, uint cli
 
 	if( frustum && clipflags && GL_FrustumCullBox( frustum, surf->info->mins, surf->info->maxs, clipflags ))
 		return CULL_FRUSTUM;
+#endif
 
 	return CULL_VISIBLE;
 }
