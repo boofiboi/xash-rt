@@ -306,7 +306,8 @@ void R_AddSkyBoxSurface( msurface_t *fa )
 	}
 	if( fa->texinfo && fa->texinfo->texture )
 		GL_Bind( XASH_TEXTURE0, fa->texinfo->texture->gl_texturenum );
-	DrawGLPoly( fa->polys, 0.0f, 0.0f );
+	for( glpoly2_t *p = fa->polys; p; p = p->next )
+		DrawGLPoly( p, 0.0f, 0.0f );
 	rt_state.curBrushSurface           = -1;
 	rt_state.curBrushSurfaceIsSky      = false;
 #else

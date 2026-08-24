@@ -2879,7 +2879,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.pMeshName      = RI.currentmodel->name,
 			.transform      = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
 			.isExportable   = immovable && !rt_state.curBrushSurfaceIsAnimated &&
-							!rt_state.curBrushSurfaceIsWater,
+							!rt_state.curBrushSurfaceIsWater &&
+							!rt_state.curBrushSurfaceIsSky,
 			.animationName = NULL,
 			.animationTime = 0.0f,
 		};
