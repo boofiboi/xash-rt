@@ -1545,6 +1545,7 @@ qboolean R_Init( void )
 				.curStudioGlend    = -1,
 
 				.curBrushSurface           = -1,
+				.curBrushSurfaceIsSky      = false,
 				.curBrushSurfaceIsWater    = false,
 				.curBrushSurfaceIsAnimated = false,
 
@@ -2888,7 +2889,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.primitiveIndexInMesh = rt_state.curBrushSurface,
 			.flags                = ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
 									( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
-									( rt_state.curBrushSurfaceIsWater ? RG_MESH_PRIMITIVE_WATER : 0 ),
+									( rt_state.curBrushSurfaceIsWater ? RG_MESH_PRIMITIVE_WATER : 0 ) |
+									( rt_state.curBrushSurfaceIsSky ? RG_MESH_PRIMITIVE_SKY_VISIBILITY : 0 ),
 			.pTextureName         = rt_state.curTexture2DName,
 			.textureFrame         = 0,
 			.color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),

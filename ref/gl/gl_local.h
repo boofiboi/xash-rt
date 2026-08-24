@@ -799,6 +799,7 @@ typedef struct rt_state_s
 	int         curStudioGlend;
 
 	int			curBrushSurface;
+	qboolean	curBrushSurfaceIsSky;
 	qboolean	curBrushSurfaceIsWater;
 	qboolean	curBrushSurfaceIsAnimated;
 

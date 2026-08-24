@@ -848,7 +848,7 @@ static void R_DrawTriangleOutlines( void )
 DrawGLPoly
 ================
 */
-static void DrawGLPoly( glpoly2_t *p, float xScale, float yScale )
+void DrawGLPoly( glpoly2_t *p, float xScale, float yScale )
 {
 #if XASH_RAYTRACING
     float lightmap_soffset = 0.0f; // ( surf->light_s - surf->info->dlight_s ) / ( float )BLOCK_SIZE;
@@ -1511,7 +1511,29 @@ static void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 	r_stats.c_world_polys++;
 
 	if( fa->flags & SURF_DRAWSKY )
-		return; // already handled
+	{
+#if XASH_RAYTRACING
+		if( !fa->polys )
+			return;
+
+		const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
+		rt_state.curBrushSurface           = ( int )( fa - surfbase );
+		rt_state.curBrushSurfaceIsSky      = true;
+		rt_state.curBrushSurfaceIsWater    = false;
+		rt_state.curBrushSurfaceIsAnimated = false;
+		{
+			vec3_t faceNormal = RT_VEC3( fa->plane->normal );
+			VectorScale( faceNormal, FBitSet( fa->flags, SURF_PLANEBACK ) ? -1 : 1, faceNormal );
+			pglNormal3fv( faceNormal );
+		}
+		if( fa->texinfo && fa->texinfo->texture )
+			GL_Bind( XASH_TEXTURE0, fa->texinfo->texture->gl_texturenum );
+		DrawGLPoly( fa->polys, 0.0f, 0.0f );
+		rt_state.curBrushSurface           = -1;
+		rt_state.curBrushSurfaceIsSky      = false;
+#endif
+		return;
+	}
 
 	texture_t *t = R_TextureAnimation( fa );
 
