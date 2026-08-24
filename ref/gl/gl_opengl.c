@@ -2149,7 +2149,6 @@ EMPTY_LINKAGE void APIENTRY pglTexParameterfv(GLenum target, GLenum pname, const
 EMPTY_LINKAGE void APIENTRY pglTexParameteri(GLenum target, GLenum pname, GLint param){}
 EMPTY_LINKAGE void APIENTRY pglTexParameteriv(GLenum target, GLenum pname, const GLint *params){}
 EMPTY_LINKAGE void APIENTRY pglTexSubImage1D(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, const GLvoid *pixels){}
-EMPTY_LINKAGE void APIENTRY pglTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels){}
 EMPTY_LINKAGE void APIENTRY pglTranslated(GLdouble x, GLdouble y, GLdouble z){}
 EMPTY_LINKAGE void APIENTRY pglTranslatef(GLfloat x, GLfloat y, GLfloat z){}
 EMPTY_LINKAGE void APIENTRY pglVertex2d(GLdouble x, GLdouble y){ assert( 0 ); }
@@ -2985,6 +2984,14 @@ void pglTexImage2D( GLenum        target,
 				RG_CHECK( r );
 			}
 		}
+	}
+}
+
+void pglTexSubImage2D( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels )
+{
+	if( xoffset == 0 && yoffset == 0 )
+	{
+		pglTexImage2D( target, level, format, width, height, 0, format, type, pixels );
 	}
 }
 
