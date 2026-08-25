@@ -419,6 +419,9 @@ FS_Rescan
 */
 void FS_Rescan( uint32_t flags, const char *language )
 {
+	if( !GI )
+		return;
+
 	Con_Reportf( "%s( %s, 0x%x, %s )\n", __func__, GI->title, flags, language );
 
 	FS_ClearSearchPath();
