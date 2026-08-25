@@ -30,34 +30,25 @@ static void GL_FrustumSetPlane( gl_frustum_t *out, int side, const vec3_t vecNor
 
 void GL_FrustumInitProj( gl_frustum_t *out, float flZNear, float flZFar, float flFovX, float flFovY )
 {
-	vec3_t	normal, iforward, apex;
+	vec3_t	normal, iforward;
 	float	xs, xc;
-
-	if( flZNear < 0.0f )
-	{
-		VectorMA( RI.cullorigin, flZNear, RI.cull_vforward, apex );
-	}
-	else
-	{
-		VectorCopy( RI.cullorigin, apex );
-	}
 
 	SinCos( DEG2RAD( flFovX ) * 0.5f, &xs, &xc );
 
 	VectorMAM( xs, RI.cull_vforward, -xc, RI.cull_vright, normal );
-	GL_FrustumSetPlane( out, FRUSTUM_LEFT, normal, DotProduct( apex, normal ));
+	GL_FrustumSetPlane( out, FRUSTUM_LEFT, normal, DotProduct( RI.cullorigin, normal ));
 
 	VectorMAM( xs, RI.cull_vforward, xc, RI.cull_vright, normal );
-	GL_FrustumSetPlane( out, FRUSTUM_RIGHT, normal, DotProduct( apex, normal ));
+	GL_FrustumSetPlane( out, FRUSTUM_RIGHT, normal, DotProduct( RI.cullorigin, normal ));
 
 	SinCos( DEG2RAD( flFovY ) * 0.5f, &xs, &xc );
 	VectorNegate( RI.cull_vforward, iforward );
 
 	VectorMAM( xs, RI.cull_vforward, -xc, RI.cull_vup, normal );
-	GL_FrustumSetPlane( out, FRUSTUM_BOTTOM, normal, DotProduct( apex, normal ));
+	GL_FrustumSetPlane( out, FRUSTUM_BOTTOM, normal, DotProduct( RI.cullorigin, normal ));
 
 	VectorMAM( xs, RI.cull_vforward, xc, RI.cull_vup, normal );
-	GL_FrustumSetPlane( out, FRUSTUM_TOP, normal, DotProduct( apex, normal ));
+	GL_FrustumSetPlane( out, FRUSTUM_TOP, normal, DotProduct( RI.cullorigin, normal ));
 
 	vec3_t farpoint;
 	VectorMA( RI.cullorigin, flZFar, RI.cull_vforward, farpoint );

@@ -1350,13 +1350,6 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( rt_fsr3_framegen,			"0",	"enable FSR3 Frame Generation" )
     CVAR_DEF_T( _rt_fsr3_framegen_available,	"0",	"internal variable; for menu" )
 
-	CVAR_DEF_T( rt_cull,					"1",	"enable ray tracing culling" )
-	CVAR_DEF_T( rt_cull_pvs,				"1",	"enable PVS behind-wall culling" )
-	CVAR_DEF_T( rt_cull_pvs_radius,			"64",	"fat PVS radius in world units" )
-	CVAR_DEF_T( rt_cull_fov_margin,			"35",	"frustum guard-band FOV margin in degrees" )
-	CVAR_DEF_T( rt_cull_backdist,			"512",	"guard-band setback distance behind the player" )
-	CVAR_DEF_T( rt_cull_entity_radius,		"768",	"radius around player where all PVS entities are kept for shadow safety" )
-
 	// clang-format on
 
     gEngfuncs.Cmd_AddCommand(
