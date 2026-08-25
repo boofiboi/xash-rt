@@ -51,6 +51,7 @@ def sdl2_configure_path(conf, path, libname):
 	LIB           = 'LIB_' + libname
 
 	conf.env[HAVE] = 1
+	conf.env.SDL_PATH = path
 	if conf.env.DEST_OS == 'darwin':
 		conf.env[INCLUDES] = [os.path.abspath(os.path.join(path, 'Headers'))]
 		conf.env[FRAMEWORKPATH] = [my_dirname(path)]
@@ -94,8 +95,14 @@ def configure(conf):
 	CXXFLAGS      = 'CFLAGS_' + libname
 	LINKFLAGS     = 'LINKFLAGS_' + libname
 
-	if conf.options.SDL_PATH:
-		sdl2_configure_path(conf, conf.options.SDL_PATH, libname)
+	sdl_path = conf.options.SDL_PATH
+	if not sdl_path:
+		local_sdl = os.path.abspath(os.path.join(conf.srcnode.abspath(), 'SDL2_VC'))
+		if os.path.isdir(local_sdl):
+			sdl_path = local_sdl
+
+	if sdl_path:
+		sdl2_configure_path(conf, sdl_path, libname)
 	elif conf.env.DEST_OS == 'darwin' and conf.options.SDL_USE_PKGCONFIG == False:
 		sdl2_configure_path(conf, '/Library/Frameworks/%s.framework' % libname, libname)
 	elif conf.env.DEST_OS == 'emscripten':

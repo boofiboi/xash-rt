@@ -540,7 +540,12 @@ def configure(conf):
 			conf.env.SHAREDIR = '${PREFIX}/share/xash3d'
 			conf.env.LIBDIR += '/xash3d'
 	else:
-		conf.env.SHAREDIR = conf.env.LIBDIR = conf.env.BINDIR = conf.env.PREFIX
+		conf.env.PREFIX = conf.options.prefix
+		if conf.env.RAYTRACING:
+			conf.env.BINDIR = conf.env.LIBDIR = os.path.join(conf.env.PREFIX, 'rt_bin').replace('\\', '/')
+			conf.env.SHAREDIR = conf.env.PREFIX
+		else:
+			conf.env.SHAREDIR = conf.env.LIBDIR = conf.env.BINDIR = conf.env.PREFIX
 
 	if not conf.options.BUILD_BUNDLED_DEPS:
 		# there was a check for system libbacktrace but we can't be sure if it supports fileline or not
@@ -610,6 +615,89 @@ def build(bld):
 			continue
 
 		bld.add_subproject(i.name)
+
+	if bld.env.RAYTRACING:
+		rtgl1_sdk = os.environ.get('RTGL1_SDK_PATH', '')
+		if not rtgl1_sdk or not os.path.exists(rtgl1_sdk):
+			local_sdk = os.path.abspath(os.path.join(bld.srcnode.abspath(), '..', 'RayTracedGL1'))
+			if os.path.exists(local_sdk):
+				rtgl1_sdk = local_sdk
+			else:
+				rtgl1_sdk = r'E:\Xash-RT\RayTracedGL1'
+
+		rtgl1_dll_candidates = [
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RelWithDebInfo', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'Release', 'Release', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'Release', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'Debug', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'Debug', 'Debug', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'Debug', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release-NonAVX', 'Release', 'RayTracedGL1.dll'),
+		]
+		rtgl1_dll = None
+		for c in rtgl1_dll_candidates:
+			if os.path.exists(c):
+				rtgl1_dll = c
+				break
+
+		extra_rt_files = []
+		if rtgl1_dll:
+			extra_rt_files.append(rtgl1_dll)
+			rt_dir = os.path.dirname(rtgl1_dll)
+			for extra_name in ['NRI.dll', 'amd_fidelityfx_vk.dll']:
+				p = os.path.join(rt_dir, extra_name)
+				if os.path.exists(p) and p not in extra_rt_files:
+					extra_rt_files.append(p)
+
+		if not any(f.endswith('NRI.dll') for f in extra_rt_files):
+			nri_candidates = [
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', '_deps', 'nri-build', 'Release', 'NRI.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', '_deps', 'nri-build', 'RelWithDebInfo', 'NRI.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', '_deps', 'nri-build', 'Debug', 'NRI.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'Release', '_deps', 'nri-build', 'Release', 'NRI.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'Debug', '_deps', 'nri-build', 'Debug', 'NRI.dll'),
+			]
+			for c in nri_candidates:
+				if os.path.exists(c):
+					extra_rt_files.append(c)
+					break
+
+		if bld.env.LIBPATH_SDL2:
+			for lp in bld.env.LIBPATH_SDL2:
+				sdl_dll = os.path.join(lp, 'SDL2.dll')
+				if os.path.exists(sdl_dll):
+					extra_rt_files.append(sdl_dll)
+					break
+		if not any(f.endswith('SDL2.dll') for f in extra_rt_files):
+			sdl_path = getattr(bld.env, 'SDL_PATH', None) or os.path.abspath(os.path.join(bld.srcnode.abspath(), 'SDL2_VC'))
+			for sub in ['lib/x64/SDL2.dll', 'lib/x86/SDL2.dll', 'lib/SDL2.dll']:
+				p = os.path.join(sdl_path, sub)
+				if os.path.exists(p):
+					extra_rt_files.append(p)
+					break
+
+		extra_nodes = []
+		for p in extra_rt_files:
+			node = bld.root.find_node(os.path.abspath(p).replace('\\', '/'))
+			if node:
+				extra_nodes.append(node)
+
+		if extra_nodes:
+			bld.install_files(bld.env.BINDIR, extra_nodes)
+
+		shaders_dir = os.path.join(rtgl1_sdk, 'Build', 'shaders')
+		if os.path.isdir(shaders_dir):
+			spv_files = [os.path.join(shaders_dir, f) for f in os.listdir(shaders_dir) if f.endswith('.spv')]
+			spv_nodes = []
+			for p in spv_files:
+				node = bld.root.find_node(os.path.abspath(p).replace('\\', '/'))
+				if node:
+					spv_nodes.append(node)
+			if spv_nodes:
+				bld.install_files(os.path.join(bld.env.PREFIX, 'rt', 'shaders').replace('\\', '/'), spv_nodes)
 
 	if bld.env.TESTS:
 		bld.add_post_fun(waf_unit_test.summary)
