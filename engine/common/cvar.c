@@ -343,6 +343,22 @@ static void Cvar_Changed( convar_t *var )
 
 	if( !Q_strcmp( var->name, "sv_cheats" ))
 		host.allow_cheats = Q_atoi( var->string );
+
+	if( !Q_strcmp( var->name, "cl_himodels" ))
+	{
+		convar_t *cv = Cvar_FindVar( "fs_mount_hd" );
+		if( cv && cv->value != var->value )
+			Cvar_SetValue( "fs_mount_hd", var->value );
+	}
+
+	if( !Q_strcmp( var->name, "fs_mount_hd" ))
+	{
+		convar_t *cv = Cvar_FindVar( "cl_himodels" );
+		if( cv && cv->value != var->value )
+			Cvar_SetValue( "cl_himodels", var->value );
+		FS_SaveVFSConfig();
+		FS_Rescan_f();
+	}
 }
 
 /*
