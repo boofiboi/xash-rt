@@ -2406,11 +2406,26 @@ void R_StudioResetPlayerModels( void )
 }
 
 #if XASH_RAYTRACING
-static model_t* RT_GetCurrentLocalPlayerModel()
+static model_t *RT_TryLoadModel( const char *path )
+{
+    if( !path || !path[0] )
+        return NULL;
+
+    gEngfuncs.fsapi->AllowDirectPaths( true );
+    model_t *mdl = gEngfuncs.Mod_ForName( path, false, false );
+    gEngfuncs.fsapi->AllowDirectPaths( false );
+
+    if( mdl && mdl->type == mod_studio )
+        return mdl;
+
+    return NULL;
+}
+
+static model_t* RT_GetCurrentLocalPlayerModel( void )
 {
     qboolean labcoat = RT_CVAR_TO_BOOL( _rt_labcoat );
 
-	if( RT_CVAR_TO_UINT32( rt_labcoat_force ) == 1 )
+    if( RT_CVAR_TO_UINT32( rt_labcoat_force ) == 1 )
     {
         labcoat = true;
     }
@@ -2418,20 +2433,65 @@ static model_t* RT_GetCurrentLocalPlayerModel()
     {
         labcoat = false;
     }
-	
+
+    const char *gamedir = gEngfuncs.pfnGetCvarString( "gamedir" );
+    qboolean isBshift = ( gamedir && Q_stristr( gamedir, "bshift" ) != NULL );
+
     if( labcoat )
     {
-        char labcoat_model_path[ MAX_OSPATH ];
-        Q_snprintf( labcoat_model_path,
-                    sizeof( labcoat_model_path ),
-                    "%s",
-                    rt_cvars.rt_labcoat_model->string );
+        if( rt_cvars.rt_labcoat_model && rt_cvars.rt_labcoat_model->string && rt_cvars.rt_labcoat_model->string[0] )
+        {
+            if( Q_stricmp( rt_cvars.rt_labcoat_model->string, "rt/valve/models_rt/gordon_scientist.mdl" ) != 0 )
+            {
+                model_t *mdl = RT_TryLoadModel( rt_cvars.rt_labcoat_model->string );
+                if( mdl )
+                    return mdl;
+            }
+        }
 
-        gEngfuncs.fsapi->AllowDirectPaths( true );
-        model_t* mdl = gEngfuncs.Mod_ForName( labcoat_model_path, false, false );
-        gEngfuncs.fsapi->AllowDirectPaths( false );
+        if( isBshift )
+        {
+            static const char *const bshift_unsuited[] = {
+                "rt/bshift/models_rt/barney_unarmored.mdl",
+                "rt/bshift/models_rt/barney_noarmor.mdl",
+                "rt/bshift/models_rt/barney_guard.mdl",
+                "rt/bshift/models_rt/gordon_scientist.mdl",
+                "models/player/barney/barney.mdl",
+            };
+            for( size_t i = 0; i < sizeof( bshift_unsuited ) / sizeof( bshift_unsuited[0] ); i++ )
+            {
+                model_t *mdl = RT_TryLoadModel( bshift_unsuited[i] );
+                if( mdl )
+                    return mdl;
+            }
+        }
 
-		return mdl;
+        if( rt_cvars.rt_labcoat_model && rt_cvars.rt_labcoat_model->string )
+        {
+            model_t *mdl = RT_TryLoadModel( rt_cvars.rt_labcoat_model->string );
+            if( mdl )
+                return mdl;
+        }
+
+        return RT_TryLoadModel( "rt/valve/models_rt/gordon_scientist.mdl" );
+    }
+    else
+    {
+        if( isBshift )
+        {
+            static const char *const bshift_suited[] = {
+                "rt/bshift/models_rt/barney.mdl",
+                "rt/bshift/models_rt/barney_armor.mdl",
+                "models/player/barney/barney.mdl",
+                "models/barney.mdl",
+            };
+            for( size_t i = 0; i < sizeof( bshift_suited ) / sizeof( bshift_suited[0] ); i++ )
+            {
+                model_t *mdl = RT_TryLoadModel( bshift_suited[i] );
+                if( mdl )
+                    return mdl;
+            }
+        }
     }
 
     return NULL;
