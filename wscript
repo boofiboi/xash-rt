@@ -654,10 +654,20 @@ def build(bld):
 		if rtgl1_dll:
 			extra_rt_files.append(rtgl1_dll)
 			rt_dir = os.path.dirname(rtgl1_dll)
-			for extra_name in ['NRI.dll', 'amd_fidelityfx_vk.dll']:
+			for extra_name in ['NRI.dll']:
 				p = os.path.join(rt_dir, extra_name)
 				if os.path.exists(p) and p not in extra_rt_files:
 					extra_rt_files.append(p)
+
+		ffx_candidates = [
+			os.path.join(rtgl1_sdk, 'bin', 'amd_fidelityfx_vk.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', 'amd_fidelityfx_vk.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'Release', 'amd_fidelityfx_vk.dll'),
+		]
+		for c in ffx_candidates:
+			if os.path.exists(c):
+				extra_rt_files.append(c)
+				break
 
 		if not any(f.endswith('NRI.dll') for f in extra_rt_files):
 			nri_candidates = [
