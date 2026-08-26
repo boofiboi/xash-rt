@@ -155,7 +155,7 @@ Issues that are similar to these will be automatically closed without hesitation
 		- Expected behaviour vs actual behaviour
 		- System specs
 		- Any extra information (What you were doing when it happened etc.)
-		- We also have a [Discord](https://discord.com/6ueFjD6UTy) server, if youre not comfortable with creating an issue.
+	- We also have a [Discord](https://discord.com/6ueFjD6UTy) server, if youre not comfortable with creating an issue.
 ## Support
 
 
