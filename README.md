@@ -1,9 +1,9 @@
 
-# Xash-RT
+# Xash-RT Improved
 
   
 
-Xash-RT is a heavily modified fork of [xash-rt](https://github.com/sultim-t/xash-rt) which in of itself is a fork of [xash3d-fwgs](https://github.com/FWGS/xash3d-fwgs) with edits to the OpenGL renderer to allow for integration with [a custom path traced renderer](https://github.com/boofiboi/RayTracedGL1) to add modern graphical improvements to the otherwise dated engine.
+Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sultim-t/xash-rt) which in of itself is a fork of [xash3d-fwgs](https://github.com/FWGS/xash3d-fwgs) with edits to the OpenGL renderer to allow for integration with [a custom path traced renderer](https://github.com/boofiboi/RayTracedGL1) to add modern graphical improvements to the otherwise dated engine.
 
 ## Improvements over the original [fork](https://github.com/sultim-t/xash-rt)
 - **Completely synced to upstream (Allows for running a wider-range of mods, including Counter-Strike: 1.6)**
