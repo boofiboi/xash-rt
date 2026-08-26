@@ -41,7 +41,7 @@ typedef struct rt_static_light_t
     float             spot_outer_cone_rad;
 } rt_static_light_t;
 
-#define RT_MAX_STATIC_LIGHTS        256
+#define RT_MAX_STATIC_LIGHTS        2048
 #define RT_MAX_POTENTIAL_SUN_LIGHTS 16
 
 struct
@@ -67,9 +67,12 @@ static void AddStaticLight( const vec3_t      abs_position,
                             float             spot_cone,
                             float             spot_cone2 )
 {
-    uint32_t index = g_lights.static_lights_count;
-    assert( index < RT_MAX_STATIC_LIGHTS );
+    if( g_lights.static_lights_count >= RT_MAX_STATIC_LIGHTS )
+    {
+        return;
+    }
 
+    uint32_t index = g_lights.static_lights_count;
     rt_static_light_t* dst = &g_lights.static_lights[ index ];
     {
         VectorCopy( abs_position, dst->abs_position );
@@ -506,11 +509,11 @@ extern cl_entity_t* rt_trament;
     #define RT_IDBASE_SUN			1
     #define RT_IDBASE_FLASHLIGHT	256
     #define RT_IDBASE_TRAMLIGHT		384
-    #define RT_IDBASE_DLIGHT		10000
-    #define RT_IDBASE_ELIGHT		200000
-    #define RT_IDBASE_PARTICLELIGHT	400000
-    #define RT_IDBASE_BEAMLIGHT     600000
-    #define RT_IDBASE_STATICLIGHT   700000
+    #define RT_IDBASE_DLIGHT		1000000
+    #define RT_IDBASE_ELIGHT		2000000
+    #define RT_IDBASE_PARTICLELIGHT	3000000
+    #define RT_IDBASE_BEAMLIGHT     4000000
+    #define RT_IDBASE_STATICLIGHT   5000000
 
     static uint32_t rt_dlight_gen[ MAX_DLIGHTS ] = { 0 };
     static float    rt_dlight_last_die[ MAX_DLIGHTS ] = { 0 };
@@ -734,7 +737,7 @@ void RT_UploadAllLights( void )
     for( uint32_t i = 0; i < rt_particlelights_count; i++ )
     {
         rt_particlelight_t* src = &rt_particlelights[ i ];
-        assert( src->id < 1024 );
+        assert( src->id < ( RT_IDBASE_BEAMLIGHT - RT_IDBASE_PARTICLELIGHT ) );
 
         RgSphericalLightUploadInfo info = {
             .uniqueID     = RT_IDBASE_PARTICLELIGHT + src->id,
