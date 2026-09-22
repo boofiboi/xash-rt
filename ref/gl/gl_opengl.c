@@ -2872,7 +2872,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.transform      = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
 			.isExportable   = immovable && !rt_state.curBrushSurfaceIsAnimated &&
 							!rt_state.curBrushSurfaceIsWater &&
-							!rt_state.curBrushSurfaceIsSky,
+							!rt_state.curBrushSurfaceIsSky &&
+							!rt_raster_blend,
 			.animationName = NULL,
 			.animationTime = 0.0f,
 		};
@@ -2887,7 +2888,9 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.pTextureName         = rt_state.curTexture2DName,
 			.textureFrame         = 0,
 			.color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-			.emissive             = 0.0f,
+			.emissive             = rt_raster_blend && rt_raster_additive
+										? RT_CVAR_TO_FLOAT( rt_emis_additive_dflt )
+										: 0.0f,
 			.pEditorInfo          = NULL,
 		};
 
