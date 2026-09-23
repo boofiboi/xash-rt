@@ -15,7 +15,6 @@ Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sult
 - **Various QoL features**
 ### In-progress:
 - **Native linux builds**
-- **Getting an actual release of the engine, including Blue Shift: Ray Traced**
 - **Small app to handle updates/installation of the mod, and managing mod adaptations**
   
 ## Installation without building
