@@ -20,7 +20,7 @@ Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sult
 ## Installation without building
 Latest compiled build for Half-Life 1 can be found in the [Releases](https://github.com/boofiboi/xash-rt/releases) tab.
 ## Minor things
-- We have a [Discord](https://discord.com/6ueFjD6UTy) server (Come discuss this mod, get support etc.)
+- We have a [Discord](https://discord.com/invite/6ueFjD6UTy) server (Come discuss this mod, get support etc.)
 - Read up on the original xash3d-fwgs repository [here](https://github.com/FWGS/xash3d-fwgs)
 - Also read up on the original xash-rt fork [here](https://github.com/sultim-t/xash-rt)
 - A new, fixed and functional release will be released during the month of september along with HL: Blue Shift support.
