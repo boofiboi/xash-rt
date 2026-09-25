@@ -475,6 +475,7 @@ def configure(conf):
 
 	if conf.env.RAYTRACING:
 		conf.env.SOFT = False
+		conf.define('XASH_RAYTRACING', 1)
 
 	conf.env.GAMEDIR = conf.options.GAMEDIR
 	conf.define('XASH_GAMEDIR', conf.options.GAMEDIR)

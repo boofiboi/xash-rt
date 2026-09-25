@@ -39,10 +39,15 @@ def build(bld):
 	if bld.env.DEST_OS != 'psvita':
 		libs += [ 'public', 'ANDROID', 'library_suffix', 'build_vcs' ]
 
+	defines = []
+	if bld.env.RAYTRACING:
+		defines += ['XASH_RAYTRACING=1']
+
 	bld.shlib(target = 'filesystem_stdio',
 		features = 'seq',
 		source = bld.path.ant_glob(['*.c', '*.cpp']),
 		use = libs,
+		defines = defines,
 		install_path = bld.env.LIBDIR)
 
 	if bld.env.TESTS:

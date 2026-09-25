@@ -447,10 +447,32 @@ void FS_Rescan( uint32_t flags, const char *language )
 	if( !COM_StringEmptyOrNULL( str ))
 		FS_MountArchive_Fullpath( str, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
 
-	((gameinfo_t *)GI)->added = true; // getting rid of const here, as this modifier only for the engine
+	if( Q_stricmp( GI->basedir, GI->gamefolder ))
+		FS_AddGameHierarchy( GI->basedir, flags );
+
+	if( Q_stricmp( GI->basedir, GI->falldir ) && Q_stricmp( GI->gamefolder, GI->falldir ))
+		FS_AddGameHierarchy( GI->falldir, flags );
+
+	((gameinfo_t *)GI)->added = true;
 	FS_AddGameHierarchy( GI->gamefolder, FS_GAMEDIR_PATH | flags );
 
 #if XASH_RAYTRACING
+	FS_AddGameHierarchy( "rt", FS_NOWRITE_PATH | FS_CUSTOM_PATH );
+
+	if( Q_stricmp( GI->basedir, GI->falldir ) && Q_stricmp( GI->gamefolder, GI->falldir ))
+	{
+		char rtfall[MAX_OSPATH] = "";
+		Q_snprintf( rtfall, sizeof( rtfall ), "rt/%s", GI->falldir );
+		FS_AddGameHierarchy( rtfall, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
+	}
+
+	if( Q_stricmp( GI->basedir, GI->gamefolder ))
+	{
+		char rtbase[MAX_OSPATH] = "";
+		Q_snprintf( rtbase, sizeof( rtbase ), "rt/%s", GI->basedir );
+		FS_AddGameHierarchy( rtbase, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
+	}
+
 	{
 		char rtgame[MAX_OSPATH] = "";
 		Q_snprintf( rtgame, sizeof( rtgame ), "rt/%s", GI->gamefolder );
