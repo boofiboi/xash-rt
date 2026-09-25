@@ -108,6 +108,7 @@ typedef struct
 	pixel_t      alphamap[3 * 1024 * 256];
 	pixel_t      color;
 	qboolean     is2d;
+	float        offset2d[2];
 	byte         alpha;
 
 	// maybe compute colormask for minor byte?
@@ -333,6 +334,7 @@ void GL_Bind( int tmu, unsigned int texnum );
 // gl_draw.c
 //
 void R_Set2DMode( qboolean enable );
+void R_Set2DOffset( float x, float y );
 void GL_UpdateTexture( int texnum, int cols, int rows, int width, int height, const byte *buffer, pixformat_t fmt );
 
 // gl_image.c
@@ -463,7 +465,7 @@ void R_DrawViewModel( void );
 void R_DecalShoot( int textureIndex, int entityIndex, int modelIndex, vec3_t pos, int flags, float scale );
 void R_DecalRemoveAll( int texture );
 int R_CreateDecalList( decallist_t *pList );
-void R_ClearAllDecals( void );
+void R_ClearAllDecals( qboolean includePermanent );
 byte *Mod_GetCurrentVis( void );
 void Mod_SetOrthoBounds( const float *mins, const float *maxs );
 void R_NewMap( void );

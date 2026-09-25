@@ -710,7 +710,8 @@ static qboolean Mod_NameImpliesTextureIsAnimated( texture_t *tex )
 
 	// Name implies texture is animated - check second character is valid.
 	if( !( tex->name[1] >= '0' && tex->name[1] <= '9' ) &&
-		!( tex->name[1] >= 'a' && tex->name[1] <= 'j' ))
+		!( tex->name[1] >= 'a' && tex->name[1] <= 'j' ) &&
+		!( tex->name[1] >= 'A' && tex->name[1] <= 'J' ))
 	{
 		Con_Printf( S_ERROR "%s: animating texture \"%s\" has invalid name\n", __func__, tex->name );
 		return false;
@@ -2039,10 +2040,12 @@ static void Mod_SetupHull( dbspmodel_t *bmod, model_t *mod, int headnode, int hu
 
 static qboolean Mod_LoadLitfile( model_t *mod, const char *ext, size_t expected_size, color24 **out, size_t *outsize )
 {
-	char        modelname[64], path[64];
+	char        basename[sizeof( mod->name )], path[sizeof( mod->name ) + 8];
 
-	COM_FileBase( mod->name, modelname, sizeof( modelname ));
-	Q_snprintf( path, sizeof( path ), "maps/%s.%s", modelname, ext );
+	// keep the directory part, so maps in subdirectories look up their lit files next to the bsp
+	Q_strncpy( basename, mod->name, sizeof( basename ));
+	COM_StripExtension( basename );
+	Q_snprintf( path, sizeof( path ), "%s.%s", basename, ext );
 
 	int iCompare;
 	if( !pfnCompareFileTime( path, mod->name, &iCompare ))
@@ -2587,7 +2590,7 @@ static qboolean Mod_LooksLikeWaterTexture( const char *name )
 
 	if( !Host_IsQuakeCompatible( ))
 	{
-		if( !Q_strncmp( name, "water", 5 ) || !Q_strnicmp( name, "laser", 5 ))
+		if( !Q_strnicmp( name, "water", 5 ) || !Q_strnicmp( name, "laser", 5 ))
 			return true;
 	}
 
@@ -2953,8 +2956,7 @@ static void Mod_LoadTexture( model_t *mod, dbspmodel_t *bmod, int textureIndex )
 	texture_t *texture = (texture_t *)Mem_Calloc( mod->mempool, sizeof( *texture ));
 	mod->textures[textureIndex] = texture;
 
-	// Ensure texture name is lowercase.
-	Q_strnlwr( mipTex.name, texture->name, sizeof( texture->name ));
+	Q_strncpy( texture->name, mipTex.name, sizeof( texture->name ));
 
 	texture->width = mipTex.width;
 	texture->height = mipTex.height;
@@ -3002,7 +3004,7 @@ static void Mod_SequenceAnimatedTexture( model_t *mod, int baseTextureIndex )
 	else
 	{
 		// This texture is an alternate animation frame.
-		int frameIndex = (int)baseTexture->name[1] - (int)'a';
+		int frameIndex = (int)Q_toupper( baseTexture->name[1] ) - (int)'A';
 
 		altanims[frameIndex] = baseTexture;
 		altmax = frameIndex + 1;
@@ -3035,7 +3037,7 @@ static void Mod_SequenceAnimatedTexture( model_t *mod, int baseTextureIndex )
 		else
 		{
 			// This texture is an alternate frame.
-			int frameIndex = (int)altTexture->name[1] - (int)'a';
+			int frameIndex = (int)Q_toupper( altTexture->name[1] ) - (int)'A';
 			altanims[frameIndex] = altTexture;
 
 			if( frameIndex >= altmax )
@@ -4651,3 +4653,53 @@ int GAME_EXPORT Mod_SaveLump( const char *filename, const int lump, void *lumpda
 	FS_Close( f );
 	return LUMP_SAVE_OK;
 }
+
+#if XASH_ENGINE_TESTS
+#include "tests.h"
+
+static void Test_Mod_NameImpliesTextureIsAnimated( void )
+{
+	typedef struct { char name[64]; } test_texture_t;
+
+	test_texture_t valid[] =
+	{
+		{"+0"}, {"+9"}, {"-0"}, {"-9"},
+		{"+a"}, {"+A"}, {"+j"}, {"+J"},
+		{"-a"}, {"-A"}, {"-j"}, {"-J"},
+	};
+
+	for( int i = 0; i < (int)ARRAYSIZE( valid ); i++ )
+	{
+		TASSERT( Mod_NameImpliesTextureIsAnimated( (texture_t *)&valid[i] ));
+	}
+
+	test_texture_t invalid[] =
+	{
+		{"+k"}, {"+K"}, {"+z"}, {"+Z"},
+		{"-k"}, {"-K"}, {"-z"}, {"-Z"},
+		{"++"}, {"+-"}, {"-+"}, {"--"},
+		{"a0"}, {"0a"}, {""}, {"+"}, {"-"}, {" "}, {"+ "}, {"- "},
+	};
+
+	for( int i = 0; i < (int)ARRAYSIZE( invalid ); i++ )
+	{
+		TASSERT( !Mod_NameImpliesTextureIsAnimated( (texture_t *)&invalid[i] ));
+	}
+}
+
+static void Test_Mod_FrameIndexCalculation( void )
+{
+	TASSERT_EQi( Q_toupper( 'A' ) - 'A', 0 );
+	TASSERT_EQi( Q_toupper( 'a' ) - 'A', 0 );
+	TASSERT_EQi( Q_toupper( 'J' ) - 'A', 9 );
+	TASSERT_EQi( Q_toupper( 'j' ) - 'A', 9 );
+	TASSERT_EQi( Q_toupper( '0' ) - '0', 0 );
+	TASSERT_EQi( Q_toupper( '9' ) - '0', 9 );
+}
+
+void Test_RunModBmodel( void )
+{
+	TRUN( Test_Mod_NameImpliesTextureIsAnimated() );
+	TRUN( Test_Mod_FrameIndexCalculation() );
+}
+#endif

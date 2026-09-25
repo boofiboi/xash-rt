@@ -75,7 +75,7 @@ static qboolean Mod_LooksLikeWaterTexture( const char *name )
 
 	if( !FBitSet( gp_host->features, ENGINE_QUAKE_COMPATIBLE ))
 	{
-		if( !Q_strncmp( name, "water", 5 ) || !Q_strnicmp( name, "laser", 5 ))
+		if( !Q_strnicmp( name, "water", 5 ) || !Q_strnicmp( name, "laser", 5 ))
 			return true;
 	}
 
@@ -118,8 +118,11 @@ static void Mod_UnloadTextures( model_t *mod )
 		break;
 	case mod_sprite:
 		break;
+	case mod_bad:
+		// model was never loaded, the engine frees it right after the loader has rejected it
+		break;
 	default:
-		Assert( 0 );
+		gEngfuncs.Con_Printf( S_ERROR "%s: unsupported type %d\n", __func__, mod->type );
 		break;
 	}
 }
@@ -658,6 +661,7 @@ const ref_interface_t gReffuncs =
 	R_SetupSky,
 
 	R_Set2DMode,
+	R_Set2DOffset,
 	R_DrawStretchPic,
 	CL_FillRGBA,
 	R_WorldToScreen,

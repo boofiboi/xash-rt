@@ -154,6 +154,7 @@ CVAR_DEFINE_AUTO( sv_fullupdate_penalty_time, "1", FCVAR_ARCHIVE, "allow fullupd
 CVAR_DEFINE_AUTO( sv_log_outofband, "0", FCVAR_ARCHIVE, "log out of band messages, can be useful for server admins and for engine debugging" );
 CVAR_DEFINE_AUTO( sv_allow_testpacket, "1", FCVAR_ARCHIVE, "allow generating and sending a big blob of data to test maximum packet size" );
 CVAR_DEFINE_AUTO( sv_expose_player_list, "1", FCVAR_ARCHIVE, "expose player list through packets that don't require connection" );
+CVAR_DEFINE_AUTO( sv_query_rate_limit, "1", FCVAR_ARCHIVE, "max info query replies per second per address bucket, 0 to disable" );
 
 //============================================================================
 /*
@@ -403,21 +404,28 @@ static void SV_ReadPackets( void )
 				continue;
 
 			if( !Netchan_Process( &cl->netchan, &net_message ))
-				continue;
-
-			// authenticated; safe to adopt the (possibly NAT-rewritten) source port
-			if( cl->netchan.remote_address.port != net_from.port )
-				cl->netchan.remote_address.port = net_from.port;
-
-			if(( svs.maxclients == 1 && !host_limitlocal.value ) || ( cl->state != cs_spawned ))
-				SetBits( cl->flags, FCL_SEND_NET_MESSAGE ); // reply at end of frame
-
-			// this is a valid, sequenced packet, so process it
-			if( cl->frames != NULL && cl->state != cs_zombie )
 			{
-				SV_ExecuteClientMessage( cl, &net_message );
-				svgame.globals->frametime = sv.frametime;
-				svgame.globals->time = sv.time;
+				// a packet carrying nothing but fragments is reported as rejected
+				// after the fragments were queued, because nothing is left to parse
+				if( !Netchan_IncomingReady( &cl->netchan ))
+					continue;
+			}
+			else
+			{
+				// authenticated; safe to adopt the (possibly NAT-rewritten) source port
+				if( cl->netchan.remote_address.port != net_from.port )
+					cl->netchan.remote_address.port = net_from.port;
+
+				if(( svs.maxclients == 1 && !host_limitlocal.value ) || ( cl->state != cs_spawned ))
+					SetBits( cl->flags, FCL_SEND_NET_MESSAGE ); // reply at end of frame
+
+				// this is a valid, sequenced packet, so process it
+				if( cl->frames != NULL && cl->state != cs_zombie )
+				{
+					SV_ExecuteClientMessage( cl, &net_message );
+					svgame.globals->frametime = sv.frametime;
+					svgame.globals->time = sv.time;
+				}
 			}
 
 			// fragmentation/reassembly sending takes priority over all game messages, want this in the future?
@@ -992,6 +1000,7 @@ void SV_Init( void )
 	Cvar_RegisterVariable( &sv_log_outofband );
 	Cvar_RegisterVariable( &sv_allow_testpacket );
 	Cvar_RegisterVariable( &sv_expose_player_list );
+	Cvar_RegisterVariable( &sv_query_rate_limit );
 
 	// when we in developer-mode automatically turn cheats on
 	if( host_developer.value ) Cvar_SetValue( "sv_cheats", 1.0f );

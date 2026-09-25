@@ -319,6 +319,7 @@ void R_ClearDecals( void );
 // gl_draw.c
 //
 void R_Set2DMode( qboolean enable );
+void R_Set2DOffset( float x, float y );
 void GL_UpdateTexture( int texnum, int cols, int rows, int width, int height, const byte *buffer, pixformat_t fmt );
 
 //
@@ -474,7 +475,7 @@ void R_DrawViewModel( void );
 void R_DecalShoot( int textureIndex, int entityIndex, int modelIndex, vec3_t pos, int flags, float scale );
 void R_DecalRemoveAll( int texture );
 int R_CreateDecalList( decallist_t *pList );
-void R_ClearAllDecals( void );
+void R_ClearAllDecals( qboolean includePermanent );
 byte *Mod_GetCurrentVis( void );
 void Mod_SetOrthoBounds( const float *mins, const float *maxs );
 
@@ -621,6 +622,7 @@ typedef struct
 
 	qboolean		stencilEnabled;
 	qboolean		in2DMode;
+	vec2_t		offset2D;
 
 	polyoffset_state_t polyoffset_state[2];
 	int num_polyoffsets;
