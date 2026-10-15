@@ -979,6 +979,7 @@ static void EmitWaterPolys( msurface_t *warp, qboolean reverse, qboolean ripples
 	const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
 	rt_state.curBrushSurface        = ( int )( warp - surfbase );
 	rt_state.curBrushSurfaceIsWater = true;
+	RT_BindLightmapTexture( 0 );
 	{
 		vec3_t faceNormal = RT_VEC3( warp->plane->normal );
 		VectorScale( faceNormal, FBitSet( warp->flags, SURF_PLANEBACK ) ? -1 : 1, faceNormal );
@@ -1054,6 +1055,7 @@ static void EmitWaterPolys( msurface_t *warp, qboolean reverse, qboolean ripples
 #if XASH_RAYTRACING
 	rt_state.curBrushSurface        = -1;
 	rt_state.curBrushSurfaceIsWater = false;
+	RT_BindLightmapTexture( 0 );
 #endif
 
 	GL_SetupFogColorForSurfaces();
@@ -1572,7 +1574,7 @@ static void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 			R_RenderLightmapForSurface( fa );
 
 #if XASH_RAYTRACING
-        RT_BindLightmapTexture( tr.lightmapTextures[ fa->lightmaptexturenum ] );
+		RT_BindLightmapTexture( 0 );
 #endif
 		return;
 	}

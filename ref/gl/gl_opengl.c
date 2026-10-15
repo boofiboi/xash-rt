@@ -1323,6 +1323,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_me_water_r,				"200",	"water color Red; set by rt_me_water" )
 	CVAR_DEF_T( rt_me_water_g,				"205",	"water color Green; set by rt_me_water" )
 	CVAR_DEF_T( rt_me_water_b,				"210",	"water color Blue; set by rt_me_water" )
+	CVAR_DEF_T( rt_me_water_density,		"1",	"water absorption density multiplier; 0 - crystal clear" )
 
 	CVAR_DEF_T( rt_bloom,					"1",	"enable bloom" )
 	CVAR_DEF_T( rt_bloom_intensity,			"0.05",	"bloom intensity" )

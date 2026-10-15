@@ -912,6 +912,7 @@ typedef struct rt_cvars_t
 	rt_me_water_r,
 	rt_me_water_g,
 	rt_me_water_b,
+	rt_me_water_density,
 	
 	rt_bloom,
 	rt_bloom_intensity,
