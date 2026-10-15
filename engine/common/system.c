@@ -658,6 +658,9 @@ void *Sys_GetNativeObject( const char *obj )
 	if( COM_StringEmptyOrNULL( obj ))
 		return NULL;
 
+	if( !Q_strcmp( obj, "WindowInsets" ))
+		return host.window_insets;
+
 	if( !Q_strcmp( obj, "MenuFactory" ))
 		return UI_GetMenuFactory();
 

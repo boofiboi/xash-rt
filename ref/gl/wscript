@@ -124,6 +124,7 @@ def build(bld):
 		bld.shlib(source = source,
 			target = k,
 			includes = includes,
+			features = 'format',
 			libpath = libpath,
 			lib = v['libs'],
 			use = libs,
