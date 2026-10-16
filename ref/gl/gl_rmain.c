@@ -1566,6 +1566,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
     {
         if( vintage > 0 )
         {
+            gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_fsr3->name, rt_cvars.rt_ef_vintage->name );
             gEngfuncs.Cvar_Set( rt_cvars.rt_ef_vintage->name, "0" );
             vintage = 0;
         }
@@ -1574,6 +1575,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
     {
         if( fsr3 > 0 )
         {
+            gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_upscale_fsr3->name, rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_fsr3->name );
             gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr3->name, "0" );
             fsr3 = 0;
         }

@@ -121,7 +121,11 @@ typedef struct
 
 // studio-related cvars
 CVAR_DEFINE_AUTO( r_studio_sort_textures, "0", FCVAR_GLCONFIG, "change draw order for additive meshes" );
+#if XASH_RAYTRACING
+CVAR_DEFINE_AUTO( r_studio_drawelements, "0", 0, "use glDrawElements for studiomodels" );
+#else
 CVAR_DEFINE_AUTO( r_studio_drawelements, "1", FCVAR_GLCONFIG, "use glDrawElements for studiomodels" );
+#endif
 CVAR_DEFINE_AUTO( r_studio_builtin_renderer, "0", 0, "use built-in studio model renderer instead of the one provided by client library (debugging)" );
 static cvar_t			*cl_righthand = NULL;
 
