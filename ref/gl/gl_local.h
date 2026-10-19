@@ -877,6 +877,19 @@ typedef struct rt_state_s
 } rt_state_t;
 extern rt_state_t rt_state;
 
+typedef struct
+{
+	uint	c_verts;
+	uint	c_texcoords;
+	uint	c_texcoords_layer1;
+	uint	c_normals;
+	uint	c_colors;
+	uint	c_prims;
+	uint	c_uploads;
+	uint	c_uploads_nonworld;
+} rt_perf_t;
+extern rt_perf_t rt_perf;
+
 	void RT_OnBeforeDrawFrame( void );
 	void RT_ParseStaticLightEntities( void );
 void RT_UploadAllLights( void );
@@ -886,6 +899,7 @@ void RT_BindLightmapTexture( int texnum );
 void RT_ResetChapterLogo( void );
 void RT_TryFindTramLights( void );
 qboolean RT_IsBrushIgnored( void );
+qboolean RT_IsCullingActive( void );
 
 // clang-format off
 typedef cvar_t* cvar_ptr_t;
@@ -998,7 +1012,11 @@ typedef struct rt_cvars_t
 	    rt_labcoat_model,
 		
 		rt_forcecvars,
-		
+
+		rt_cull,
+		rt_pvs_radius,
+		rt_cull_entities,
+
 		_rt_chapter,
 		_rt_chaptershow,
 

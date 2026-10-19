@@ -53,6 +53,12 @@ qboolean R_CullModel( const cl_entity_t *e, const vec3_t absmin, const vec3_t ab
 		return true;
 	}
 
+#if XASH_RAYTRACING
+	if( RT_IsCullingActive() && RT_CVAR_TO_BOOL( rt_cull_entities ) &&
+		!gEngfuncs.Mod_BoxVisible( absmin, absmax, Mod_GetCurrentVis() ))
+		return true;
+#endif
+
 	return R_CullBox( absmin, absmax );
 }
 

@@ -1430,6 +1430,10 @@ static void GL_InitCommands( void )
 	
 	CVAR_DEF_T( rt_forcecvars,				"1",	"force original cvars to be set to be compatible with RT mode: disable culling, no lightmaps" )
 
+	CVAR_DEF_T( rt_cull,					"1",	"enable PVS-based culling in RT mode" )
+	CVAR_DEF_T( rt_pvs_radius,				"768",	"radius for fattened PVS in RT mode (qu units)" )
+	CVAR_DEF_T( rt_cull_entities,			"1",	"also cull studio models and brush entities by PVS" )
+
 	CVAR_DEF_T( _rt_chapter,				"",		"chapter logo name; checking folder: rt/mat/resource/ch/" )
 	CVAR_DEF_T( _rt_chaptershow,			"0",	"show chapter logo" )
 
@@ -2109,10 +2113,12 @@ EMPTY_LINKAGE void APIENTRY pglNormal3d(GLdouble nx, GLdouble ny, GLdouble nz){}
 EMPTY_LINKAGE void APIENTRY pglNormal3dv(const GLdouble *v){}
 void pglNormal3f( GLfloat nx, GLfloat ny, GLfloat nz )
 {
+    rt_perf.c_normals++;
     rgUtilImScratchNormal( rg_instance, nx, ny, nz );
 }
 void pglNormal3fv( const GLfloat* v )
 {
+    rt_perf.c_normals++;
     rgUtilImScratchNormal( rg_instance, v[ 0 ], v[ 1 ], v[ 2 ] );
 }
 EMPTY_LINKAGE void APIENTRY pglNormal3i(GLint nx, GLint ny, GLint nz){}
@@ -2416,23 +2422,28 @@ void pglBegin( GLenum mode )
 
 void pglTexCoord2f( GLfloat s, GLfloat t )
 {
+	rt_perf.c_texcoords++;
 	rgUtilImScratchTexCoord( rg_instance, s, t );
 }
 void pglTexCoord2fv( const GLfloat* v )
 {
+	rt_perf.c_texcoords++;
 	rgUtilImScratchTexCoord( rg_instance, v[ 0 ], v[ 1 ] );
 }
 
 void pglVertex3f( GLfloat x, GLfloat y, GLfloat z )
 {
+	rt_perf.c_verts++;
 	rgUtilImScratchVertex( rg_instance, x, y, z );
 }
 void pglVertex3fv( const GLfloat* v )
 {
+	rt_perf.c_verts++;
 	rgUtilImScratchVertex( rg_instance, v[ 0 ], v[ 1 ], v[ 2 ] );
 }
 void pglVertex2f ( GLfloat x, GLfloat y )
 {
+	rt_perf.c_verts++;
 	rgUtilImScratchVertex( rg_instance, x, y, 0.0f );
 }
 
@@ -2635,6 +2646,8 @@ static struct
 	RgEditorInfo             additional;
 } rt_batch = { 0 };
 
+rt_perf_t rt_perf = { 0 };
+
 static qboolean AreTransformsAlwaysIdentity( rt_batchtype_t type )
 {
 	switch( type )
@@ -2770,11 +2783,13 @@ static void FlushBatch( void )
 
 		if( rt_batch.type != RT_BATCH_TYPE_2D )
 		{
+			rt_perf.c_uploads++;
 			RgResult r = rgUploadMeshPrimitive( rg_instance, &rt_batch.mesh, &rt_batch.primitive );
 			RG_CHECK( r );
 		}
 		else
 		{
+			rt_perf.c_uploads_nonworld++;
 			RgResult r = rgUploadNonWorldPrimitive( rg_instance,
 													&rt_batch.primitive,
 													rt_2dstate_onbatch.view_projection,
@@ -3014,6 +3029,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 
 void pglEnd( void )
 {
+	rt_perf.c_prims++;
 	rgUtilImScratchEnd( rg_instance );
 }
 

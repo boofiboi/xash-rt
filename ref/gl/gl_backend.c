@@ -60,7 +60,10 @@ GL_BackendEndFrame
 void GL_BackendEndFrame( void )
 {
 	if( r_speeds->value <= 0 || !FBitSet( RI.rvp.flags, RF_DRAW_WORLD ))
+	{
+		memset( &rt_perf, 0, sizeof( rt_perf ));
 		return;
+	}
 
 	mleaf_t *curleaf = RI.viewleaf ? RI.viewleaf : WORLDMODEL->leafs;
 
@@ -89,9 +92,18 @@ void GL_BackendEndFrame( void )
 		Q_snprintf( r_speeds_msg, sizeof( r_speeds_msg ), "%3i tempents\n%3i viewbeams\n%3i particles",
 			r_stats.c_active_tents_count, r_stats.c_view_beams_count, r_stats.c_particle_count );
 		break;
+#if XASH_RAYTRACING
+	case 6:
+		Q_snprintf( r_speeds_msg, sizeof( r_speeds_msg ),
+			"verts %u\ntex %u\nlightmap %u\nnormals %u\nprims %u\nuploads %u",
+			rt_perf.c_verts, rt_perf.c_texcoords, rt_perf.c_texcoords_layer1,
+			rt_perf.c_normals, rt_perf.c_prims, rt_perf.c_uploads );
+		break;
+#endif
 	}
 
 	memset( &r_stats, 0, sizeof( r_stats ));
+	memset( &rt_perf, 0, sizeof( rt_perf ));
 }
 
 /*

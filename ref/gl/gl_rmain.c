@@ -1333,10 +1333,6 @@ void R_BeginFrame( qboolean clearScene )
         {
             gEngfuncs.Cvar_Set( r_nocull.name, "1" );
         }
-        if( r_novis.value <= 0.5f )
-        {
-            gEngfuncs.Cvar_Set( r_novis.name, "1" );
-        }
 
     #undef TO_BOOL
     }

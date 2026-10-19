@@ -488,6 +488,22 @@ qboolean RT_IsBrushIgnored()
 
     return RI.currententity == rt_rocketblastdoor;
 }
+
+qboolean RT_IsCullingActive()
+{
+    if( !RT_CVAR_TO_BOOL( rt_cull ) )
+    {
+        return false;
+    }
+
+    // while a scene export is in progress, all geometry must be submitted
+    if( rg_instance && rgUtilIsExportActive( rg_instance ) )
+    {
+        return false;
+    }
+
+    return true;
+}
 #endif
 
 static void R_NewMap( void )

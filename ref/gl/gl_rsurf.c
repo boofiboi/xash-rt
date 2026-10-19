@@ -935,18 +935,34 @@ void DrawGLPoly( glpoly2_t *p, float xScale, float yScale )
 
 	pglBegin( GL_POLYGON );
 
-	float *v = p->verts[0];
-	for( int i = 0; i < p->numverts; i++, v += VERTEXSIZE )
-	{
-		if( hasScale )
-			pglTexCoord2f(( v[3] + sOffset ) * xScale, ( v[4] + tOffset ) * yScale );
-		else pglTexCoord2f( v[3] + sOffset, v[4] + tOffset );
-
-		pglVertex3fv( v );
 #if XASH_RAYTRACING
-        rgUtilImScratchTexCoord_Layer1(
-            rg_instance, v[ 5 ] - lightmap_soffset, v[ 6 ] - lightmap_toffset );
+	if( !hasScale && sOffset == 0.0f && tOffset == 0.0f && lightmap_soffset == 0.0f && lightmap_toffset == 0.0f )
+	{
+		rt_perf.c_verts += p->numverts;
+		rt_perf.c_texcoords += p->numverts;
+		rt_perf.c_texcoords_layer1 += p->numverts;
+		rgUtilImScratchPushVertices( rg_instance, p->numverts,
+			p->verts[ 0 ], VERTEXSIZE * sizeof( float ),
+			&p->verts[ 0 ][ 3 ], VERTEXSIZE * sizeof( float ),
+			&p->verts[ 0 ][ 5 ], VERTEXSIZE * sizeof( float ) );
+	}
+	else
 #endif
+	{
+		float *v = p->verts[0];
+		for( int i = 0; i < p->numverts; i++, v += VERTEXSIZE )
+		{
+			if( hasScale )
+				pglTexCoord2f(( v[3] + sOffset ) * xScale, ( v[4] + tOffset ) * yScale );
+			else pglTexCoord2f( v[3] + sOffset, v[4] + tOffset );
+
+			pglVertex3fv( v );
+#if XASH_RAYTRACING
+			rt_perf.c_texcoords_layer1++;
+			rgUtilImScratchTexCoord_Layer1(
+				rg_instance, v[ 5 ] - lightmap_soffset, v[ 6 ] - lightmap_toffset );
+#endif
+		}
 	}
 
 	pglEnd();
@@ -1962,6 +1978,12 @@ void R_DrawBrushModel( cl_entity_t *e )
 
 #if XASH_RAYTRACING
 	if( RT_IsBrushIgnored() )
+	{
+		return;
+	}
+
+	if( RT_IsCullingActive() && RT_CVAR_TO_BOOL( rt_cull_entities ) &&
+		!gEngfuncs.Mod_BoxVisible( mins, maxs, Mod_GetCurrentVis() ))
 	{
 		return;
 	}
@@ -3890,9 +3912,18 @@ void R_MarkLeaves( void )
 	if( r_novis.value || FBitSet( RI.rvp.flags, RF_DRAW_OVERVIEW ) || !RI.viewleaf || !WORLDMODEL->visdata )
 		novis = true;
 
-	gEngfuncs.R_FatPVS( RI.rvp.vieworigin, r_pvs_radius->value, RI.visbytes, false, novis );
+#if XASH_RAYTRACING
+	if( !RT_IsCullingActive() )
+		novis = true;
+
+	float pvs_radius = ( RT_CVAR_TO_BOOL( rt_cull ) ) ? RT_CVAR_TO_FLOAT( rt_pvs_radius ) : r_pvs_radius->value;
+#else
+	float pvs_radius = r_pvs_radius->value;
+#endif
+
+	gEngfuncs.R_FatPVS( RI.rvp.vieworigin, pvs_radius, RI.visbytes, false, novis );
 	if( force && !novis )
-		gEngfuncs.R_FatPVS( test, r_pvs_radius->value, RI.visbytes, true, novis );
+		gEngfuncs.R_FatPVS( test, pvs_radius, RI.visbytes, true, novis );
 
 	for( int i = 0; i < WORLDMODEL->numleafs; i++ )
 	{
