@@ -1346,6 +1346,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )
 	CVAR_DEF_T( rt_emis_additive_brush,		"1.0",	"" )
 	CVAR_DEF_T( rt_emis_hologram,			"0.2",	"" )
+	CVAR_DEF_T( rt_hud_brightness,			"1.5",	"brightness multiplier for HUD and 2D elements" )
 
 	CVAR_DEF_T( rt_tnmp_ev100_min,			"2.0",	"min brightness for auto-exposure" )
     CVAR_DEF_T( rt_tnmp_ev100_max,			"7.7",	"max brightness for auto-exposure" )
@@ -2862,7 +2863,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.textureFrame = 0,
 			.color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
             .emissive     = rt_raster_blend && rt_raster_additive
-                                ? RT_CVAR_TO_FLOAT( rt_emis_additive_dflt )
+                                ? RT_CVAR_TO_FLOAT( rt_hud_brightness )
                                 : 0.0f,
 			.pEditorInfo  = NULL,
 		};
