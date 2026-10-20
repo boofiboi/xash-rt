@@ -1424,7 +1424,7 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( rt_ef_vintage,				"0",	"[0, 4] vintage effects, disabled if rt_renderscale>0" )
     CVAR_DEF_T( rt_ef_water,				"1",	"warp screen while under water" )
 	CVAR_DEF_T( rt_ef_nv,					"-1",	"-1 - auto, 0 - off, 1 - force night vision" )
-	CVAR_DEF_T( rt_nv_gain,					"8.0",	"night vision light amplification gain" )
+	CVAR_DEF_T( rt_nv_gain,					"4.0",	"night vision light amplification gain" )
 	CVAR_DEF_T( rt_nv_noise,				"0.15",	"night vision quantum noise intensity" )
 	CVAR_DEF_T( rt_nv_vignette,				"1.0",	"night vision optical tube vignette intensity" )
 
