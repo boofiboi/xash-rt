@@ -900,6 +900,7 @@ void RT_ResetChapterLogo( void );
 void RT_TryFindTramLights( void );
 qboolean RT_IsBrushIgnored( void );
 qboolean RT_IsCullingActive( void );
+qboolean RT_IsNightVisionActive( void );
 
 // clang-format off
 typedef cvar_t* cvar_ptr_t;
@@ -1006,6 +1007,10 @@ typedef struct rt_cvars_t
 		rt_ef_chraber,
 		rt_ef_vintage,
 		rt_ef_water,
+		rt_ef_nv,
+		rt_nv_gain,
+		rt_nv_noise,
+		rt_nv_vignette,
 		
 	    _rt_labcoat,
 	    rt_labcoat_force,

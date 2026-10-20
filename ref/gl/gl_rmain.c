@@ -1458,6 +1458,25 @@ typedef enum RT_VINTAGE
 };
 // this enum must match pVintageNames from VideoModes.cpp
 
+qboolean RT_IsNightVisionActive( void )
+{
+    int cvarVal = RT_CVAR_TO_INT32( rt_ef_nv );
+    if( cvarVal >= 0 )
+    {
+        return cvarVal > 0;
+    }
+
+    if( gp_cl )
+    {
+        cl_entity_t *player = CL_GetEntityByIndex( gp_cl->playernum + 1 );
+        if( player && FBitSet( player->curstate.effects, EF_BRIGHTLIGHT ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void ResolutionToRtgl( RgDrawFrameRenderResolutionParams* dst,
                               const RgExtent2D                   winsize,
                               RgExtent2D*                        storage )
@@ -1825,6 +1844,15 @@ void R_EndFrame( void )
 				RT_CVAR_TO_BOOL( rt_ef_crt ) || RT_CVAR_TO_INT32( rt_ef_vintage ) == RT_VINTAGE_CRT,
 		};
 
+		RgPostEffectNightVision nv_effect = {
+			.isActive              = RT_IsNightVisionActive(),
+			.transitionDurationIn  = 0.12f,
+			.transitionDurationOut = 0.20f,
+			.gain                  = RT_CVAR_TO_FLOAT( rt_nv_gain ),
+			.noiseIntensity        = RT_CVAR_TO_FLOAT( rt_nv_noise ),
+			.vignetteIntensity     = RT_CVAR_TO_FLOAT( rt_nv_vignette ),
+		};
+
 		RgPostEffectChromaticAberration chromatic_aberration_effect = {
 			.isActive              = RT_CVAR_TO_FLOAT( rt_ef_chraber ) > 0.0f,
 			.transitionDurationIn  = 0,
@@ -1854,6 +1882,7 @@ void R_EndFrame( void )
 			.pTeleport            = RT_IsPortalPosteffectActive() ? &teleport_effect : NULL,
 			.pWaves               = ENGINE_GET_PARM( PARM_CONNSTATE ) == ca_active ? &waves_effect : NULL,
 			.pCRT                 = &crt_effect,
+			.pNightVision         = &nv_effect,
 		};
 
 		RgDrawFrameInfo info = {

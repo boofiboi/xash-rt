@@ -606,24 +606,46 @@ void RT_UploadAllLights( void )
                 vec3_t pos;
                 CalculateFlaslightPosition( pos );
 
-                RgSpotLightUploadInfo info = {
-                    .uniqueID     = RT_IDBASE_FLASHLIGHT + i,
-                    .isExportable = false,
-                    .color        = rgUtilPackColorByte4D( 220, 243, 255, 255 ),
-                    .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ),
-                    .position     = RT_VEC3( pos ),
-                    .direction    = RT_VEC3( RI.vforward ),
-                    .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_radius ) ),
-                    .angleOuter   = DEG2RAD( RT_CVAR_TO_FLOAT( rt_flsh_angle ) ),
-                    .angleInner   = 0,
-                };
+                if( RT_IsNightVisionActive() )
+                {
+                    RgSpotLightUploadInfo info = {
+                        .uniqueID     = RT_IDBASE_FLASHLIGHT + i,
+                        .isExportable = false,
+                        .color        = rgUtilPackColorByte4D( 240, 255, 245, 255 ),
+                        .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ) * 0.4f,
+                        .position     = RT_VEC3( pos ),
+                        .direction    = RT_VEC3( RI.vforward ),
+                        .radius       = METRIC_TO_QUAKEUNIT( 18.0f ),
+                        .angleOuter   = DEG2RAD( 80.0f ),
+                        .angleInner   = DEG2RAD( 50.0f ),
+                    };
 
-                RgResult r = rgUploadSpotLight( rg_instance, &info );
-                RG_CHECK( r );
+                    RgResult r = rgUploadSpotLight( rg_instance, &info );
+                    RG_CHECK( r );
 
-                // uploaded flashlight, reset the index, for future reuse
-                rt_cvars._rt_flsh_key->value = -1;
-                rt_state.flashlight_uniqueid = info.uniqueID;
+                    rt_cvars._rt_flsh_key->value = -1;
+                    rt_state.flashlight_uniqueid = info.uniqueID;
+                }
+                else
+                {
+                    RgSpotLightUploadInfo info = {
+                        .uniqueID     = RT_IDBASE_FLASHLIGHT + i,
+                        .isExportable = false,
+                        .color        = rgUtilPackColorByte4D( 220, 243, 255, 255 ),
+                        .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ),
+                        .position     = RT_VEC3( pos ),
+                        .direction    = RT_VEC3( RI.vforward ),
+                        .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_radius ) ),
+                        .angleOuter   = DEG2RAD( RT_CVAR_TO_FLOAT( rt_flsh_angle ) ),
+                        .angleInner   = 0,
+                    };
+
+                    RgResult r = rgUploadSpotLight( rg_instance, &info );
+                    RG_CHECK( r );
+
+                    rt_cvars._rt_flsh_key->value = -1;
+                    rt_state.flashlight_uniqueid = info.uniqueID;
+                }
             }
             else
             {

@@ -35,6 +35,13 @@ R_DrawStretchPic
 */
 void R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, int texnum )
 {
+#if XASH_RAYTRACING
+	const gl_texture_t *texture = R_GetTexture( texnum );
+	if( texture && texture->name && Q_stristr( texture->name, "of_nv" ) )
+	{
+		return;
+	}
+#endif
 	GL_Bind( XASH_TEXTURE0, texnum );
 
 	pglBegin( GL_QUADS );
