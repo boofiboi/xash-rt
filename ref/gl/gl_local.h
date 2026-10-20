@@ -989,6 +989,8 @@ typedef struct rt_cvars_t
 	rt_volume_illumgrid,
 	rt_volume_history,
 
+	rt_nightvision,
+
 	rt_me_water_r,
 	rt_me_water_g,
 	rt_me_water_b,

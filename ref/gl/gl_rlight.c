@@ -417,8 +417,24 @@ void RT_ParseStaticLightEntities()
 }
 
 
+static qboolean IsOpposingForce( void )
+{
+    static int cached_result = -1;
+    if( cached_result == -1 )
+    {
+        const char *gamedir = gEngfuncs.pfnGetCvarString( "gamedir" );
+        cached_result = ( gamedir && Q_stristr( gamedir, "gearbox" ) != NULL ) ? 1 : 0;
+    }
+    return cached_result == 1;
+}
+
 static qboolean IsPlayerFlashlight( const dlight_t* l )
 {
+    // In Opposing Force, the game sends flashlight dlight but we handle it differently
+    if( IsOpposingForce() )
+    {
+        return false;
+    }
     if( gp_cl && l->key > 0 && l->key == gp_cl->playernum + 1 )
     {
         return true;
@@ -769,6 +785,22 @@ void RT_UploadAllLights( void )
         RgResult r = rgUploadSphericalLight( rg_instance, &info );
         RG_CHECK( r );
     }
+
+	// Night vision for Opposing Force: green point light following the player
+	if( IsOpposingForce() && RT_CVAR_TO_INT32( _rt_flsh_key ) > 0 )
+	{
+		RgSphericalLightUploadInfo info = {
+			.uniqueID     = RT_IDBASE_FLASHLIGHT, // reuse flashlight ID base, no conflicts since we don't upload spotlights in gearbox
+			.isExportable = false,
+			.color        = rgUtilPackColorByte4D( 128, 255, 128, 255 ), // green tint
+			.intensity    = RT_CVAR_TO_FLOAT( rt_nightvision ),
+			.position     = RT_VEC3( RI.rvp.vieworigin ),
+			.radius       = METRIC_TO_QUAKEUNIT( 0.5f ), // small radius for soft falloff
+		};
+
+		RgResult r = rgUploadSphericalLight( rg_instance, &info );
+		RG_CHECK( r );
+	}
 
 	rt_particlelights_count = 0;
     rt_beamlights_count     = 0;

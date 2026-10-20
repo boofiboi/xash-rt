@@ -1407,6 +1407,8 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_volume_illumgrid,		"0",	"enable illumination grid, instead of only one light source for scaterring" )
 	CVAR_DEF_T( rt_volume_history,			"8",	"max history length for scaterring accumulation (in frames)" )
 
+	CVAR_DEF_T( rt_nightvision,				"6",	"night vision green point light intensity (opposing force)" )
+
 	CVAR_DEF_T( rt_me_water_r,				"200",	"water color Red; set by rt_me_water" )
 	CVAR_DEF_T( rt_me_water_g,				"205",	"water color Green; set by rt_me_water" )
 	CVAR_DEF_T( rt_me_water_b,				"210",	"water color Blue; set by rt_me_water" )
