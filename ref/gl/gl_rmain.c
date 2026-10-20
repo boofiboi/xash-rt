@@ -1666,7 +1666,9 @@ void R_EndFrame( void )
 		UpscaleCvarsToRtgl( &resolution_params );
 
 		resolution_params.enableFrameGeneration =
-			RT_CVAR_TO_INT32( rt_fsr3_framegen ) > 0 && rgUtilIsFrameGenerationAvailable( rg_instance );
+			( ( rt_cvars.rt_upscale_fsr3_fg && RT_CVAR_TO_INT32( rt_upscale_fsr3_fg ) > 0 ) ||
+			  ( rt_cvars.rt_fsr3_framegen && RT_CVAR_TO_INT32( rt_fsr3_framegen ) > 0 ) ) &&
+			rgUtilIsFrameGenerationAvailable( rg_instance );
 
 		if( RT_CVAR_TO_INT32( rt_upscale_fsr3 ) == 1 )
 		{

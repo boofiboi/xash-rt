@@ -1030,6 +1030,7 @@ typedef struct rt_cvars_t
 		
 		_rt_fsr3_available,
 		rt_fsr3_framegen,
+		rt_upscale_fsr3_fg,
 		_rt_fsr3_framegen_available;
 } rt_cvars_t;
 extern rt_cvars_t rt_cvars;

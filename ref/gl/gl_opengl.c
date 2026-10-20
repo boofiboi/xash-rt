@@ -1325,15 +1325,13 @@ static void GL_InitCommands( void )
 
     // clang-format off
 
-	CVAR_DEF_T( rt_classic,					"0",	"classic lightmapped renderer" )
-	CVAR_DEF_T( rt_classic_white,			"3.0",	"white point for classic renderer" )
 
 
 	CVAR_DEF_T( rt_vsync,					"1",	"vertical synchronization to prevent tearing" )
 	
 	CVAR_DEF_T( rt_renderscale,				"0",	"[20, 100] resolution scale")
     CVAR_DEF_T( rt_upscale_fsr3,			"2",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
-	CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
+	CVAR_DEF_T( rt_sharpen,					"30",	"image sharpening" )
 
 	CVAR_DEF_T( rt_antifirefly,				"1",	"" )
     CVAR_DEF_T( rt_shadowrays,				"2",	"max depth of shadow ray casts" )
@@ -1346,7 +1344,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )
 	CVAR_DEF_T( rt_emis_additive_brush,		"1.0",	"" )
 	CVAR_DEF_T( rt_emis_hologram,			"0.2",	"" )
-	CVAR_DEF_T( rt_hud_brightness,			"1.5",	"brightness multiplier for HUD and 2D elements" )
+	CVAR_DEF_T( rt_hud_brightness,			"12",	"brightness multiplier for HUD and 2D elements" )
 
 	CVAR_DEF_T( rt_tnmp_ev100_min,			"2.0",	"min brightness for auto-exposure" )
     CVAR_DEF_T( rt_tnmp_ev100_max,			"7.7",	"max brightness for auto-exposure" )
@@ -1396,7 +1394,7 @@ static void GL_InitCommands( void )
 
 	CVAR_DEF_T( rt_tent_life,				"1",	"lifetime multiplier for tempentities" )
 
-	CVAR_DEF_T( rt_texture_nearest,			"1",	"nearest texture filter for the world" )
+	CVAR_DEF_T( rt_texture_nearest,			"0",	"nearest texture filter for the world" )
 	CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 
 	CVAR_DEF_T( rt_volume_type,				"1",	"0 - none, 1 - volumetric, 2 - distance based" )
@@ -1425,8 +1423,8 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( rt_ef_vintage,				"0",	"[0, 4] vintage effects, disabled if rt_renderscale>0" )
     CVAR_DEF_T( rt_ef_water,				"1",	"warp screen while under water" )
 	CVAR_DEF_T( rt_ef_nv,					"-1",	"-1 - auto, 0 - off, 1 - force night vision" )
-	CVAR_DEF_T( rt_nv_gain,					"4.0",	"night vision light amplification gain" )
-	CVAR_DEF_T( rt_nv_noise,				"0.15",	"night vision quantum noise intensity" )
+	CVAR_DEF_T( rt_nv_gain,					"8.0",	"night vision light amplification gain" )
+	CVAR_DEF_T( rt_nv_noise,				"0.4",	"night vision quantum noise intensity" )
 	CVAR_DEF_T( rt_nv_vignette,				"1.0",	"night vision optical tube vignette intensity" )
 
     CVAR_DEF_T( _rt_labcoat,				"0",	"internal variable; 0 - use default model, 1 - use labcoat (without HEV suit)" )
@@ -1435,7 +1433,7 @@ static void GL_InitCommands( void )
 	
 	CVAR_DEF_T( rt_forcecvars,				"1",	"force original cvars to be set to be compatible with RT mode: disable culling, no lightmaps" )
 
-	CVAR_DEF_T( rt_cull,					"1",	"enable PVS-based culling in RT mode" )
+	CVAR_DEF_T( rt_cull,					"1",	"enable PVS-based culling in RT mode (Broken, does not work properly!)" )
 	CVAR_DEF_T( rt_pvs_radius,				"768",	"radius for fattened PVS in RT mode (qu units)" )
 	CVAR_DEF_T( rt_cull_entities,			"1",	"also cull studio models and brush entities by PVS" )
 
@@ -1445,7 +1443,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( _rt_skipframe,				"0",	"skip frame for level change" )
 
     CVAR_DEF_T( _rt_fsr3_available,			"0",	"internal variable; for menu" )
-    CVAR_DEF_T( rt_fsr3_framegen,			"0",	"enable FSR3 Frame Generation" )
+    CVAR_DEF_T( rt_upscale_fsr3_fg,			"1",	"enable FSR3 Frame Generation" )
     CVAR_DEF_T( _rt_fsr3_framegen_available,	"0",	"internal variable; for menu" )
 
 	// clang-format on
@@ -2854,6 +2852,13 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 
 	if( curtype == RT_BATCH_TYPE_2D )
 	{
+		qboolean is_hud_or_crosshair = rt_raster_blend && ( rt_raster_additive ||
+			( rt_state.curTexture2DName && (
+				Q_stristr( rt_state.curTexture2DName, "crosshair" ) ||
+				Q_stristr( rt_state.curTexture2DName, "laserdot" ) ||
+				Q_stristr( rt_state.curTexture2DName, "dot.spr" ) ||
+				Q_stristr( rt_state.curTexture2DName, "scope" ) ) ) );
+
 		RgMeshPrimitiveInfo prim = {
 			.pPrimitiveNameInMesh = NULL,
 			.primitiveIndexInMesh = 0,
@@ -2862,7 +2867,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.pTextureName = rt_state.curTexture2DName,
 			.textureFrame = 0,
 			.color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = rt_raster_blend && rt_raster_additive
+            .emissive     = is_hud_or_crosshair
                                 ? RT_CVAR_TO_FLOAT( rt_hud_brightness )
                                 : 0.0f,
 			.pEditorInfo  = NULL,
