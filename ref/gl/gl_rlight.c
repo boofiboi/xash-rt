@@ -611,13 +611,13 @@ void RT_UploadAllLights( void )
                     RgSpotLightUploadInfo info = {
                         .uniqueID     = RT_IDBASE_FLASHLIGHT + i,
                         .isExportable = false,
-                        .color        = rgUtilPackColorByte4D( 240, 255, 245, 255 ),
-                        .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ) * 0.4f,
+                        .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                        .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ) * 2.5f,
                         .position     = RT_VEC3( pos ),
                         .direction    = RT_VEC3( RI.vforward ),
-                        .radius       = METRIC_TO_QUAKEUNIT( 18.0f ),
+                        .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_radius ) ),
                         .angleOuter   = DEG2RAD( 80.0f ),
-                        .angleInner   = DEG2RAD( 50.0f ),
+                        .angleInner   = DEG2RAD( 40.0f ),
                     };
 
                     RgResult r = rgUploadSpotLight( rg_instance, &info );
@@ -687,6 +687,29 @@ void RT_UploadAllLights( void )
                 RG_CHECK( r );
             }
         }
+    }
+
+    if( RT_IsNightVisionActive() && rt_state.flashlight_uniqueid == RT_ID_LIGHTNONE )
+    {
+        vec3_t pos;
+        CalculateFlaslightPosition( pos );
+
+        RgSpotLightUploadInfo info = {
+            .uniqueID     = RT_IDBASE_FLASHLIGHT,
+            .isExportable = false,
+            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+            .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ) * 2.5f,
+            .position     = RT_VEC3( pos ),
+            .direction    = RT_VEC3( RI.vforward ),
+            .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_radius ) ),
+            .angleOuter   = DEG2RAD( 80.0f ),
+            .angleInner   = DEG2RAD( 40.0f ),
+        };
+
+        RgResult r = rgUploadSpotLight( rg_instance, &info );
+        RG_CHECK( r );
+
+        rt_state.flashlight_uniqueid = info.uniqueID;
     }
 
     if( rt_trament && WORLDMODEL )
