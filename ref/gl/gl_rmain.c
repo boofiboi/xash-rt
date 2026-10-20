@@ -1306,22 +1306,9 @@ void R_BeginFrame( qboolean clearScene )
 		// CVAR_TO_BOOL but without NULL check
     #define TO_BOOL( x ) ( ( ( x )->value != 0.0f ) ? true : false )
 
-        // if classic present, use slower pipeline
-        if( RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f )
+        if( !TO_BOOL( r_fullbright ) )
         {
-            if( CVAR_TO_BOOL( r_fullbright ) )
-            {
-                // disable fullbright
-                gEngfuncs.Cvar_Set( r_fullbright->name, "0" );
-            }
-        }
-        else
-        {
-            if( !TO_BOOL( r_fullbright ) )
-            {
-                // enable fullbright to reduce CPU-side calculations
-                gEngfuncs.Cvar_Set( r_fullbright->name, "1" );
-            }
+            gEngfuncs.Cvar_Set( r_fullbright->name, "1" );
         }
 
         // dynamic lightmaps not supported
@@ -1366,7 +1353,7 @@ void R_BeginFrame( qboolean clearScene )
 
 		RgStartFrameInfo info = {
 			.pMapName               = mapname,
-			.ignoreExternalGeometry = RT_CVAR_TO_FLOAT( rt_classic ) > 0.5f,
+			.ignoreExternalGeometry = false,
 		};
 
 		RgResult r = rgStartFrame( rg_instance, &info );
@@ -1599,6 +1586,31 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
     prev_fsr3 = fsr3;
     prev_vintage = vintage;
 
+    if( rt_cvars.rt_upscale_fsr3_fg && rt_cvars.rt_fsr3_framegen )
+    {
+        static int prev_fg = -1;
+        static int prev_fg_alias = -1;
+        int fg = RT_CVAR_TO_INT32( rt_upscale_fsr3_fg );
+        int fg_alias = RT_CVAR_TO_INT32( rt_fsr3_framegen );
+        if( fg != prev_fg && fg != fg_alias )
+        {
+            gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, fg );
+            prev_fg = fg;
+            prev_fg_alias = fg;
+        }
+        else if( fg_alias != prev_fg_alias && fg_alias != fg )
+        {
+            gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, fg_alias );
+            prev_fg = fg_alias;
+            prev_fg_alias = fg_alias;
+        }
+        else
+        {
+            prev_fg = fg;
+            prev_fg_alias = fg_alias;
+        }
+    }
+
     if( fsr3 > 0 )
     {
         pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
@@ -1675,16 +1687,6 @@ void R_EndFrame( void )
 			resolution_params.customRenderSize = winsize;
 		}
 
-		{
-			static float prevvalue = 0;
-
-			if( fabsf( RT_CVAR_TO_FLOAT( rt_classic ) - prevvalue ) > 0.9f )
-			{
-				resolution_params.resetUpscalerHistory = true;
-			}
-			prevvalue = RT_CVAR_TO_FLOAT( rt_classic );
-		}
-
 		float lightstyles[ RT_ARRAYSIZE( g_lightstylevalue ) ];
 		for( uint32_t i = 0; i < RT_ARRAYSIZE( g_lightstylevalue ); i++ )
 		{
@@ -1713,7 +1715,7 @@ void R_EndFrame( void )
 			.disableEyeAdaptation = false,
 			.ev100Min             = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_min ),
 			.ev100Max             = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_max ),
-			.luminanceWhitePoint  = RT_CVAR_TO_FLOAT( rt_classic_white ),
+			.luminanceWhitePoint  = 10.0f,
 			.saturation           = { RT_CVAR_TO_FLOAT( rt_tnmp_saturation_r ),
 									  RT_CVAR_TO_FLOAT( rt_tnmp_saturation_g ),
 									  RT_CVAR_TO_FLOAT( rt_tnmp_saturation_b ) },
@@ -1725,7 +1727,7 @@ void R_EndFrame( void )
 		RgDrawFrameBloomParams bloom_params = {
 			.sType          = RG_STRUCTURE_TYPE_BLOOM,
 			.pNext          = &tnmp_params,
-			.bloomIntensity = RT_CVAR_TO_BOOL( rt_bloom ) && RT_CVAR_TO_FLOAT( rt_classic ) < 0.5f
+			.bloomIntensity = RT_CVAR_TO_BOOL( rt_bloom )
 								  ? RT_CVAR_TO_FLOAT( rt_bloom_intensity )
 								  : 0.0f,
 			.inputThreshold = RT_CVAR_TO_FLOAT( rt_bloom_threshold ),
@@ -1802,7 +1804,7 @@ void R_EndFrame( void )
 		RgDrawFrameVolumetricParams volumetric_params = {
 			.sType                   = RG_STRUCTURE_TYPE_VOLUMETRIC,
 			.pNext                   = &skyParams,
-			.enable                  = RT_CVAR_TO_UINT32( rt_volume_type ) != 0 && RT_CVAR_TO_FLOAT( rt_classic ) < 0.5f,
+			.enable                  = RT_CVAR_TO_UINT32( rt_volume_type ) != 0,
 			.maxHistoryLength =
 				RT_CVAR_TO_UINT32( rt_volume_type ) == 1 ? RT_CVAR_TO_FLOAT( rt_volume_history ) : 0,
 			.useSimpleDepthBased     = RT_CVAR_TO_UINT32( rt_volume_type ) == 2,
@@ -1831,7 +1833,7 @@ void R_EndFrame( void )
 		RgDrawFrameLightmapParams lightmap_params = {
 			.sType                  = RG_STRUCTURE_TYPE_LIGHTMAP,
 			.pNext                  = &texture_params,
-			.lightmapScreenCoverage = RT_CVAR_TO_FLOAT( rt_classic ),
+			.lightmapScreenCoverage = 0.0f,
 		};
 
 		qboolean skipframe = false;

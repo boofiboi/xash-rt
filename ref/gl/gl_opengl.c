@@ -1230,12 +1230,6 @@ void GL_ClearExtensions( void )
 //=======================================================================
 
 #if XASH_RAYTRACING
-void RT_ClassicToggle( void )
-{
-    float newval = RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f ? 0 : 1;
-    gEngfuncs.Cvar_SetValue( rt_cvars.rt_classic->name, newval );
-}
-
 void RT_WaterColor( void )
 {
     if( gEngfuncs.Cmd_Argc() != 4 )
@@ -1444,12 +1438,10 @@ static void GL_InitCommands( void )
 
     CVAR_DEF_T( _rt_fsr3_available,			"0",	"internal variable; for menu" )
     CVAR_DEF_T( rt_upscale_fsr3_fg,			"1",	"enable FSR3 Frame Generation" )
+    CVAR_DEF_T( rt_fsr3_framegen,			"1",	"enable FSR3 Frame Generation" )
     CVAR_DEF_T( _rt_fsr3_framegen_available,	"0",	"internal variable; for menu" )
 
 	// clang-format on
-
-    gEngfuncs.Cmd_AddCommand(
-        "rt_classic_toggle", &RT_ClassicToggle, "switch between classic and ray traced renderer" );
 
     gEngfuncs.Cmd_AddCommand( "rt_me_water",
                               &RT_WaterColor,
@@ -3010,9 +3002,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 		};
 
 		RgEditorInfo additional = {
-			.layer1Exists = RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f
-								? rt_state.curLightmapTextureName != NULL
-								: false,
+			.layer1Exists = false,
 			.layer1       = { .pTexCoord    = NULL,
 							  .pTextureName = rt_state.curLightmapTextureName,
 							  .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
