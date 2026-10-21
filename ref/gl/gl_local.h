@@ -924,7 +924,6 @@ typedef struct rt_cvars_t
 	rt_emis_additive_dflt,
 	rt_emis_additive_brush,
 	rt_emis_hologram,
-	rt_hud_brightness,
 
 		
 	    rt_tnmp_ev100_min,

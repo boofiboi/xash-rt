@@ -1490,10 +1490,12 @@ pfnSPR_DrawHoles
 */
 static void GAME_EXPORT pfnSPR_DrawHoles( int frame, int x, int y, const wrect_t *prc )
 {
-#if XASH_RAYTRACING
-	ref.dllFuncs.GL_SetRenderMode( kRenderTransAdd );
-#else
+#if 1 // REFTODO
 	ref.dllFuncs.GL_SetRenderMode( kRenderTransColor );
+#else
+	pglEnable( GL_ALPHA_TEST );
+	pglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	pglEnable( GL_BLEND );
 #endif
 	SPR_DrawGeneric( frame, x, y, -1, -1, prc );
 

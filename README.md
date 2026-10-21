@@ -1,6 +1,6 @@
+
 # Xash-RT Improved
 
-###### wE DO tHIS nOt BeCAuSE iT Is EAsy, BuT BECaUSE wE ThOUghT It WoUlD bE EAsY (tfw 1800 commits and you still dont have a playable experience)
   
 
 Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sultim-t/xash-rt) which in of itself is a fork of [xash3d-fwgs](https://github.com/FWGS/xash3d-fwgs) with edits to the OpenGL renderer to allow for integration with [a custom path traced renderer](https://github.com/boofiboi/RayTracedGL1) to add modern graphical improvements to the otherwise dated engine.

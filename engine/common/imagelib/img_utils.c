@@ -300,14 +300,8 @@ static void Image_SetPalette( const byte *pal, uint *d_table )
 		}
 		break;
 	case LUMP_GRADIENT:
-		{
-			byte r = ( pal[765] == pal[766] && pal[766] == pal[767] ) ? 255 : pal[765];
-			byte g = ( pal[765] == pal[766] && pal[766] == pal[767] ) ? 255 : pal[766];
-			byte b = ( pal[765] == pal[766] && pal[766] == pal[767] ) ? 255 : pal[767];
-
-			for( int i = 0; i < 256; i++ )
-				d_table[i] = HostFourCC( r, g, b, i );
-		}
+		for( int i = 0; i < 256; i++ )
+			d_table[i] = HostFourCC( pal[765], pal[766], pal[767], i );
 		break;
 	case LUMP_MASKED:
 		for( int i = 0; i < 255; i++ )
