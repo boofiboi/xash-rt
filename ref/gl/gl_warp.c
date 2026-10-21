@@ -353,6 +353,7 @@ void R_DrawSkyBox( void )
 	pglDisable( GL_BLEND );
 	pglDisable( GL_ALPHA_TEST );
 	pglTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
+	pglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
 	for( int i = 0; i < SKYBOX_MAX_SIDES; i++ )
 	{
