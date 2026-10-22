@@ -16,6 +16,7 @@
 	- AMD Ray Regeneration for AMD RDNA3+ - NRD fallback
    		- Might also just drop RDNA2 support, its an old dying platform.
       	- Lower end RDNA3 cards struggle with the WMMA model, better to use NRD on them. The option will be there though, for the masochists who enjoy playing at 30 FPS.
+      	- AMD RR is also DX12 only like its cousin FSR4 - This will require waiting for the VK release as passing every bit of data a denoiser needs through a DX12 interop would kill performance.
 	- NRD for other platforms (Intel, [*Snapdragon?!??!?! Apple Silicon?!?!?!?!*](https://youtu.be/h3lZXXO8qTk?t=15))
 		- I am not writing code for the 4 Intel GPU users in the world.
 
@@ -36,7 +37,7 @@
 
 - [ ] FSR4 DX12 interop
 	- Only for RX 9xxx series, the FP8 WMMA model looks incredibly bad and performs like ass, better to use FSR3.1 on older GPUs
-   		- In Call Of Duty: Modern Warfare 4, FSR4 performed insanely bad on an RX 7600 (FSR3.1 Balanced - 150 FPS/FSR4 Balanced - 50 FPS)
+   		- In Call Of Duty: Modern Warfare 4, FSR4 performed insanely bad on my RX 7600 (FSR3.1 Balanced - 150 FPS versus FSR4 Balanced - 50 FPS)
 	- Might also be worth it to wait for the official VK version of FSR4, might fix all the issues above.
 
 - [ ] Linux native builds
