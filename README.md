@@ -16,22 +16,28 @@ Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sult
 ### In-progress:
 - **Native linux builds**
 - **Small app to handle updates/installation of the mod, and managing mod adaptations**
+- **DX12 interop for FSR4 support**
+	- *FP8 with the interop looks very bad - FP16 presumably better, but cant test.*
+		- This may also be because I messed up my earlier tests (Pretty sure I gave FSR4 the FSR3 upscaled framebuffer instead of the .25% render scale regular FB)
+	- *I will probably wait for the official FSR4 VK release (Its DX12 only as of 22.10.2026)*
+- **DLSS support IS coming! I just need to nail the spec because I cant test it properly.**
+	- *DLSS support will include DLSS 4.5 upscaling and frame gen. MFG/RR will not be included as it is OUT. OF. SCOPE! (I do not own a nVidia GPU, feel free to send me one)*
+
   
 ## Installation without building
 Latest compiled build for Half-Life 1 can be found in the [Releases](https://github.com/boofiboi/xash-rt/releases) tab.
-If there were commits to the repository after a release has been released, you can download the latest .exe in the [Artifacts](https://github.com/boofiboi/xash-rt/actions/workflows/rt.yml) section (Always select the latest one and scroll down, there is a .zip file with the engine - extract that archive into your HL1 folder)
+
+If there were commits to the repository after a release has been released (Visible under the release name, it says "X commits to master since release), you can download the latest .exe in the [Artifacts](https://github.com/boofiboi/xash-rt/actions/workflows/rt.yml) section (Always select the latest one and scroll down, there is a .zip file with the engine - extract that archive into your HL1 folder)
 ## Minor things
 - We have a [Discord](https://discord.com/invite/6ueFjD6UTy) server (Come discuss this mod, get support etc.)
 - Read up on the original xash3d-fwgs repository [here](https://github.com/FWGS/xash3d-fwgs)
 - Also read up on the original xash-rt fork [here](https://github.com/sultim-t/xash-rt)
-- A new, fixed and functional release will be released during the month of september along with HL: Blue Shift support.
-	- If you are really keen and want to try it out right now, build instructions are below.
-- **DLSS will not be supported until/unless I can get someone with an nVidia GPU to test (I run an RX 7600)**
-
+- I try to do a lot of things but not all of them land properly (work), unfortunately im just one person working on this and I am a student, this can cause delays in updates/new releases.
   
 
 ## Building & Installing
 
+### These are outdated asf, just get the latest artifact produced by GH runners.
 #### Requirements:
 
     git
@@ -99,11 +105,10 @@ These are assuming you are running Windows, have a Visual Studio install with C+
 	```
 	- **After a while, WAF should finish and you should have recieved the engine files in `build/`**
 		- Run `waf install --destdir PATH_TO_YOUR_GAME_INSTALL` (e.g `waf install --destdir D:\HalfLifeRT\` [Its recommended to copy the entire game folder somewhere else so you dont mess up your stock Steam install]
-5. **Download the original `hl1-rt-patched.zip` file from the [original repository](https://github.com/sultim-t/xash-rt/releases)**
+5. **Download the `hl1-rt-improved-combined.7z` file from the [latest release](https://github.com/boofiboi/xash-rt/releases/)**
 	- Extract everything EXCEPT the `rt_bin` folder into your game folder (Replace if prompted)
-6. **Download the `hl1-rt-nobin.zip` file from [this fork](https://github.com/boofiboi/xash-rt/releases)**
-	- Extract the files from this archive into your game folder
-7. **Your game folder should now look like this**
+	
+6. **Your game folder should now look like this**
 	```
 	Half-Life
 	├── htmlcache
@@ -115,8 +120,8 @@ These are assuming you are running Windows, have a Visual Studio install with C+
 	│	├── mat
 	│	├── scenes
 	│	├── shaders
-		│	├── CmAntiFirefly.comp.spv
-		│	└── CmASVGFGradientAtrous.comp.spv
+	│	│	├── CmAntiFirefly.comp.spv
+	│	│	└── CmASVGFGradientAtrous.comp.spv
 	│	└── valve
 	│		└── cl_dlls
 	│			└── client_amd64.dll
@@ -133,7 +138,7 @@ These are assuming you are running Windows, have a Visual Studio install with C+
 	├── hl.exe
 	├── hlds.exe
 	```
-8. **Run `rt_bin/xash3d.exe`**
+7. **Run `rt_bin/xash3d.exe`**
 	- Do NOT run `hl.exe` from the root of the game directory - this is the old engine.
 
 ## Issues
