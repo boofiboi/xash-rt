@@ -42,16 +42,15 @@ jobs:
           if ("${{ inputs.rtgl1_run_id }}") {
             $runArg = "${{ inputs.rtgl1_run_id }}"
           }
-          try {
-            if ($runArg) {
-              gh run download $runArg --repo boofiboi/RayTracedGL1 --name RayTracedGL1-Artifact --dir rtgl1_sdk
-            } else {
-              gh run download --repo boofiboi/RayTracedGL1 --name RayTracedGL1-Artifact --dir rtgl1_sdk
-            }
-            if (Test-Path "rtgl1_sdk/Build/x64-Release/Release/RayTracedGL1.lib") {
-              $rtgl1Found = $true
-            }
-          } catch {
+          if ($runArg) {
+            gh run download $runArg --repo boofiboi/RayTracedGL1 --name RayTracedGL1-Artifact --dir rtgl1_sdk 2>$null
+          } else {
+            gh run download --repo boofiboi/RayTracedGL1 --name RayTracedGL1-Artifact --dir rtgl1_sdk 2>$null
+          }
+          $LASTEXITCODE = 0
+          if (Test-Path "rtgl1_sdk/Build/x64-Release/Release/RayTracedGL1.lib") {
+            $rtgl1Found = $true
+          } else {
             Write-Host "Prebuilt RTGL1 artifact not found; WAF will pull and compile RTGL1 automatically."
           }
           if ($rtgl1Found) {
