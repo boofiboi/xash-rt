@@ -14,16 +14,8 @@ Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sult
 - **[NRD](https://github.com/NVIDIA-RTX/NRD) (Better denoiser)**
 - **Various QoL features**
 ### In-progress:
-- **Native linux builds**
-- **Small app to handle updates/installation of the mod, and managing mod adaptations**
-- **DX12 interop for FSR4 support**
-	- *FP8 with the interop looks very bad - FP16 presumably better, but cant test.*
-		- This may also be because I messed up my earlier tests (Pretty sure I gave FSR4 the FSR3 upscaled framebuffer instead of the .25% render scale regular FB)
-	- *I will probably wait for the official FSR4 VK release (Its DX12 only as of 22.10.2026)*
-- **DLSS support IS coming! I just need to nail the spec because I cant test it properly.**
-	- *DLSS support will include DLSS 4.5 upscaling and frame gen. MFG/RR will not be included as it is OUT. OF. SCOPE! (I do not own a nVidia GPU, feel free to send me one)*
+- Check the rt-todo.md file!
 
-  
 ## Installation without building
 Latest compiled build for Half-Life 1 can be found in the [Releases](https://github.com/boofiboi/xash-rt/releases) tab.
 
