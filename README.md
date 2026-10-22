@@ -19,6 +19,7 @@ Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sult
   
 ## Installation without building
 Latest compiled build for Half-Life 1 can be found in the [Releases](https://github.com/boofiboi/xash-rt/releases) tab.
+If there were commits to the repository after a release has been released, you can download the latest .exe in the [Artifacts](https://github.com/boofiboi/xash-rt/actions/workflows/rt.yml) section (Always select the latest one and scroll down, there is a .zip file with the engine - extract that archive into your HL1 folder)
 ## Minor things
 - We have a [Discord](https://discord.com/invite/6ueFjD6UTy) server (Come discuss this mod, get support etc.)
 - Read up on the original xash3d-fwgs repository [here](https://github.com/FWGS/xash3d-fwgs)
