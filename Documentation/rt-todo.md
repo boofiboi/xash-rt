@@ -5,7 +5,7 @@
 	- 100% Upscaling + FG, RR is secondary.
 
 - [ ] Update the ray tracing shaders so denoisers already get semi-clean data to work off of
-    - I havent done much investigation into this, but there probably are newer and better equations for ray-casting and ray retrieval --> Converting to data the denoiser uses to actually paint lighting on the 3D world.
+    - I havent done much investigation into this, but there probably are newer and better equations for ray-casting and ray retrieval --> Cleaner data for the denoiser --> Cleaner output and better experience.
 
 - [ ] Take an actual deep dive into the shaders to see how much they have deviated from the original and what im doing wrong
     - The original HL1 campaign STILL does not look right on this fork, tech debt caught up.
@@ -13,8 +13,11 @@
 
 - [ ] Platform specific denoisers
 	- DLSS Ray Reconstruction for nVidia
-	- AMD SSSR for AMD 
-	- NRD or A-SVGF for other platforms (Intel, [*Snapdragon?!??!?! Apple Silicon?!?!?!?!*](https://youtu.be/h3lZXXO8qTk?t=15))
+	- AMD Ray Regeneration for AMD RDNA3+ - NRD fallback
+   		- Might also just drop RDNA2 support, its an old dying platform.
+      	- Lower end RDNA3 cards struggle with the WMMA model, better to use NRD on them. The option will be there though, for the masochists who enjoy playing at 30 FPS.
+	- NRD for other platforms (Intel, [*Snapdragon?!??!?! Apple Silicon?!?!?!?!*](https://youtu.be/h3lZXXO8qTk?t=15))
+		- I am not writing code for the 4 Intel GPU users in the world.
 
 - [ ] **STOP** RTGL1 bouncing light so much (I dont get it, why does every surface bounce light so much by default?????)
     - PBR Estimation?
@@ -32,7 +35,8 @@
     - The Gauss Gun, Rocket Launcher, Barney model, HEV model, Revolver, MP5 and all of that do not have PBR textures and therefore dont get the same visual flair as the LD models.
 
 - [ ] FSR4 DX12 interop
-	- Only for RX 9xxx series, the FP8 model looks incredibly bad and performs like ass, better to use FSR3.1 on older GPUs
+	- Only for RX 9xxx series, the FP8 WMMA model looks incredibly bad and performs like ass, better to use FSR3.1 on older GPUs
+   		- In Call Of Duty: Modern Warfare 4, FSR4 performed insanely bad on an RX 7600 (FSR3.1 Balanced - 150 FPS/FSR4 Balanced - 50 FPS)
 	- Might also be worth it to wait for the official VK version of FSR4, might fix all the issues above.
 
 - [ ] Linux native builds
