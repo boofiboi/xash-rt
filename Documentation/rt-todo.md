@@ -4,10 +4,10 @@
 
 	- 100% Upscaling + FG, RR is secondary.
 
-- [ ] Update the ray tracing shaders so denoisers already get semi-clean data to work off of
+- [ ] Update the ray tracing calculations so denoisers already get semi-clean data to work off of
     - I havent done much investigation into this, but there probably are newer and better equations for ray-casting and ray retrieval --> Cleaner data for the denoiser --> Cleaner output and better experience.
 
-- [ ] Take an actual deep dive into the shaders to see how much they have deviated from the original and what im doing wrong
+- [ ] Do a deep dive code audit to see how much I have deviated from the original and what im doing wrong
     - The original HL1 campaign STILL does not look right on this fork, tech debt caught up.
         - Blue Shift and Opposing Force are fine because I have made those in this new fork and all of its quirks, the HL1 campaign is from the old engine.
 
