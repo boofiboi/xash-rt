@@ -365,7 +365,6 @@ cmake-build-*
 
 # slop
 CLAUDE.md
-AGENTS.md
 GEMINI.md
 .claude/
 .gemini/
