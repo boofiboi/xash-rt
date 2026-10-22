@@ -142,8 +142,9 @@ SUBDIRS = [
 
 	# enabled optionally
 	Subproject('utils/mdldec',            lambda x: x.env.ENABLE_UTILS),
-	Subproject('utils/xar',               lambda x: x.env.ENABLE_UTILS and x.env.ENABLE_XAR),
+	Subproject('utils/xar',               lambda x: x.env.ENABLE_UTILS),
 	Subproject('utils/xash-clang-format', lambda x: x.env.ENABLE_UTILS),
+	Subproject('utils/xrcon-mcp',         lambda x: x.env.ENABLE_UTILS),
 
 	# enabled on PSVita only
 	Subproject('ref/gl/vgl_shim',   lambda x: x.env.DEST_OS == 'psvita'),
@@ -223,9 +224,6 @@ def options(opt):
 	grp.add_option('--enable-utils', action = 'store_true', dest = 'ENABLE_UTILS', default = False,
 		help = 'enable building various development utilities [default: %(default)s]')
 
-	grp.add_option('--enable-xar', action = 'store_true', dest = 'ENABLE_XAR', default = False,
-		help = 'enable building Xash ARchiver (experimental) [default: %(default)s]')
-
 	grp.add_option('--enable-fuzzer', action = 'store_true', dest = 'ENABLE_FUZZER', default = False,
 		help = 'enable building libFuzzer runner [default: %(default)s]' )
 
@@ -288,6 +286,18 @@ int main(void) { zng_stream s = { 0 }; return zng_inflateInit2(&s, -MAX_WBITS); 
 int main(void) { z_stream s = { 0 }; return inflateInit2(&s, -MAX_WBITS); }'''
 
 	return conf.check_cc(lib='z', fragment=frag, msg='Checking for zlib', uselib_store='zlib', mandatory=False)
+
+
+def check_system_freetype(conf):
+	frag='''#include <ft2build.h>
+#include FT_FREETYPE_H
+int main(void) { FT_Library library; return FT_Init_FreeType( &library ); }'''
+
+	# search for freetype
+	if conf.check_cfg(package='freetype2', uselib_store='freetype', args='--cflags --libs', mandatory=False):
+		return False
+
+	return conf.check_cc(msg='Checking for freetype2 sanity', use='freetype werror', fragment=frag, mandatory=False)
 
 def configure(conf):
 	conf.env.RAYTRACING = conf.options.RAYTRACING
@@ -497,7 +507,6 @@ def configure(conf):
 
 	conf.env.TESTS         = conf.options.TESTS
 	conf.env.ENABLE_UTILS  = conf.options.ENABLE_UTILS
-	conf.env.ENABLE_XAR    = conf.options.ENABLE_XAR
 	conf.env.ENABLE_FUZZER = conf.options.ENABLE_FUZZER
 	conf.env.FREEVGUI_XASH_SUPPORT = True
 
@@ -626,6 +635,7 @@ def configure(conf):
 	prefer_bundled_opusfile = conf.options.BUILD_BUNDLED_DEPS
 	prefer_bundled_mpg123 = conf.options.BUILD_BUNDLED_DEPS
 	prefer_bundled_bzip2 = conf.options.BUILD_BUNDLED_DEPS
+	prefer_bundled_freetype = conf.options.BUILD_BUNDLED_DEPS
 	# zlib is a part of platform API on Android
 	prefer_bundled_zlib = conf.options.BUILD_BUNDLED_DEPS and conf.env.DEST_OS != 'android'
 
@@ -643,6 +653,8 @@ def configure(conf):
 			conf.env.HAVE_SYSTEM_MPG123 = check_system_mpg123(conf)
 		if not prefer_bundled_bzip2:
 			conf.env.HAVE_SYSTEM_BZ2 = check_system_bzip2(conf)
+		if not prefer_bundled_freetype:
+			conf.env.HAVE_SYSTEM_FREETYPE = check_system_freetype(conf)
 
 	if not prefer_bundled_zlib:
 		conf.env.HAVE_SYSTEM_ZLIB = check_system_zlib(conf)

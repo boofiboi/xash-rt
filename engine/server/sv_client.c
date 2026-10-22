@@ -61,6 +61,18 @@ void SV_GetPlayerCount( int *players, int *bots )
 
 /*
 =================
+SV_GetUserIDCount
+
+returns how many userids were assigned since server start
+=================
+*/
+int SV_GetUserIDCount( void )
+{
+	return g_userid - 1;
+}
+
+/*
+=================
 SV_GetChallenge
 
 Returns a challenge number that can be used
@@ -1534,7 +1546,8 @@ SV_TogglePause
 */
 void SV_TogglePause( const char *msg )
 {
-	if( sv.background ) return;
+	// allow pause in background mode
+//	if( sv.background ) return;
 
 	sv.paused ^= 1;
 
