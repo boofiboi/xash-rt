@@ -160,7 +160,7 @@ REFDLLS = [
 ]
 
 def options(opt):
-	opt.load('reconfigure compiler_optimizations xshlib xcompile compiler_cxx compiler_c sdl2 clang_compilation_database strip_on_install waf_unit_test msvs subproject ninja')
+	opt.load('reconfigure compiler_optimizations xshlib xcompile compiler_cxx compiler_c sdl2 rtgl1 clang_compilation_database strip_on_install waf_unit_test msvs subproject ninja')
 
 	grp = opt.add_option_group('Common options')
 
@@ -534,6 +534,7 @@ def configure(conf):
 	if conf.env.RAYTRACING:
 		conf.env.SOFT = False
 		conf.define('XASH_RAYTRACING', 1)
+		conf.load('rtgl1')
 
 	conf.env.GAMEDIR = conf.options.GAMEDIR
 	conf.define('XASH_GAMEDIR', conf.options.GAMEDIR)
@@ -680,13 +681,10 @@ def build(bld):
 		bld.add_subproject(i.name)
 
 	if bld.env.RAYTRACING:
-		rtgl1_sdk = os.environ.get('RTGL1_SDK_PATH', '')
+		rtgl1_sdk = getattr(bld.env, 'RTGL1_SDK_PATH', None)
 		if not rtgl1_sdk or not os.path.exists(rtgl1_sdk):
-			local_sdk = os.path.abspath(os.path.join(bld.srcnode.abspath(), '..', 'RayTracedGL1'))
-			if os.path.exists(local_sdk):
-				rtgl1_sdk = local_sdk
-			else:
-				rtgl1_sdk = r'E:\Xash-RT\RayTracedGL1'
+			from waflib.Tools import rtgl1
+			rtgl1_sdk = rtgl1.get_rtgl1_sdk(bld)
 
 		rtgl1_dll_candidates = [
 			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', 'RayTracedGL1.dll'),

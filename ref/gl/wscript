@@ -39,13 +39,10 @@ def build(bld):
 	extra_defines = []
 
 	if bld.env.RAYTRACING:
-		rtgl1_sdk = os.environ.get('RTGL1_SDK_PATH', '')
+		rtgl1_sdk = getattr(bld.env, 'RTGL1_SDK_PATH', None)
 		if not rtgl1_sdk or not os.path.exists(rtgl1_sdk):
-			local_sdk = os.path.abspath(os.path.join(bld.path.abspath(), '..', '..', '..', 'RayTracedGL1'))
-			if os.path.exists(local_sdk):
-				rtgl1_sdk = local_sdk
-			else:
-				rtgl1_sdk = r'E:\Xash-RT\RayTracedGL1'
+			from waflib.Tools import rtgl1
+			rtgl1_sdk = rtgl1.get_rtgl1_sdk(bld)
 		includes.append(os.path.join(rtgl1_sdk, 'Include'))
 		libpath.extend([
 			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release'),
@@ -83,7 +80,9 @@ def build(bld):
 			if src_dll:
 				dst = bld_ctx.bldnode.abspath()
 				shutil.copy(src_dll, dst)
-				src_ffx = os.path.join(os.path.dirname(src_dll), 'amd_fidelityfx_vk.dll')
+				src_ffx = os.path.join(rtgl1_sdk, 'bin', 'amd_fidelityfx_vk.dll')
+				if not os.path.exists(src_ffx):
+					src_ffx = os.path.join(os.path.dirname(src_dll), 'amd_fidelityfx_vk.dll')
 				if os.path.exists(src_ffx):
 					shutil.copy(src_ffx, dst)
 

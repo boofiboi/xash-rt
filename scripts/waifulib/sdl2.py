@@ -98,6 +98,20 @@ def configure(conf):
 	sdl_path = conf.options.SDL_PATH
 	if not sdl_path:
 		local_sdl = os.path.abspath(os.path.join(conf.srcnode.abspath(), 'SDL2_VC'))
+		if not os.path.isdir(local_sdl) and os.name == 'nt' and not conf.options.SDL3:
+			import urllib.request, zipfile, io, shutil
+			conf.start_msg('Downloading precompiled SDL2-devel-2.32.10-VC')
+			url = 'https://libsdl.org/release/SDL2-devel-2.32.10-VC.zip'
+			try:
+				req = urllib.request.urlopen(url)
+				with zipfile.ZipFile(io.BytesIO(req.read())) as z:
+					z.extractall(conf.srcnode.abspath())
+				extracted_folder = os.path.join(conf.srcnode.abspath(), 'SDL2-2.32.10')
+				if os.path.exists(extracted_folder):
+					os.rename(extracted_folder, local_sdl)
+				conf.end_msg('done')
+			except Exception as e:
+				conf.end_msg('failed: %s' % str(e), color='YELLOW')
 		if os.path.isdir(local_sdl):
 			sdl_path = local_sdl
 
