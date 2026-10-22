@@ -1,10 +1,6 @@
 name: Build Xash-RT RayTracing
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
   workflow_dispatch:
     inputs:
       rtgl1_run_id:
@@ -31,24 +27,53 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
-          $rtgl1Found = $false
-          $runArg = ""
-          if ("${{ inputs.rtgl1_run_id }}") {
-            $runArg = "${{ inputs.rtgl1_run_id }}"
+          $targetRepo = "boofiboi/RayTracedGL1"
+          $targetBranch = "hl1"
+          $targetRunId = "${{ inputs.rtgl1_run_id }}".Trim()
+
+          if (-not $targetRunId) {
+            $latestSha = (gh api "repos/$targetRepo/commits/$targetBranch" --jq '.sha' 2>$null)
+
+            $maxWaitSec = 600
+            $startTime = Get-Date
+
+            while (((Get-Date) - $startTime).TotalSeconds -lt $maxWaitSec) {
+              $runJson = (gh run list --repo $targetRepo --branch $targetBranch --limit 1 --json databaseId,headSha,status,conclusion 2>$null)
+              if ($runJson) {
+                $latestRun = ($runJson | ConvertFrom-Json)[0]
+                if ($latestRun) {
+                  if ($latestSha -and $latestRun.headSha -ne $latestSha) {
+                    Start-Sleep -Seconds 10
+                    continue
+                  }
+
+                  if ($latestRun.status -ne "completed") {
+                    gh run watch $($latestRun.databaseId) --repo $targetRepo --exit-status
+                    $targetRunId = $latestRun.databaseId
+                    break
+                  } else {
+                    if ($latestRun.conclusion -eq "success") {
+                      $targetRunId = $latestRun.databaseId
+                    }
+                    break
+                  }
+                }
+              }
+              Start-Sleep -Seconds 10
+            }
           }
-          if ($runArg) {
-            gh run download $runArg --repo boofiboi/RayTracedGL1 --name RayTracedGL1-Artifact --dir rtgl1_sdk 2>$null
+
+          if ($targetRunId) {
+            gh run download $targetRunId --repo $targetRepo --name RayTracedGL1-Artifact --dir rtgl1_sdk 2>$null
           } else {
-            gh run download --repo boofiboi/RayTracedGL1 --name RayTracedGL1-Artifact --dir rtgl1_sdk 2>$null
+            gh run download --repo $targetRepo --name RayTracedGL1-Artifact --dir rtgl1_sdk 2>$null
           }
+
           $LASTEXITCODE = 0
           if (Test-Path "rtgl1_sdk/Build/x64-Release/Release/RayTracedGL1.lib") {
-            $rtgl1Found = $true
+            echo "RTGL1_SDK_PATH=$((Get-Item rtgl1_sdk).FullName)" >> $env:GITHUB_ENV
           } else {
             Write-Host "Prebuilt RTGL1 artifact not found; WAF will pull and compile RTGL1 automatically."
-          }
-          if ($rtgl1Found) {
-            echo "RTGL1_SDK_PATH=$((Get-Item rtgl1_sdk).FullName)" >> $env:GITHUB_ENV
           }
 
       - name: Configure xash-rt
