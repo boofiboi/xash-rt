@@ -14,8 +14,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Checkout submodules
+        shell: pwsh
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --remote 3rdparty/mainui
+          git -C 3rdparty/mainui submodule update --init --recursive
+          $otherSubs = git config --file .gitmodules --get-regexp '\.path$' | ForEach-Object { ($_ -split ' ')[1] } | Where-Object { $_ -ne '3rdparty/mainui' }
+          git submodule update --init --recursive $otherSubs
 
       - name: Setup Python
         uses: actions/setup-python@v5
