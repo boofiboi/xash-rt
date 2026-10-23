@@ -1648,6 +1648,20 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
                               tech == 1 ? "AMD FSR3" : ( tech == 2 ? "NVIDIA DLSS" : "native resolution" ) );
     }
 
+    int fg         = RT_CVAR_TO_INT32( rt_framegen_tech );
+    int fg_alias_a = RT_CVAR_TO_INT32( rt_upscale_fsr3_fg );
+    int fg_alias_b = RT_CVAR_TO_INT32( rt_fsr3_framegen );
+    if( prev_fg >= 0 && fg_alias_a != prev_fg )
+    {
+        fg = ( fg_alias_a > 0 ) ? 1 : 0;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
+    }
+    else if( prev_fg_alias >= 0 && fg_alias_b != prev_fg_alias )
+    {
+        fg = ( fg_alias_b > 0 ) ? 1 : 0;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
+    }
+
     if( tech > 0 && tech != prev_tech && vintage > 0 )
     {
         gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_tech->name, rt_cvars.rt_ef_vintage->name );
@@ -1659,6 +1673,45 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
         gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_upscale_tech->name, rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_tech->name );
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, 0 );
         tech = 0;
+    }
+
+    if( fg > 0 && fg != prev_fg && vintage > 0 )
+    {
+        gEngfuncs.Con_Printf( S_NOTE "%s conflicts with frame generation, forcing %s to 0\n", rt_cvars.rt_ef_vintage->name, rt_cvars.rt_ef_vintage->name );
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_ef_vintage->name, 0 );
+        vintage = 0;
+    }
+    else if( fg > 0 && vintage > 0 && vintage != prev_vintage )
+    {
+        gEngfuncs.Con_Printf( S_NOTE "frame generation conflicts with %s, forcing frame generation to 0\n", rt_cvars.rt_ef_vintage->name );
+        fg = 0;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, 0 );
+    }
+
+    if( vintage > 0 )
+    {
+        tech = 0;
+        fg   = 0;
+    }
+
+    if( tech == 2 && tech != prev_tech && fg == 1 )
+    {
+        gEngfuncs.Con_Printf( S_NOTE "%s conflicts with FSR frame generation, forcing frame generation to 0\n", rt_cvars.rt_upscale_dlss->name );
+        fg = 0;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, 0 );
+    }
+    else if( fg == 1 && fg != prev_fg && tech == 2 )
+    {
+        gEngfuncs.Con_Printf( S_NOTE "FSR frame generation conflicts with %s, forcing %s to 0\n", rt_cvars.rt_upscale_dlss->name, rt_cvars.rt_upscale_dlss->name );
+        tech = 0;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, 0 );
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_dlss->name, 0 );
+    }
+
+    if( tech == 2 && fg == 1 )
+    {
+        fg = 0;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, 0 );
     }
 
     int mirror = ( tech == 1 ) ? quality : 0;
@@ -1675,7 +1728,19 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
     }
     prev_dlss_cvar = mirror_dlss;
 
-    prev_tech = tech;
+    int fg_mirror = ( fg == 1 ) ? 1 : 0;
+    if( fg_mirror != fg_alias_a )
+    {
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, fg_mirror );
+    }
+    if( fg_mirror != fg_alias_b )
+    {
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, fg_mirror );
+    }
+    prev_fg       = fg;
+    prev_fg_alias = fg_mirror;
+
+    prev_tech    = tech;
     prev_vintage = vintage;
 
     if( tech > 0 )
@@ -1695,20 +1760,6 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
     }
 
     pDst->sharpenTechnique = ( tech == 1 ) ? RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS : GetSharpenTechniqueFromCvar();
-
-    int fg       = RT_CVAR_TO_INT32( rt_framegen_tech );
-    int fg_alias_a = RT_CVAR_TO_INT32( rt_upscale_fsr3_fg );
-    int fg_alias_b = RT_CVAR_TO_INT32( rt_fsr3_framegen );
-    if( prev_fg >= 0 && fg_alias_a != prev_fg )
-    {
-        fg = ( fg_alias_a > 0 ) ? 1 : 0;
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
-    }
-    else if( prev_fg_alias >= 0 && fg_alias_b != prev_fg_alias )
-    {
-        fg = ( fg_alias_b > 0 ) ? 1 : 0;
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
-    }
 
     int fg_effective = fg;
     if( fg == 1 && !fsr3_fg_ok )
@@ -1737,18 +1788,6 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
         pDst->frameGenerationTechnique = RG_FRAME_GENERATION_TECHNIQUE_NVIDIA_DLSS;
         pDst->enableFrameGeneration    = RG_TRUE;
     }
-
-    int fg_mirror = ( fg == 1 ) ? 1 : 0;
-    if( fg_mirror != fg_alias_a )
-    {
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, fg_mirror );
-    }
-    if( fg_mirror != fg_alias_b )
-    {
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, fg_mirror );
-    }
-    prev_fg       = fg_mirror;
-    prev_fg_alias = fg_mirror;
 }
 // clang-format on
 #endif
