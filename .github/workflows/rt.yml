@@ -106,8 +106,14 @@ jobs:
           Copy-Item -Path "build/3rdparty/mainui/menu.dll" -Destination "package/rt_bin/menu.dll" -Force
           Copy-Item -Path "SDL2_VC/lib/x64/SDL2.dll" -Destination "package/rt_bin/SDL2.dll" -Force
 
+          if (Test-Path "build/3rdparty/freevgui/vgui.dll") {
+            Copy-Item -Path "build/3rdparty/freevgui/vgui.dll" -Destination "package/rt_bin/vgui.dll" -Force
+          }
+
           if (Test-Path "build/3rdparty/vgui_support/vgui_support.dll") {
             Copy-Item -Path "build/3rdparty/vgui_support/vgui_support.dll" -Destination "package/rt_bin/vgui_support.dll" -Force
+          } elseif (Test-Path "build/3rdparty/freevgui/vgui.dll") {
+            Copy-Item -Path "build/3rdparty/freevgui/vgui.dll" -Destination "package/rt_bin/vgui_support.dll" -Force
           }
 
           $rtgl1Dir = $env:RTGL1_SDK_PATH
