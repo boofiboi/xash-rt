@@ -8,11 +8,10 @@
     - ~~I havent done much investigation into this, but there probably are newer and better equations for ray-casting and ray retrieval --> Cleaner data for the denoiser --> Cleaner output and better experience.~~
     - Obsoleted by a very deep refactor of RTGL1.
 
-- [x] ~~Do a deep dive code audit to see how much I have deviated from the original and what im doing wrong~~
-    - ~~The original HL1 campaign STILL does not look right on this fork, tech debt caught up.~~
-        - ~~Blue Shift and Opposing Force are fine because I have made those in this new fork and all of its quirks, the HL1 campaign is from the old engine.~~
-    - THIS WAS CAUSED DUE TO DEVMODE OVERWRITING BLOOM, TONEMAPPER, EXPOSURE SETTINGS AND THOSE MADE IT LOOK BAD. KARMA BECAUSE OPFOR AND BSHIFT NOW LOOK ABSOLUTE TRASH.
-    - Side effect of the denoiser+upscaler+FG stack refactor: Noisiness is gone, frame gen works for both nVidia and AMD, DLSS is finally included and supported.
+- [] Do a deep dive code audit to see how much I have deviated from the original and what im doing wrong
+    - The original HL1 campaign STILL does not look right on this fork, tech debt caught up.
+        - Blue Shift and Opposing Force are fine because I have made those in this new fork and all of its quirks, the HL1 campaign is from the old engine.
+    - This was/is partly caused by wildly different default config values for bloom, EV100 (Exposure), Saturation etc. 
 
 - [ ] Platform specific denoisers
 	- DLSS Ray Reconstruction for nVidia
@@ -21,7 +20,7 @@
       	- Lower end RDNA3 cards struggle with the WMMA model, better to use NRD on them. The option will be there though, for the masochists who enjoy playing at 30 FPS.
       	- AMD RR is also DX12 only like its cousin FSR4 - This will require waiting for the VK release as passing every bit of data a denoiser needs through a DX12 interop would kill performance.
 	- NRD for other platforms (Intel, [*Snapdragon?!??!?! Apple Silicon?!?!?!?!*](https://youtu.be/h3lZXXO8qTk?t=15))
-		- I am not writing code for the 4 Intel GPU users in the world.
+		- I am not writing OIDN code for the 4 Intel GPU users in the world.
 
 - [ ] **STOP** RTGL1 bouncing light so much (I dont get it, why does every surface bounce light so much by default?????)
     - PBR Estimation?
