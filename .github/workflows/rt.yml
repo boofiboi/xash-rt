@@ -122,6 +122,13 @@ jobs:
           Copy-Item -Path "$rtgl1Dir/Build/x64-Release/Release/RayTracedGL1.dll" -Destination "package/rt_bin/RayTracedGL1.dll" -Force
           Copy-Item -Path "$rtgl1Dir/Build/x64-Release/Release/NRI.dll" -Destination "package/rt_bin/NRI.dll" -Force
           Copy-Item -Path "$rtgl1Dir/bin/amd_fidelityfx_vk.dll" -Destination "package/rt_bin/amd_fidelityfx_vk.dll" -Force
+          if (Test-Path "$rtgl1Dir/bin/nvngx_*.dll") {
+            Copy-Item -Path "$rtgl1Dir/bin/nvngx_*.dll" -Destination "package/rt_bin/" -Force
+          } elseif (Test-Path "$rtgl1Dir/Build/x64-Release/Release/nvngx_*.dll") {
+            Copy-Item -Path "$rtgl1Dir/Build/x64-Release/Release/nvngx_*.dll" -Destination "package/rt_bin/" -Force
+          } elseif (Test-Path "$rtgl1Dir/Source/External/DLSS/lib/Windows_x86_64/rel/nvngx_*.dll") {
+            Copy-Item -Path "$rtgl1Dir/Source/External/DLSS/lib/Windows_x86_64/rel/nvngx_*.dll" -Destination "package/rt_bin/" -Force
+          }
           Copy-Item -Path "$rtgl1Dir/Build/shaders/*.spv" -Destination "package/rt/shaders/" -Force
 
       - name: Upload Release Artifact
