@@ -913,6 +913,11 @@ typedef struct rt_cvars_t
 		rt_upscale_fsr3,
 		rt_sharpen,
 
+		rt_upscale_tech,
+		rt_upscale_quality,
+		rt_denoiser,
+		rt_framegen_tech,
+
         rt_antifirefly,
         rt_shadowrays,
 		rt_indir2bounces,
@@ -1027,7 +1032,11 @@ typedef struct rt_cvars_t
 		_rt_fsr3_available,
 		rt_fsr3_framegen,
 		rt_upscale_fsr3_fg,
-		_rt_fsr3_framegen_available;
+		_rt_fsr3_framegen_available,
+
+		_rt_dlss_available,
+		_rt_dlss_rr_available,
+		_rt_dlss_fg_available;
 } rt_cvars_t;
 extern rt_cvars_t rt_cvars;
 

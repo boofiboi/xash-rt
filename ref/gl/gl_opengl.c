@@ -1325,6 +1325,10 @@ static void GL_InitCommands( void )
 	
 	CVAR_DEF_T( rt_renderscale,				"0",	"[20, 100] resolution scale")
     CVAR_DEF_T( rt_upscale_fsr3,			"2",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
+	CVAR_DEF_T( rt_upscale_tech,			"1",	"upscaling provider: 0 - off, 1 - amd fsr3, 2 - nvidia dlss" )
+	CVAR_DEF_T( rt_upscale_quality,			"2",	"upscaling preset: 1 - native aa (dlaa), 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
+	CVAR_DEF_T( rt_denoiser,				"1",	"denoiser: 0 - bypass (raw), 1 - nrd reblur, 2 - nrd relax, 3 - dlss ray reconstruction" )
+	CVAR_DEF_T( rt_framegen_tech,			"1",	"frame generation provider: 0 - off, 1 - amd fsr3, 2 - nvidia dlss" )
 	CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
 
 	CVAR_DEF_T( rt_antifirefly,				"1",	"" )
@@ -1439,6 +1443,9 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( rt_upscale_fsr3_fg,			"1",	"enable FSR3 Frame Generation" )
     CVAR_DEF_T( rt_fsr3_framegen,			"1",	"enable FSR3 Frame Generation" )
     CVAR_DEF_T( _rt_fsr3_framegen_available,	"0",	"internal variable; for menu" )
+	CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; dlss super resolution support" )
+	CVAR_DEF_T( _rt_dlss_rr_available,		"0",	"internal variable; dlss ray reconstruction support" )
+	CVAR_DEF_T( _rt_dlss_fg_available,		"0",	"internal variable; dlss frame generation support" )
 
 	// clang-format on
 
@@ -1609,6 +1616,21 @@ qboolean R_Init( void )
 		gEngfuncs.Cvar_SetValue(
 			"_rt_fsr3_framegen_available",
 			rgUtilIsFrameGenerationAvailable( rg_instance ) ? 1.0f : 0.0f );
+		gEngfuncs.Cvar_SetValue(
+			"_rt_dlss_available",
+			rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS )
+				? 1.0f
+				: 0.0f );
+		gEngfuncs.Cvar_SetValue(
+			"_rt_dlss_rr_available",
+			rgUtilIsDenoiserTechniqueAvailable( rg_instance, RG_RENDER_DENOISER_TECHNIQUE_NVIDIA_DLSS_RR )
+				? 1.0f
+				: 0.0f );
+		gEngfuncs.Cvar_SetValue(
+			"_rt_dlss_fg_available",
+			rgUtilIsFrameGenerationTechniqueAvailable( rg_instance, RG_FRAME_GENERATION_TECHNIQUE_NVIDIA_DLSS )
+				? 1.0f
+				: 0.0f );
 
 		{
 			const rt_state_t nullstate = {

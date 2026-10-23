@@ -1552,77 +1552,119 @@ static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar()
     }
 }
 
-static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
+static RgRenderResolutionMode UpscaleQualityToResolutionMode( int quality )
 {
-    static int prev_fsr3 = -1;
-    static int prev_vintage = -1;
+    switch( quality )
+    {
+        case 1: return RG_RENDER_RESOLUTION_MODE_CUSTOM;
+        case 3: return RG_RENDER_RESOLUTION_MODE_BALANCED;
+        case 4: return RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
+        case 5: return RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE;
+        case 6: return RG_RENDER_RESOLUTION_MODE_CUSTOM;
+        case 2:
+        default: return RG_RENDER_RESOLUTION_MODE_QUALITY;
+    }
+}
 
-    RgBool32 fsr3_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
-	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr3_ok ? "1" : "0" );
-	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_framegen_available->name, rgUtilIsFrameGenerationAvailable( rg_instance ) ? "1" : "0" );
+static RgRenderDenoiserTechnique DenoiserCvarToTechnique( int denoiser, RgBool32 rr_ok )
+{
+    switch( denoiser )
+    {
+        case 0: return RG_RENDER_DENOISER_TECHNIQUE_NONE;
+        case 2: return RG_RENDER_DENOISER_TECHNIQUE_NRD_RELAX;
+        case 3:
+            return rr_ok ? RG_RENDER_DENOISER_TECHNIQUE_NVIDIA_DLSS_RR : RG_RENDER_DENOISER_TECHNIQUE_NRD_REBLUR;
+        case 1:
+        default: return RG_RENDER_DENOISER_TECHNIQUE_NRD_REBLUR;
+    }
+}
 
-    int fsr3 = fsr3_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr3 ) : 0;
+static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const RgExtent2D winsize )
+{
+    static int prev_legacy   = -1;
+    static int prev_tech     = -1;
+    static int prev_vintage  = -1;
+    static int prev_fg       = -1;
+    static int prev_fg_alias = -1;
+
+    RgBool32 fsr3_ok    = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
+    RgBool32 dlss_ok    = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS );
+    RgBool32 fsr3_fg_ok = rgUtilIsFrameGenerationTechniqueAvailable( rg_instance, RG_FRAME_GENERATION_TECHNIQUE_AMD_FSR3 );
+    RgBool32 dlss_fg_ok = rgUtilIsFrameGenerationTechniqueAvailable( rg_instance, RG_FRAME_GENERATION_TECHNIQUE_NVIDIA_DLSS );
+
+    gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr3_ok ? "1" : "0" );
+    gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_framegen_available->name, fsr3_fg_ok ? "1" : "0" );
+    gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_available->name, dlss_ok ? "1" : "0" );
+    gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_fg_available->name, dlss_fg_ok ? "1" : "0" );
+
+    int tech    = RT_CVAR_TO_INT32( rt_upscale_tech );
+    int quality = RT_CLAMP( RT_CVAR_TO_INT32( rt_upscale_quality ), 1, 5 );
     int vintage = RT_CVAR_TO_INT32( rt_ef_vintage );
 
-    if( fsr3 > 0 && fsr3 != prev_fsr3 )
+    int legacy = RT_CVAR_TO_INT32( rt_upscale_fsr3 );
+    if( prev_legacy >= 0 && legacy != prev_legacy )
     {
-        if( vintage > 0 )
+        tech = ( legacy > 0 ) ? 1 : 0;
+        if( legacy > 0 )
         {
-            gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_fsr3->name, rt_cvars.rt_ef_vintage->name );
-            gEngfuncs.Cvar_Set( rt_cvars.rt_ef_vintage->name, "0" );
-            vintage = 0;
+            quality = RT_CLAMP( legacy, 1, 5 );
         }
-    }
-    else if( vintage > 0 && vintage != prev_vintage )
-    {
-        if( fsr3 > 0 )
-        {
-            gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_upscale_fsr3->name, rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_fsr3->name );
-            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr3->name, "0" );
-            fsr3 = 0;
-        }
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, tech );
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_quality->name, quality );
     }
 
-    prev_fsr3 = fsr3;
+    int requested = tech;
+    if( tech < 0 || tech > 2 )
+    {
+        tech = 0;
+    }
+    else if( tech == 1 && !fsr3_ok )
+    {
+        tech = dlss_ok ? 2 : 0;
+    }
+    else if( tech == 2 && !dlss_ok )
+    {
+        tech = fsr3_ok ? 1 : 0;
+    }
+
+    if( tech != requested && requested != prev_tech )
+    {
+        gEngfuncs.Con_Printf( S_NOTE "%s %d is not available on this system, using %s\n",
+                              rt_cvars.rt_upscale_tech->name,
+                              requested,
+                              tech == 1 ? "AMD FSR3" : ( tech == 2 ? "NVIDIA DLSS" : "native resolution" ) );
+    }
+
+    if( tech > 0 && tech != prev_tech && vintage > 0 )
+    {
+        gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_tech->name, rt_cvars.rt_ef_vintage->name );
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_ef_vintage->name, 0 );
+        vintage = 0;
+    }
+    else if( tech > 0 && vintage > 0 && vintage != prev_vintage )
+    {
+        gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_upscale_tech->name, rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_tech->name );
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, 0 );
+        tech = 0;
+    }
+
+    int mirror = ( tech == 1 ) ? quality : 0;
+    if( mirror != legacy )
+    {
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3->name, mirror );
+    }
+    prev_legacy = mirror;
+    prev_tech = tech;
     prev_vintage = vintage;
 
-    if( rt_cvars.rt_upscale_fsr3_fg && rt_cvars.rt_fsr3_framegen )
+    if( tech > 0 )
     {
-        static int prev_fg = -1;
-        static int prev_fg_alias = -1;
-        int fg = RT_CVAR_TO_INT32( rt_upscale_fsr3_fg );
-        int fg_alias = RT_CVAR_TO_INT32( rt_fsr3_framegen );
-        if( fg != prev_fg && fg != fg_alias )
-        {
-            gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, fg );
-            prev_fg = fg;
-            prev_fg_alias = fg;
-        }
-        else if( fg_alias != prev_fg_alias && fg_alias != fg )
-        {
-            gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, fg_alias );
-            prev_fg = fg_alias;
-            prev_fg_alias = fg_alias;
-        }
-        else
-        {
-            prev_fg = fg;
-            prev_fg_alias = fg_alias;
-        }
-    }
+        pDst->upscaleTechnique = ( tech == 1 ) ? RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 : RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS;
+        pDst->resolutionMode   = UpscaleQualityToResolutionMode( quality );
 
-    if( fsr3 > 0 )
-    {
-        pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
-        switch( fsr3 )
+        if( quality == 1 )
         {
-            case 1: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_CUSTOM; break;
-            case 2: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_QUALITY; break;
-            case 3: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_BALANCED; break;
-            case 4: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_PERFORMANCE; break;
-            case 5: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE; break;
-            case 6: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_CUSTOM; break;
-            default: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_QUALITY; break;
+            pDst->customRenderSize = winsize;
         }
     }
     else
@@ -1631,14 +1673,61 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
         pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_CUSTOM;
     }
 
-    if( fsr3 > 0 )
+    pDst->sharpenTechnique = ( tech == 1 ) ? RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS : GetSharpenTechniqueFromCvar();
+
+    int fg       = RT_CVAR_TO_INT32( rt_framegen_tech );
+    int fg_alias_a = RT_CVAR_TO_INT32( rt_upscale_fsr3_fg );
+    int fg_alias_b = RT_CVAR_TO_INT32( rt_fsr3_framegen );
+    if( prev_fg >= 0 && fg_alias_a != prev_fg )
     {
-        pDst->sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
+        fg = ( fg_alias_a > 0 ) ? 1 : 0;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
     }
-    else
+    else if( prev_fg_alias >= 0 && fg_alias_b != prev_fg_alias )
     {
-        pDst->sharpenTechnique = GetSharpenTechniqueFromCvar();
+        fg = ( fg_alias_b > 0 ) ? 1 : 0;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
     }
+
+    int fg_effective = fg;
+    if( fg == 1 && !fsr3_fg_ok )
+    {
+        fg_effective = 0;
+    }
+    else if( fg == 2 && ( !dlss_fg_ok || tech != 2 ) )
+    {
+        fg_effective = 0;
+    }
+    if( fg_effective > 2 || fg_effective < 0 )
+    {
+        fg_effective = 0;
+    }
+
+    pDst->frameGenerationTechnique = RG_FRAME_GENERATION_TECHNIQUE_NONE;
+    pDst->enableFrameGeneration    = RG_FALSE;
+
+    if( fg_effective == 1 )
+    {
+        pDst->frameGenerationTechnique = RG_FRAME_GENERATION_TECHNIQUE_AMD_FSR3;
+        pDst->enableFrameGeneration    = RG_TRUE;
+    }
+    else if( fg_effective == 2 )
+    {
+        pDst->frameGenerationTechnique = RG_FRAME_GENERATION_TECHNIQUE_NVIDIA_DLSS;
+        pDst->enableFrameGeneration    = RG_TRUE;
+    }
+
+    int fg_mirror = ( fg == 1 ) ? 1 : 0;
+    if( fg_mirror != fg_alias_a )
+    {
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, fg_mirror );
+    }
+    if( fg_mirror != fg_alias_b )
+    {
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, fg_mirror );
+    }
+    prev_fg       = fg_mirror;
+    prev_fg_alias = fg_mirror;
 }
 // clang-format on
 #endif
@@ -1675,17 +1764,7 @@ void R_EndFrame( void )
 			.pNext = NULL,
 		};
 		ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
-		UpscaleCvarsToRtgl( &resolution_params );
-
-		resolution_params.enableFrameGeneration =
-			( ( rt_cvars.rt_upscale_fsr3_fg && RT_CVAR_TO_INT32( rt_upscale_fsr3_fg ) > 0 ) ||
-			  ( rt_cvars.rt_fsr3_framegen && RT_CVAR_TO_INT32( rt_fsr3_framegen ) > 0 ) ) &&
-			rgUtilIsFrameGenerationAvailable( rg_instance );
-
-		if( RT_CVAR_TO_INT32( rt_upscale_fsr3 ) == 1 )
-		{
-			resolution_params.customRenderSize = winsize;
-		}
+		UpscaleCvarsToRtgl( &resolution_params, winsize );
 
 		float lightstyles[ RT_ARRAYSIZE( g_lightstylevalue ) ];
 		for( uint32_t i = 0; i < RT_ARRAYSIZE( g_lightstylevalue ); i++ )
@@ -1696,6 +1775,9 @@ void R_EndFrame( void )
 		RgDrawFrameIlluminationParams illum_params = {
 			.sType                              = RG_STRUCTURE_TYPE_ILLUMINATION,
 			.pNext                              = &resolution_params,
+			.denoiserTechnique                  = DenoiserCvarToTechnique(
+                             RT_CVAR_TO_INT32( rt_denoiser ),
+                             rgUtilIsDenoiserTechniqueAvailable( rg_instance, RG_RENDER_DENOISER_TECHNIQUE_NVIDIA_DLSS_RR ) ),
 			.maxBounceShadows                   = RT_CVAR_TO_UINT32( rt_shadowrays ),
 			.enableSecondBounceForIndirect      = RT_CVAR_TO_BOOL( rt_indir2bounces ),
 			.cellWorldSize                      = METRIC_TO_QUAKEUNIT( 2.0f ),
