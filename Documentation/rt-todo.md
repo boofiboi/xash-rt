@@ -19,7 +19,7 @@
 - [ ] Launcher app for updating/managing the installation
     - atp this project is so bloated and installing it is such a mess I might just whip up a simple .net or Electron app to manage installations.
     - Would include an updater, detailed writeups of what works what doesnt etc.
-    
+
 - [ ] Platform specific denoisers
 	- DLSS Ray Reconstruction for nVidia
 	- AMD Ray Regeneration for AMD RDNA3+ - NRD fallback
@@ -36,6 +36,9 @@
     - texture.json overrides?
         - Options like Roughness, Concrete etc. that dont affect the look of the material but affect how light interacts.
 
+- [ ] Release automation
+    - One click workflow that creates a release with all the required files
+    - Auto fills changes with recent commits (Preferrably run through some AI to make them readable by the average Joe)
 - [ ] Finding a better way of estimating Quake polygon lights (Yes, **QUAKE** polygon lights, HL1 inherited those with VRAD)
     - BSP files dont contain light entity data, only the VRAD data. Genuinely 0 clue on what to do here.
     - This mainly helps with automatic gLTF scene creation when loading a map that does not have one.

@@ -5,15 +5,19 @@
 
 Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sultim-t/xash-rt) which in of itself is a fork of [xash3d-fwgs](https://github.com/FWGS/xash3d-fwgs) with edits to the OpenGL renderer to allow for integration with [a custom path traced renderer](https://github.com/boofiboi/RayTracedGL1) to add modern graphical improvements to the otherwise dated engine.
 
-## Improvements over the original [fork](https://github.com/sultim-t/xash-rt)
+# Improvements over the original [fork](https://github.com/sultim-t/xash-rt)
+### Completed:
 - **Completely synced to upstream (Allows for running a wider-range of mods, including Counter-Strike: 1.6)**
 - **FSR3 support (Including frame generation)**
-- **Huge performance + visual improvements.**
-- **Visual fixes compared to the original.**
-- **Improved mod support.**
+- **DLSS4.5 Upscaling, Frame Generation and eventual Ray Reconstruction**
+- **After AMD releases the Redstone SDK (FSR4) for Vulkan, it will also be included alongside its replacement for Ray Reconstruction, Ray Regeneration**
+- **Huge performance + visual improvements**
+- **Visual fixes compared to the original**
+- **Improved mod support**
+- ***Fully made with the HL1 expansions in mind***
 - **[NRD](https://github.com/NVIDIA-RTX/NRD) (Better denoiser)**
 - **Various QoL features**
-### In-progress:
+### In progress:
 - Check the [rt-todo.md](https://github.com/boofiboi/xash-rt/blob/master/Documentation/rt-todo.md) file!
 
 ## Installation without building
@@ -29,7 +33,7 @@ If there were commits to the repository after a release has been released (Visib
 
 ## Building & Installing
 
-### These are outdated asf, just get the latest artifact produced by GH runners.
+# These are outdated asf, just get the latest artifact produced by GH runners.
 #### Requirements:
 
     git
