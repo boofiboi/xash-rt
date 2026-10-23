@@ -2830,6 +2830,7 @@ static void FlushBatch( void )
 static qboolean rt_raster_additive = false;
 static qboolean rt_raster_blend    = false;
 static qboolean rt_alphatest       = false;
+static qboolean rt_raster_texture  = true;
 
 static void TryBeginBatch_Finalize( rt_batchtype_t             newtype,
 									const RgMeshInfo*          newmesh,
@@ -2879,7 +2880,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.primitiveIndexInMesh = 0,
 			.flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
 									( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ),
-			.pTextureName = rt_state.curTexture2DName,
+			.pTextureName = rt_raster_texture ? rt_state.curTexture2DName : NULL,
 			.textureFrame = 0,
 			.color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
             .emissive     = rt_raster_blend && rt_raster_additive
@@ -2907,7 +2908,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
 									( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
 									( rt_state.curIsSky ? RG_MESH_PRIMITIVE_SKY : 0 ),
-			.pTextureName = rt_state.curTexture2DName,
+			.pTextureName = rt_raster_texture ? rt_state.curTexture2DName : NULL,
 			.textureFrame = 0,
 			.color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
             .emissive     = rt_state.curIsBeam
@@ -3048,6 +3049,11 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 	}
 
 	rgUtilImScratchStart( rg_instance, glbegin_topology );
+
+	if( !rt_raster_texture )
+	{
+		rgUtilImScratchTexCoord( rg_instance, 0.0f, 0.0f );
+	}
 }
 
 void pglEnd( void )
@@ -3058,9 +3064,9 @@ void pglEnd( void )
 
 void RT_OnBeforeDrawFrame( void )
 {
-	// flush residue
 	TryBeginBatch_Finalize( RT_BATCH_TYPE_NONE, NULL, NULL );
 	rt_2dstate_changed = true;
+	rt_raster_texture  = true;
 }
 
 void pglBindTexture( GLenum target, GLuint texture, const char* textureName )
@@ -3126,6 +3132,7 @@ void pglEnable( GLenum cap )
 	{
 		case GL_BLEND: rt_raster_blend = true; break;
 		case GL_ALPHA_TEST: rt_alphatest = true; break;
+		case GL_TEXTURE_2D: rt_raster_texture = true; break;
 		default: break;
 	}
 }
@@ -3136,6 +3143,7 @@ void pglDisable( GLenum cap )
 	{
 		case GL_BLEND: rt_raster_blend = false; break;
 		case GL_ALPHA_TEST: rt_alphatest = false; break;
+		case GL_TEXTURE_2D: rt_raster_texture = false; break;
 		default: break;
 	}
 }
