@@ -1587,6 +1587,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
     static int prev_vintage   = -1;
     static int prev_fg        = -1;
     static int prev_fg_alias  = -1;
+    static int prev_fg_toggle = -1;
 
     RgBool32 fsr3_ok    = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
     RgBool32 dlss_ok    = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS );
@@ -1651,15 +1652,47 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
     int fg         = RT_CVAR_TO_INT32( rt_framegen_tech );
     int fg_alias_a = RT_CVAR_TO_INT32( rt_upscale_fsr3_fg );
     int fg_alias_b = RT_CVAR_TO_INT32( rt_fsr3_framegen );
-    if( prev_fg >= 0 && fg_alias_a != prev_fg )
+    int fg_toggle  = RT_CVAR_TO_INT32( rt_framegen );
+
+    if( prev_fg_toggle >= 0 && fg_toggle != prev_fg_toggle )
     {
-        fg = ( fg_alias_a > 0 ) ? 1 : 0;
+        if( fg_toggle > 0 )
+        {
+            fg = ( tech == 2 ) ? 2 : 1;
+        }
+        else
+        {
+            fg = 0;
+        }
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
+    }
+    else if( prev_fg >= 0 && fg != prev_fg )
+    {
+        fg = RT_CLAMP( fg, 0, 2 );
     }
     else if( prev_fg_alias >= 0 && fg_alias_b != prev_fg_alias )
     {
         fg = ( fg_alias_b > 0 ) ? 1 : 0;
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
+    }
+    else if( prev_fg_alias >= 0 && fg_alias_a != prev_fg_alias )
+    {
+        fg = ( fg_alias_a > 0 ) ? 1 : 0;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
+    }
+
+    if( fg > 0 )
+    {
+        if( tech == 2 && prev_tech != 2 && prev_tech >= 0 )
+        {
+            fg = 2;
+            gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, 2 );
+        }
+        else if( tech != 2 && prev_tech == 2 && prev_tech >= 0 )
+        {
+            fg = 1;
+            gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, 1 );
+        }
     }
 
     if( tech > 0 && tech != prev_tech && vintage > 0 )
@@ -1694,24 +1727,10 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
         fg   = 0;
     }
 
-    if( tech == 2 && tech != prev_tech && fg == 1 )
-    {
-        gEngfuncs.Con_Printf( S_NOTE "%s conflicts with FSR frame generation, forcing frame generation to 0\n", rt_cvars.rt_upscale_dlss->name );
-        fg = 0;
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, 0 );
-    }
-    else if( fg == 1 && fg != prev_fg && tech == 2 )
-    {
-        gEngfuncs.Con_Printf( S_NOTE "FSR frame generation conflicts with %s, forcing %s to 0\n", rt_cvars.rt_upscale_dlss->name, rt_cvars.rt_upscale_dlss->name );
-        tech = 0;
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, 0 );
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_dlss->name, 0 );
-    }
-
     if( tech == 2 && fg == 1 )
     {
-        fg = 0;
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, 0 );
+        fg = 2;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, 2 );
     }
 
     int mirror = ( tech == 1 ) ? quality : 0;
@@ -1728,20 +1747,30 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
     }
     prev_dlss_cvar = mirror_dlss;
 
-    int fg_mirror = ( fg == 1 ) ? 1 : 0;
-    if( fg_mirror != fg_alias_a )
+    int fg_mirror_toggle = ( fg > 0 ) ? 1 : 0;
+    if( fg_mirror_toggle != fg_toggle )
     {
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, fg_mirror );
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen->name, fg_mirror_toggle );
     }
-    if( fg_mirror != fg_alias_b )
+    prev_fg_toggle = fg_mirror_toggle;
+
+    int fg_mirror_fsr = ( fg == 1 ) ? 1 : 0;
+    if( fg_mirror_fsr != fg_alias_a )
     {
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, fg_mirror );
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, fg_mirror_fsr );
+    }
+    if( fg_mirror_fsr != fg_alias_b )
+    {
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, fg_mirror_fsr );
     }
     prev_fg       = fg;
-    prev_fg_alias = fg_mirror;
+    prev_fg_alias = fg_mirror_fsr;
 
     prev_tech    = tech;
     prev_vintage = vintage;
+
+    RgBool32 fg_current_ok = ( vintage == 0 ) && ( ( tech == 2 ) ? dlss_fg_ok : fsr3_fg_ok );
+    gEngfuncs.Cvar_Set( rt_cvars._rt_framegen_available->name, fg_current_ok ? "1" : "0" );
 
     if( tech > 0 )
     {

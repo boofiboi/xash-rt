@@ -917,6 +917,7 @@ typedef struct rt_cvars_t
 		rt_upscale_tech,
 		rt_upscale_quality,
 		rt_denoiser,
+		rt_framegen,
 		rt_framegen_tech,
 
         rt_antifirefly,
@@ -1037,7 +1038,8 @@ typedef struct rt_cvars_t
 
 		_rt_dlss_available,
 		_rt_dlss_rr_available,
-		_rt_dlss_fg_available;
+		_rt_dlss_fg_available,
+		_rt_framegen_available;
 } rt_cvars_t;
 extern rt_cvars_t rt_cvars;
 
