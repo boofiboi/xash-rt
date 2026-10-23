@@ -1325,6 +1325,7 @@ static void GL_InitCommands( void )
 	
 	CVAR_DEF_T( rt_renderscale,				"0",	"[20, 100] resolution scale")
     CVAR_DEF_T( rt_upscale_fsr3,			"2",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
+    CVAR_DEF_T( rt_upscale_dlss,			"0",	"0 - off, 1 - dlaa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
 	CVAR_DEF_T( rt_upscale_tech,			"1",	"upscaling provider: 0 - off, 1 - amd fsr3, 2 - nvidia dlss" )
 	CVAR_DEF_T( rt_upscale_quality,			"2",	"upscaling preset: 1 - native aa (dlaa), 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
 	CVAR_DEF_T( rt_denoiser,				"1",	"denoiser: 0 - bypass (raw), 1 - nrd reblur, 2 - nrd relax, 3 - dlss ray reconstruction" )

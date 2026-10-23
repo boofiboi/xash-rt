@@ -1581,11 +1581,12 @@ static RgRenderDenoiserTechnique DenoiserCvarToTechnique( int denoiser, RgBool32
 
 static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const RgExtent2D winsize )
 {
-    static int prev_legacy   = -1;
-    static int prev_tech     = -1;
-    static int prev_vintage  = -1;
-    static int prev_fg       = -1;
-    static int prev_fg_alias = -1;
+    static int prev_legacy    = -1;
+    static int prev_dlss_cvar = -1;
+    static int prev_tech      = -1;
+    static int prev_vintage   = -1;
+    static int prev_fg        = -1;
+    static int prev_fg_alias  = -1;
 
     RgBool32 fsr3_ok    = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
     RgBool32 dlss_ok    = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS );
@@ -1608,6 +1609,18 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
         if( legacy > 0 )
         {
             quality = RT_CLAMP( legacy, 1, 5 );
+        }
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, tech );
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_quality->name, quality );
+    }
+
+    int dlss_cvar = RT_CVAR_TO_INT32( rt_upscale_dlss );
+    if( prev_dlss_cvar >= 0 && dlss_cvar != prev_dlss_cvar )
+    {
+        tech = ( dlss_cvar > 0 ) ? 2 : 0;
+        if( dlss_cvar > 0 )
+        {
+            quality = RT_CLAMP( dlss_cvar, 1, 5 );
         }
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, tech );
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_quality->name, quality );
@@ -1654,6 +1667,14 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3->name, mirror );
     }
     prev_legacy = mirror;
+
+    int mirror_dlss = ( tech == 2 ) ? quality : 0;
+    if( mirror_dlss != dlss_cvar )
+    {
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_dlss->name, mirror_dlss );
+    }
+    prev_dlss_cvar = mirror_dlss;
+
     prev_tech = tech;
     prev_vintage = vintage;
 
