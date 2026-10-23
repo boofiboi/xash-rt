@@ -1,15 +1,18 @@
 # TODO list for xash-rt and RayTracedGL1, ordered by importance.
 
-- [ ] DLSS4.5 support
+- [x] DLSS4.5 support
 
 	- 100% Upscaling + FG, RR is secondary.
 
-- [ ] Update the ray tracing calculations so denoisers already get semi-clean data to work off of
-    - I havent done much investigation into this, but there probably are newer and better equations for ray-casting and ray retrieval --> Cleaner data for the denoiser --> Cleaner output and better experience.
+- [x] ~~Update the ray tracing calculations so denoisers already get semi-clean data to work off of~~
+    - ~~I havent done much investigation into this, but there probably are newer and better equations for ray-casting and ray retrieval --> Cleaner data for the denoiser --> Cleaner output and better experience.~~
+    - Obsoleted by a very deep refactor of RTGL1.
 
-- [ ] Do a deep dive code audit to see how much I have deviated from the original and what im doing wrong
-    - The original HL1 campaign STILL does not look right on this fork, tech debt caught up.
-        - Blue Shift and Opposing Force are fine because I have made those in this new fork and all of its quirks, the HL1 campaign is from the old engine.
+- [x] ~~Do a deep dive code audit to see how much I have deviated from the original and what im doing wrong~~
+    - ~~The original HL1 campaign STILL does not look right on this fork, tech debt caught up.~~
+        - ~~Blue Shift and Opposing Force are fine because I have made those in this new fork and all of its quirks, the HL1 campaign is from the old engine.~~
+    - THIS WAS CAUSED DUE TO DEVMODE OVERWRITING BLOOM, TONEMAPPER, EXPOSURE SETTINGS AND THOSE MADE IT LOOK BAD. KARMA BECAUSE OPFOR AND BSHIFT NOW LOOK ABSOLUTE TRASH.
+    - Side effect of the denoiser+upscaler+FG stack refactor: Noisiness is gone, frame gen works for both nVidia and AMD, DLSS is finally included and supported.
 
 - [ ] Platform specific denoisers
 	- DLSS Ray Reconstruction for nVidia

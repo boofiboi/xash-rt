@@ -1794,11 +1794,6 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
         fg_effective = 0;
     }
 
-    if( ENGINE_GET_PARM( PARM_CONNSTATE ) != ca_active )
-    {
-        fg_effective = 0;
-    }
-
     pDst->frameGenerationTechnique = RG_FRAME_GENERATION_TECHNIQUE_NONE;
     pDst->enableFrameGeneration    = RG_FALSE;
 

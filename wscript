@@ -133,7 +133,7 @@ SUBDIRS = [
 
 	# engine is obligated to provide VGUI interface in 32-bit builds on Windows/Linux/Mac as shared library
 	# on platforms supported only by Xash3D FWGS, freevgui can be linked statically into client library
-	Subproject('3rdparty/freevgui',     lambda x: x.env.CLIENT and x.env.DEST_OS in ['win32', 'linux', 'darwin'] and x.env.DEST_CPU == 'x86'),
+	Subproject('3rdparty/freevgui',     lambda x: x.env.CLIENT and x.env.DEST_OS in ['win32', 'linux', 'darwin']),
 
 	Subproject('3rdparty/MultiEmulator',lambda x: x.env.CLIENT),
 	Subproject('stub/client',           lambda x: x.env.CLIENT),
