@@ -4,15 +4,22 @@
 
 	- 100% Upscaling + FG, RR is secondary.
 
-- [x] ~~Update the ray tracing calculations so denoisers already get semi-clean data to work off of~~
-    - ~~I havent done much investigation into this, but there probably are newer and better equations for ray-casting and ray retrieval --> Cleaner data for the denoiser --> Cleaner output and better experience.~~
+- [ ] Update the ray tracing calculations so denoisers already get semi-clean data to work off of
+    - I havent done much investigation into this, but there probably are newer and better equations for ray-casting and ray retrieval --> Cleaner data for the denoiser --> Cleaner output and better experience.
     - Obsoleted by a very deep refactor of RTGL1.
+
+- [ ] Get a better way to toggle RTGL1 devmode, maybe a cvar or launch argument or a dev/non-dev build
+    - Potential FPS savings for non-dev builds because devmode does take quite a lot of FPS to run and a non-dev build could have all of the dev mode functionality stripped out.
 
 - [] Do a deep dive code audit to see how much I have deviated from the original and what im doing wrong
     - The original HL1 campaign STILL does not look right on this fork, tech debt caught up.
         - Blue Shift and Opposing Force are fine because I have made those in this new fork and all of its quirks, the HL1 campaign is from the old engine.
     - This was/is partly caused by wildly different default config values for bloom, EV100 (Exposure), Saturation etc. 
 
+- [ ] Launcher app for updating/managing the installation
+    - atp this project is so bloated and installing it is such a mess I might just whip up a simple .net or Electron app to manage installations.
+    - Would include an updater, detailed writeups of what works what doesnt etc.
+    
 - [ ] Platform specific denoisers
 	- DLSS Ray Reconstruction for nVidia
 	- AMD Ray Regeneration for AMD RDNA3+ - NRD fallback
@@ -44,6 +51,6 @@
 
 - [ ] Linux native builds
 
-- [ ] Launcher app for updating/managing the installation
+
 
 
