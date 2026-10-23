@@ -453,10 +453,15 @@ qboolean VGui_LoadProgs( HINSTANCE hInstance )
 {
 	qboolean client = hInstance != NULL;
 
-	// not loading interface from client.dll, load vgui_support.dll instead
 	if( !client )
 	{
 		hInstance = vgui.hInstance = VGui_LoadSupportLibrary();
+
+		if( hInstance && !VGui_ProbeNewAPI( hInstance, client ) && !VGui_ProbeLegacyAPI( hInstance, client ))
+		{
+			COM_FreeLibrary( hInstance );
+			hInstance = vgui.hInstance = COM_LoadLibrary( OS_LIB_PREFIX "vgui_support." OS_LIB_EXT, false, false );
+		}
 
 		if( !hInstance )
 			return false;
