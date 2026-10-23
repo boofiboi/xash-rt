@@ -11,7 +11,7 @@
 - [ ] Get a better way to toggle RTGL1 devmode, maybe a cvar or launch argument or a dev/non-dev build
     - Potential FPS savings for non-dev builds because devmode does take quite a lot of FPS to run and a non-dev build could have all of the dev mode functionality stripped out.
 
-- [] Do a deep dive code audit to see how much I have deviated from the original and what im doing wrong
+- [ ] Do a deep dive code audit to see how much I have deviated from the original and what im doing wrong
     - The original HL1 campaign STILL does not look right on this fork, tech debt caught up.
         - Blue Shift and Opposing Force are fine because I have made those in this new fork and all of its quirks, the HL1 campaign is from the old engine.
     - This was/is partly caused by wildly different default config values for bloom, EV100 (Exposure), Saturation etc. 
