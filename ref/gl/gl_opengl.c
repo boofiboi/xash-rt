@@ -1442,7 +1442,6 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( _rt_skipframe,				"0",	"skip frame for level change" )
 
     CVAR_DEF_T( _rt_fsr3_available,			"0",	"internal variable; for menu" )
-    CVAR_DEF_T( rt_upscale_fsr3_fg,			"1",	"enable FSR3 Frame Generation" )
     CVAR_DEF_T( rt_fsr3_framegen,			"1",	"enable FSR3 Frame Generation" )
     CVAR_DEF_T( _rt_fsr3_framegen_available,	"0",	"internal variable; for menu" )
 	CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; dlss super resolution support" )

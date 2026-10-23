@@ -1650,8 +1650,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
     }
 
     int fg         = RT_CVAR_TO_INT32( rt_framegen_tech );
-    int fg_alias_a = RT_CVAR_TO_INT32( rt_upscale_fsr3_fg );
-    int fg_alias_b = RT_CVAR_TO_INT32( rt_fsr3_framegen );
+    int fg_alias   = RT_CVAR_TO_INT32( rt_fsr3_framegen );
     int fg_toggle  = RT_CVAR_TO_INT32( rt_framegen );
 
     if( prev_fg_toggle >= 0 && fg_toggle != prev_fg_toggle )
@@ -1670,14 +1669,9 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
     {
         fg = RT_CLAMP( fg, 0, 2 );
     }
-    else if( prev_fg_alias >= 0 && fg_alias_b != prev_fg_alias )
+    else if( prev_fg_alias >= 0 && fg_alias != prev_fg_alias )
     {
-        fg = ( fg_alias_b > 0 ) ? 1 : 0;
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
-    }
-    else if( prev_fg_alias >= 0 && fg_alias_a != prev_fg_alias )
-    {
-        fg = ( fg_alias_a > 0 ) ? 1 : 0;
+        fg = ( fg_alias > 0 ) ? 1 : 0;
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen_tech->name, fg );
     }
 
@@ -1755,11 +1749,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
     prev_fg_toggle = fg_mirror_toggle;
 
     int fg_mirror_fsr = ( fg == 1 ) ? 1 : 0;
-    if( fg_mirror_fsr != fg_alias_a )
-    {
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, fg_mirror_fsr );
-    }
-    if( fg_mirror_fsr != fg_alias_b )
+    if( fg_mirror_fsr != fg_alias )
     {
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, fg_mirror_fsr );
     }
@@ -1800,6 +1790,11 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst, const R
         fg_effective = 0;
     }
     if( fg_effective > 2 || fg_effective < 0 )
+    {
+        fg_effective = 0;
+    }
+
+    if( ENGINE_GET_PARM( PARM_CONNSTATE ) != ca_active )
     {
         fg_effective = 0;
     }
