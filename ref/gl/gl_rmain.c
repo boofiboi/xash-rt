@@ -1562,6 +1562,31 @@ static void SyncCvarPair( cvar_t* a, cvar_t* b, int* prev_a, int* prev_b )
     int val_a = ( int )a->value;
     int val_b = ( int )b->value;
 
+    if( *prev_a == -1 && *prev_b == -1 )
+    {
+        if( val_a != val_b )
+        {
+            if( val_a == 0 && val_b != 0 )
+            {
+                gEngfuncs.Cvar_SetValue( a->name, ( float )val_b );
+                val_a = val_b;
+            }
+            else if( val_b == 0 && val_a != 0 )
+            {
+                gEngfuncs.Cvar_SetValue( b->name, ( float )val_a );
+                val_b = val_a;
+            }
+            else
+            {
+                gEngfuncs.Cvar_SetValue( b->name, ( float )val_a );
+                val_b = val_a;
+            }
+        }
+        *prev_a = val_a;
+        *prev_b = val_b;
+        return;
+    }
+
     if( val_a != *prev_a && val_a != val_b )
     {
         gEngfuncs.Cvar_SetValue( b->name, ( float )val_a );
@@ -1590,6 +1615,25 @@ static void SyncFrameGenCvars( void )
     int fg = rt_cvars.rt_framegen ? ( int )rt_cvars.rt_framegen->value : 0;
     int fg1 = rt_cvars.rt_fsr3_framegen ? ( int )rt_cvars.rt_fsr3_framegen->value : 0;
     int fg2 = rt_cvars.rt_upscale_fsr3_fg ? ( int )rt_cvars.rt_upscale_fsr3_fg->value : 0;
+
+    if( prev_fg == -1 && prev_fg1 == -1 && prev_fg2 == -1 )
+    {
+        int chosen = fg;
+        if( rt_cvars.rt_fsr3_framegen && fg1 != fg )
+        {
+            chosen = fg1;
+        }
+        else if( rt_cvars.rt_upscale_fsr3_fg && fg2 != fg )
+        {
+            chosen = fg2;
+        }
+
+        if( rt_cvars.rt_framegen ) gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen->name, ( float )chosen );
+        if( rt_cvars.rt_fsr3_framegen ) gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, ( float )chosen );
+        if( rt_cvars.rt_upscale_fsr3_fg ) gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, ( float )chosen );
+        prev_fg = prev_fg1 = prev_fg2 = chosen;
+        return;
+    }
 
     if( fg != prev_fg && ( fg != fg1 || fg != fg2 ) )
     {
@@ -1643,13 +1687,18 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
     int quality = RT_CVAR_TO_INT32( rt_upscale_quality );
     int vintage = RT_CVAR_TO_INT32( rt_ef_vintage );
 
-    if( method == 0 && quality > 0 )
+    static qboolean initial_boot_done = false;
+    if( !initial_boot_done )
     {
-        method = dlss_ok ? 2 : 1;
-        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_method->name, ( float )method );
-        if( rt_cvars.rt_upscale_tech )
+        initial_boot_done = true;
+        if( method == 0 && quality > 0 )
         {
-            gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, ( float )method );
+            method = dlss_ok ? 2 : 1;
+            gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_method->name, ( float )method );
+            if( rt_cvars.rt_upscale_tech )
+            {
+                gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, ( float )method );
+            }
         }
     }
 
