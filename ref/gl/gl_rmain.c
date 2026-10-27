@@ -1552,92 +1552,181 @@ static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar()
     }
 }
 
+static void SyncCvarPair( cvar_t* a, cvar_t* b, int* prev_a, int* prev_b )
+{
+    if( !a || !b )
+    {
+        return;
+    }
+
+    int val_a = ( int )a->value;
+    int val_b = ( int )b->value;
+
+    if( val_a != *prev_a && val_a != val_b )
+    {
+        gEngfuncs.Cvar_SetValue( b->name, ( float )val_a );
+        *prev_a = val_a;
+        *prev_b = val_a;
+    }
+    else if( val_b != *prev_b && val_b != val_a )
+    {
+        gEngfuncs.Cvar_SetValue( a->name, ( float )val_b );
+        *prev_a = val_b;
+        *prev_b = val_b;
+    }
+    else
+    {
+        *prev_a = val_a;
+        *prev_b = val_b;
+    }
+}
+
+static void SyncFrameGenCvars( void )
+{
+    static int prev_fg = -1;
+    static int prev_fg1 = -1;
+    static int prev_fg2 = -1;
+
+    int fg = rt_cvars.rt_framegen ? ( int )rt_cvars.rt_framegen->value : 0;
+    int fg1 = rt_cvars.rt_fsr3_framegen ? ( int )rt_cvars.rt_fsr3_framegen->value : 0;
+    int fg2 = rt_cvars.rt_upscale_fsr3_fg ? ( int )rt_cvars.rt_upscale_fsr3_fg->value : 0;
+
+    if( fg != prev_fg && ( fg != fg1 || fg != fg2 ) )
+    {
+        if( rt_cvars.rt_fsr3_framegen ) gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, ( float )fg );
+        if( rt_cvars.rt_upscale_fsr3_fg ) gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, ( float )fg );
+        prev_fg = prev_fg1 = prev_fg2 = fg;
+    }
+    else if( fg1 != prev_fg1 && ( fg1 != fg || fg1 != fg2 ) )
+    {
+        if( rt_cvars.rt_framegen ) gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen->name, ( float )fg1 );
+        if( rt_cvars.rt_upscale_fsr3_fg ) gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, ( float )fg1 );
+        prev_fg = prev_fg1 = prev_fg2 = fg1;
+    }
+    else if( fg2 != prev_fg2 && ( fg2 != fg || fg2 != fg1 ) )
+    {
+        if( rt_cvars.rt_framegen ) gEngfuncs.Cvar_SetValue( rt_cvars.rt_framegen->name, ( float )fg2 );
+        if( rt_cvars.rt_fsr3_framegen ) gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, ( float )fg2 );
+        prev_fg = prev_fg1 = prev_fg2 = fg2;
+    }
+    else
+    {
+        prev_fg = fg;
+        prev_fg1 = fg1;
+        prev_fg2 = fg2;
+    }
+}
+
 static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 {
-    static int prev_fsr3 = -1;
+    static int prev_method_c = -1;
+    static int prev_tech_c = -1;
+    static int prev_qual_c = -1;
+    static int prev_fsr3_c = -1;
     static int prev_vintage = -1;
+    static int prev_upscale_active = -1;
 
     RgBool32 fsr3_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
-	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr3_ok ? "1" : "0" );
-	gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_framegen_available->name, rgUtilIsFrameGenerationAvailable( rg_instance ) ? "1" : "0" );
+    RgBool32 dlss_ok = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS );
+    RgBool32 fg_ok   = rgUtilIsFrameGenerationAvailable( rg_instance );
 
-    int fsr3 = fsr3_ok ? RT_CVAR_TO_INT32( rt_upscale_fsr3 ) : 0;
+    gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr3_ok ? "1" : "0" );
+    gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_available->name, dlss_ok ? "1" : "0" );
+    gEngfuncs.Cvar_Set( rt_cvars._rt_framegen_available->name, fg_ok ? "1" : "0" );
+    gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_framegen_available->name, fg_ok ? "1" : "0" );
+
+    SyncCvarPair( rt_cvars.rt_upscale_method, rt_cvars.rt_upscale_tech, &prev_method_c, &prev_tech_c );
+    SyncCvarPair( rt_cvars.rt_upscale_quality, rt_cvars.rt_upscale_fsr3, &prev_qual_c, &prev_fsr3_c );
+    SyncFrameGenCvars();
+
+    int method = RT_CVAR_TO_INT32( rt_upscale_method );
+    int quality = RT_CVAR_TO_INT32( rt_upscale_quality );
     int vintage = RT_CVAR_TO_INT32( rt_ef_vintage );
 
-    if( fsr3 > 0 && fsr3 != prev_fsr3 )
+    if( method == 0 && quality > 0 )
+    {
+        method = dlss_ok ? 2 : 1;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_method->name, ( float )method );
+        if( rt_cvars.rt_upscale_tech )
+        {
+            gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_tech->name, ( float )method );
+        }
+    }
+
+    int effective_method = method;
+    if( effective_method == 1 && !fsr3_ok )
+    {
+        effective_method = 0;
+    }
+    else if( effective_method == 2 && !dlss_ok )
+    {
+        effective_method = 0;
+    }
+
+    if( quality <= 0 )
+    {
+        effective_method = 0;
+    }
+
+    int upscale_active = ( effective_method > 0 ) ? 1 : 0;
+    if( upscale_active && upscale_active != prev_upscale_active )
     {
         if( vintage > 0 )
         {
-            gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_fsr3->name, rt_cvars.rt_ef_vintage->name );
+            gEngfuncs.Con_Printf( S_NOTE "%s conflicts with upscaling, forcing %s to 0\n", rt_cvars.rt_ef_vintage->name, rt_cvars.rt_ef_vintage->name );
             gEngfuncs.Cvar_Set( rt_cvars.rt_ef_vintage->name, "0" );
             vintage = 0;
         }
     }
     else if( vintage > 0 && vintage != prev_vintage )
     {
-        if( fsr3 > 0 )
+        if( upscale_active )
         {
-            gEngfuncs.Con_Printf( S_NOTE "%s conflicts with %s, forcing %s to 0\n", rt_cvars.rt_upscale_fsr3->name, rt_cvars.rt_ef_vintage->name, rt_cvars.rt_upscale_fsr3->name );
-            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr3->name, "0" );
-            fsr3 = 0;
+            gEngfuncs.Con_Printf( S_NOTE "upscaling conflicts with %s, forcing upscaling to 0\n", rt_cvars.rt_ef_vintage->name );
+            gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_quality->name, "0" );
+            if( rt_cvars.rt_upscale_fsr3 )
+            {
+                gEngfuncs.Cvar_Set( rt_cvars.rt_upscale_fsr3->name, "0" );
+            }
+            upscale_active = 0;
+            effective_method = 0;
         }
     }
 
-    prev_fsr3 = fsr3;
+    prev_upscale_active = upscale_active;
     prev_vintage = vintage;
 
-    if( rt_cvars.rt_upscale_fsr3_fg && rt_cvars.rt_fsr3_framegen )
-    {
-        static int prev_fg = -1;
-        static int prev_fg_alias = -1;
-        int fg = RT_CVAR_TO_INT32( rt_upscale_fsr3_fg );
-        int fg_alias = RT_CVAR_TO_INT32( rt_fsr3_framegen );
-        if( fg != prev_fg && fg != fg_alias )
-        {
-            gEngfuncs.Cvar_SetValue( rt_cvars.rt_fsr3_framegen->name, fg );
-            prev_fg = fg;
-            prev_fg_alias = fg;
-        }
-        else if( fg_alias != prev_fg_alias && fg_alias != fg )
-        {
-            gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_fsr3_fg->name, fg_alias );
-            prev_fg = fg_alias;
-            prev_fg_alias = fg_alias;
-        }
-        else
-        {
-            prev_fg = fg;
-            prev_fg_alias = fg_alias;
-        }
-    }
-
-    if( fsr3 > 0 )
+    if( effective_method == 1 )
     {
         pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
-        switch( fsr3 )
+        pDst->sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
+    }
+    else if( effective_method == 2 )
+    {
+        pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS;
+        pDst->sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_NONE;
+    }
+    else
+    {
+        pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NEAREST;
+        pDst->sharpenTechnique = GetSharpenTechniqueFromCvar();
+    }
+
+    if( effective_method > 0 )
+    {
+        switch( quality )
         {
             case 1: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_CUSTOM; break;
             case 2: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_QUALITY; break;
             case 3: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_BALANCED; break;
             case 4: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_PERFORMANCE; break;
             case 5: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE; break;
-            case 6: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_CUSTOM; break;
             default: pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_QUALITY; break;
         }
     }
     else
     {
-        pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NEAREST;
-        pDst->resolutionMode   = RG_RENDER_RESOLUTION_MODE_CUSTOM;
-    }
-
-    if( fsr3 > 0 )
-    {
-        pDst->sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
-    }
-    else
-    {
-        pDst->sharpenTechnique = GetSharpenTechniqueFromCvar();
+        pDst->resolutionMode = RG_RENDER_RESOLUTION_MODE_CUSTOM;
     }
 }
 // clang-format on
@@ -1678,11 +1767,13 @@ void R_EndFrame( void )
 		UpscaleCvarsToRtgl( &resolution_params );
 
 		resolution_params.enableFrameGeneration =
-			( ( rt_cvars.rt_upscale_fsr3_fg && RT_CVAR_TO_INT32( rt_upscale_fsr3_fg ) > 0 ) ||
+			( ( rt_cvars.rt_framegen && RT_CVAR_TO_INT32( rt_framegen ) > 0 ) ||
+			  ( rt_cvars.rt_upscale_fsr3_fg && RT_CVAR_TO_INT32( rt_upscale_fsr3_fg ) > 0 ) ||
 			  ( rt_cvars.rt_fsr3_framegen && RT_CVAR_TO_INT32( rt_fsr3_framegen ) > 0 ) ) &&
 			rgUtilIsFrameGenerationAvailable( rg_instance );
 
-		if( RT_CVAR_TO_INT32( rt_upscale_fsr3 ) == 1 )
+		if( ( rt_cvars.rt_upscale_quality && RT_CVAR_TO_INT32( rt_upscale_quality ) == 1 ) ||
+		    ( rt_cvars.rt_upscale_fsr3 && RT_CVAR_TO_INT32( rt_upscale_fsr3 ) == 1 ) )
 		{
 			resolution_params.customRenderSize = winsize;
 		}
