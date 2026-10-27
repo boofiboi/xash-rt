@@ -1,6 +1,6 @@
 # TODO list for xash-rt and RayTracedGL1, ordered by importance.
 
-- [ ] Change the behaviour of the menu/engine when toggling between FSR3, DLSS + FG ON/OFF
+- [x] Change the behaviour of the menu/engine when toggling between FSR3, DLSS + FG ON/OFF
     - Remove the separate rt_framegen_tech cvar and just automatically use the frame generator for the currently selected upscaler (e.g remove rt_framegen_tech cvar, keep rt_framegen cvar for toggling FG on/off)
     - Do the same with the rt_upscale_fsr3/dlss - just keep rt_upscale_tech and rt_upscale_quality
     - ONLY keep rt_upscale_tech, rt_upscale_quality and rt_framegen - if rt_upscale_quality is 0 on game boot dont build swapchains (consider 0 as disabled and dont build swapchains OR build swapchains so user can quickly re-enable upscaling + keep rt_upscale_enabled and add a toggle for it)
@@ -16,8 +16,8 @@
     - [ ] Ray Reconstruction
 
 - [ ] Update the ray tracing calculations so denoisers already get semi-clean data to work off of
-    - [ ] ReSTIR GI
-    - [ ] Quasi Monte Carlo
+    - [x] ReSTIR GI
+    - [x] Quasi Monte Carlo
     - [ ] LTC for HL1 beam particles
 
 - [x] Area lights
@@ -29,7 +29,7 @@
 - [ ] Get a better way to toggle RTGL1 devmode, maybe a cvar or launch argument or a dev/non-dev build
     - Potential FPS savings for non-dev builds because devmode does take quite a lot of FPS to run and a non-dev build could have all of the dev mode functionality stripped out.
 
-- [ ] Refactor all shaders
+- [x] Refactor all shaders
     - Bloom is unstable and flickers, lens flares dont work, volumetrics are over powering scenes, lights look wonky.
 
 - [ ] Launcher app for updating/managing the installation
