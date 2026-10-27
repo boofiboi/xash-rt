@@ -1328,6 +1328,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_upscale_tech,			"0",	"0 - off, 1 - FSR3, 2 - DLSS" )
 	CVAR_DEF_T( rt_upscale_quality,			"0",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
 	CVAR_DEF_T( rt_upscale_fsr3,			"0",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
+	CVAR_DEF_T( rt_upscale_dlss,			"0",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
 	CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
 
 	CVAR_DEF_T( rt_antifirefly,				"1",	"" )
@@ -1445,6 +1446,7 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( rt_fsr3_framegen,			"1",	"enable Frame Generation" )
     CVAR_DEF_T( _rt_framegen_available,		"0",	"internal variable; for menu" )
     CVAR_DEF_T( _rt_fsr3_framegen_available,	"0",	"internal variable; for menu" )
+    CVAR_DEF_T( _rt_dlss_framegen_available,	"0",	"internal variable; for menu" )
 
 	// clang-format on
 
@@ -1623,6 +1625,9 @@ qboolean R_Init( void )
 		gEngfuncs.Cvar_SetValue(
 			"_rt_fsr3_framegen_available",
 			rgUtilIsFrameGenerationAvailable( rg_instance ) ? 1.0f : 0.0f );
+		gEngfuncs.Cvar_SetValue(
+			"_rt_dlss_framegen_available",
+			rgUtilIsDlssgAvailable( rg_instance ) ? 1.0f : 0.0f );
 
 		{
 			const rt_state_t nullstate = {
