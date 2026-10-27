@@ -14,7 +14,7 @@ Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sult
 - **[NRD](https://github.com/NVIDIA-RTX/NRD) (Better denoiser)**
 - **Various QoL features**
 ### In-progress:
-- Check the rt-todo.md file!
+- Check the [rt-todo.md](https://github.com/boofiboi/xash-rt/blob/master/Documentation/rt-todo.md) file!
 
 ## Installation without building
 Latest compiled build for Half-Life 1 can be found in the [Releases](https://github.com/boofiboi/xash-rt/releases) tab.

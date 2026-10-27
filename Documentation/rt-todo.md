@@ -20,9 +20,6 @@
     - [x] Quasi Monte Carlo
     - [ ] LTC for HL1 beam particles
 
-- [x] Area lights
-    - RTGL1 currently supports point, spot and Sun lights in the gLTF scene with the crucial Area one missing
-    - Would make ceiling fluro tubes look so much better than multiple point/area lights next to each other.
 
 - [ ] Rework base HL1 campaign scenes to be up-to-date for this engine fork.
 
@@ -53,9 +50,10 @@
     - texture.json overrides?
         - Options like Roughness, Concrete etc. that dont affect the look of the material but affect how light interacts.
 
-- [ ] Release automation
+- [] Release automation
     - One click workflow that creates a release with all the required files
     - Auto fills changes with recent commits (Preferrably run through some AI to make them readable by the average Joe)
+
 - [ ] Finding a better way of estimating Quake polygon lights (Yes, **QUAKE** polygon lights, HL1 inherited those with VRAD)
     - BSP files dont contain light entity data, only the VRAD data. Genuinely 0 clue on what to do here.
     - This mainly helps with automatic gLTF scene creation when loading a map that does not have one.
