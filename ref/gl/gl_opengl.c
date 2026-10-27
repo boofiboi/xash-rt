@@ -1325,10 +1325,7 @@ static void GL_InitCommands( void )
 	
 	CVAR_DEF_T( rt_renderscale,				"0",	"[20, 100] resolution scale")
 	CVAR_DEF_T( rt_upscale_method,			"0",	"0 - off, 1 - FSR3, 2 - DLSS" )
-	CVAR_DEF_T( rt_upscale_tech,			"0",	"0 - off, 1 - FSR3, 2 - DLSS" )
 	CVAR_DEF_T( rt_upscale_quality,			"0",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
-	CVAR_DEF_T( rt_upscale_fsr3,			"0",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
-	CVAR_DEF_T( rt_upscale_dlss,			"0",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
 	CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
 
 	CVAR_DEF_T( rt_antifirefly,				"1",	"" )
@@ -1348,7 +1345,7 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( rt_tnmp_saturation_r,		"1",	"-1 desaturate, +1 over saturate" )
     CVAR_DEF_T( rt_tnmp_saturation_g,		"1",	"-1 desaturate, +1 over saturate" )
     CVAR_DEF_T( rt_tnmp_saturation_b,		"1",	"-1 desaturate, +1 over saturate" )
-    CVAR_DEF_T( rt_tnmp_crosstalk_r,		"0.75",	"set one channel to 1.0, others to <= 1.0" )
+    CVAR_DEF_T( rt_tnmp_crosstalk_r,		"1",	"set one channel to 1.0, others to <= 1.0" )
     CVAR_DEF_T( rt_tnmp_crosstalk_g,		"1",	"set one channel to 1.0, others to <= 1.0" )
     CVAR_DEF_T( rt_tnmp_crosstalk_b,		"1",	"set one channel to 1.0, others to <= 1.0" )
 
@@ -1409,7 +1406,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_me_water_density,		"1",	"water absorption density multiplier; 0 - crystal clear" )
 
 	CVAR_DEF_T( rt_bloom,					"1",	"enable bloom" )
-	CVAR_DEF_T( rt_bloom_intensity,			"0.05",	"bloom intensity" )
+	CVAR_DEF_T( rt_bloom_intensity,			"0.2",	"bloom intensity" )
 	CVAR_DEF_T( rt_bloom_threshold,			"4",	"bloom threshold" )
 	CVAR_DEF_T( rt_bloom_emis_mult,			"9",	"bloom multiplier for emissive" )
     CVAR_DEF_T( rt_bloom_dirt,				"2",	"lens dirt intensity" )
@@ -1442,10 +1439,7 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( _rt_fsr3_available,			"0",	"internal variable; for menu" )
     CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; for menu" )
     CVAR_DEF_T( rt_framegen,				"1",	"enable Frame Generation" )
-    CVAR_DEF_T( rt_upscale_fsr3_fg,			"1",	"enable Frame Generation" )
-    CVAR_DEF_T( rt_fsr3_framegen,			"1",	"enable Frame Generation" )
     CVAR_DEF_T( _rt_framegen_available,		"0",	"internal variable; for menu" )
-    CVAR_DEF_T( _rt_fsr3_framegen_available,	"0",	"internal variable; for menu" )
     CVAR_DEF_T( _rt_dlss_framegen_available,	"0",	"internal variable; for menu" )
 
 	// clang-format on
@@ -1621,9 +1615,6 @@ qboolean R_Init( void )
 				: 0.0f );
 		gEngfuncs.Cvar_SetValue(
 			"_rt_framegen_available",
-			rgUtilIsFrameGenerationAvailable( rg_instance ) ? 1.0f : 0.0f );
-		gEngfuncs.Cvar_SetValue(
-			"_rt_fsr3_framegen_available",
 			rgUtilIsFrameGenerationAvailable( rg_instance ) ? 1.0f : 0.0f );
 		gEngfuncs.Cvar_SetValue(
 			"_rt_dlss_framegen_available",
