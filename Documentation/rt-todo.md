@@ -47,6 +47,8 @@
     - PBR Estimation?
         - PBR is so old there is hundreds if not thousands of very good ways of doing this automatically (GIMP is a very good example of this, can create normal and roughness maps on even 128x128 images.)
         - Or just run a one-time algo that will do this for EVERY material in the game, this however is a lot of work requiring export of EVERY material in EVERY HL1 mod and then building all the BXT7 compressed .ktx2 files for them (100 textures took 20 minutes to bake...)
+        - A custom python script based on OpenCV worked well.
+        - laigter/OpenBump also work very well.
     - texture.json overrides?
         - Options like Roughness, Concrete etc. that dont affect the look of the material but affect how light interacts.
 
