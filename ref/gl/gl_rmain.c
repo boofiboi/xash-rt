@@ -1589,7 +1589,9 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
     }
     else if( effective_method == 2 && !dlss_ok )
     {
-        effective_method = 0;
+        method = fsr3_ok ? 1 : 0;
+        effective_method = method;
+        gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_method->name, ( float )method );
     }
 
     if( quality <= 0 )
