@@ -20,7 +20,7 @@
     - [ ] Quasi Monte Carlo
     - [ ] LTC for HL1 beam particles
 
-- [ ] Area lights
+- [x] Area lights
     - RTGL1 currently supports point, spot and Sun lights in the gLTF scene with the crucial Area one missing
     - Would make ceiling fluro tubes look so much better than multiple point/area lights next to each other.
 
