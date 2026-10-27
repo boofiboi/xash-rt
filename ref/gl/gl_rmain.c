@@ -1897,7 +1897,7 @@ void R_EndFrame( void )
 			.rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
 								RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
 			.presentPrevFrame = skipframe,
-			.currentTime      = gp_cl->time,
+			.currentTime      = gEngfuncs.pfnTime(),
 			.vsync            = RT_CVAR_TO_BOOL( rt_vsync ),
 			.pParams          = &posteffect_params,
 		};
