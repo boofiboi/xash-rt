@@ -1562,7 +1562,8 @@ qboolean R_Init( void )
 
 			.pfnPrint = PrintMessage,
 #ifdef NDEBUG
-			.allowedMessages = RG_MESSAGE_SEVERITY_WARNING | RG_MESSAGE_SEVERITY_ERROR,
+			.allowedMessages = RG_MESSAGE_SEVERITY_INFO |
+							   RG_MESSAGE_SEVERITY_WARNING | RG_MESSAGE_SEVERITY_ERROR,
 #else
 			.allowedMessages = RG_MESSAGE_SEVERITY_VERBOSE | RG_MESSAGE_SEVERITY_INFO |
 							   RG_MESSAGE_SEVERITY_WARNING | RG_MESSAGE_SEVERITY_ERROR,
@@ -1619,6 +1620,12 @@ qboolean R_Init( void )
 		gEngfuncs.Cvar_SetValue(
 			"_rt_dlss_framegen_available",
 			rgUtilIsDlssgAvailable( rg_instance ) ? 1.0f : 0.0f );
+
+		gEngfuncs.Con_Printf( "Ray tracing upscaling: FSR3=%s, DLSS=%s, FrameGen=%s, DLSS-FG=%s\n",
+			RT_CVAR_TO_BOOL( _rt_fsr3_available ) ? "available" : "unavailable",
+			RT_CVAR_TO_BOOL( _rt_dlss_available ) ? "available" : "unavailable",
+			RT_CVAR_TO_BOOL( _rt_framegen_available ) ? "available" : "unavailable",
+			RT_CVAR_TO_BOOL( _rt_dlss_framegen_available ) ? "available" : "unavailable" );
 
 		{
 			const rt_state_t nullstate = {

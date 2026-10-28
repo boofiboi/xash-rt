@@ -1582,16 +1582,32 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
         }
     }
 
+    static int prev_rejected_method = -1;
     int effective_method = method;
     if( effective_method == 1 && !fsr3_ok )
     {
         effective_method = 0;
+        if( prev_rejected_method != 1 )
+        {
+            gEngfuncs.Con_Printf( S_WARN "FSR3 upscaling is not available, disabling upscaling\n" );
+            prev_rejected_method = 1;
+        }
     }
     else if( effective_method == 2 && !dlss_ok )
     {
         method = fsr3_ok ? 1 : 0;
         effective_method = method;
+        if( prev_rejected_method != 2 )
+        {
+            gEngfuncs.Con_Printf( S_WARN "DLSS upscaling is not available on this system, reverting rt_upscale_method to %d (%s)\n",
+                                  method, method == 1 ? "FSR3" : "off" );
+            prev_rejected_method = 2;
+        }
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_method->name, ( float )method );
+    }
+    else
+    {
+        prev_rejected_method = -1;
     }
 
     if( quality <= 0 )
