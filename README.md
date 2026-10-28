@@ -7,7 +7,9 @@ Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sult
 
 ## Improvements over the original [fork](https://github.com/sultim-t/xash-rt)
 - **Completely synced to upstream (Allows for running a wider-range of mods, including Counter-Strike: 1.6)**
-- **FSR3 support (Including frame generation)**
+- **FSR3.1 support (Including frame generation)**
+	- *FSR4 coming soon™*
+- **DLSS 4.5 Upscaling + Frame Generation support**
 - **Huge performance + visual improvements.**
 - **Visual fixes compared to the original.**
 - **Improved mod support.**

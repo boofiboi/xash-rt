@@ -1,5 +1,11 @@
 # TODO list for xash-rt and RayTracedGL1, ordered by importance.
 
+
+- [ ] FSR4 Support
+    - AMD have delighted me by releasing the FSR Redstone SDK with VK support literally yesterday (As of the 29th of October 2026)
+    - Reading up proved me wrong about the INT8 upscaling and FG model being absolute ass on the older GPUs that support it.
+    - They have also provided FSR4 support for RX 6xxx series, so we can FULLY drop FSR3.1
+    
 - [x] Change the behaviour of the menu/engine when toggling between FSR3, DLSS + FG ON/OFF
     - Remove the separate rt_framegen_tech cvar and just automatically use the frame generator for the currently selected upscaler (e.g remove rt_framegen_tech cvar, keep rt_framegen cvar for toggling FG on/off)
     - Do the same with the rt_upscale_fsr3/dlss - just keep rt_upscale_tech and rt_upscale_quality
@@ -64,10 +70,6 @@
 - [ ] PBR materials for HD models
     - The Gauss Gun, Rocket Launcher, Barney model, HEV model, Revolver, MP5 and all of that do not have PBR textures and therefore dont get the same visual flair as the LD models.
 
-- [ ] FSR4 DX12 interop
-	- Only for RX 9xxx series, the FP8 WMMA model looks incredibly bad and performs like ass, better to use FSR3.1 on older GPUs
-   		- In Call Of Duty: Modern Warfare 4, FSR4 performed insanely bad on my RX 7600 (FSR3.1 Balanced - 150 FPS versus FSR4 Balanced - 50 FPS)
-	- Might also be worth it to wait for the official VK version of FSR4, might fix all the issues above.
 
 - [ ] Linux native builds
 
