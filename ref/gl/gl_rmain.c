@@ -1324,6 +1324,11 @@ void R_BeginFrame( qboolean clearScene )
     #undef TO_BOOL
     }
 
+    if( gl_vsync && ( ( gl_vsync->value != 0.0f ) != ( RT_CVAR_TO_BOOL( rt_vsync ) ) ) )
+    {
+        gEngfuncs.Cvar_Set( gl_vsync->name, RT_CVAR_TO_BOOL( rt_vsync ) ? "1" : "0" );
+    }
+
 	{
 		char mapname_storage[ 64 ] = "";
 
