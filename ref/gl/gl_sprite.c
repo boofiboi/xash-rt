@@ -328,13 +328,16 @@ static void R_DrawSpriteQuad( mspriteframe_t *frame, vec3_t org, vec3_t v_right,
 
 		uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
 
+		vec3_t checkPoint;
+		VectorMA( org, -4.0f, RI.vforward, checkPoint );
+
 		RgLensFlareUploadInfo info = {
             .vertexCount  = sizeof( verts ) / sizeof( verts[ 0 ] ),
             .pVertices    = verts,
             .indexCount   = sizeof( indices ) / sizeof( indices[ 0 ] ),
             .pIndices     = indices,
             .pTextureName = rt_state.curTexture2DName,
-            .pointToCheck = RT_VEC3( org ),
+            .pointToCheck = RT_VEC3( checkPoint ),
         };
 
         RgResult r = rgUploadLensFlare( rg_instance, &info );
@@ -587,12 +590,17 @@ void R_DrawSpriteModel( cl_entity_t *e )
 		GL_Cull( GL_NONE );
 
 #if XASH_RAYTRACING
-    if( e->curstate.rendermode == kRenderGlow )
+    qboolean is_muzzleflash = ( model && model->name && Q_stristr( model->name, "muzzleflash" ) != NULL );
+
+    if( e->curstate.rendermode == kRenderGlow || is_muzzleflash )
     {
         rt_lensflare_enable = true;
         rt_lensflare_color = rgUtilPackColorFloat4D( color[ 0 ], color[ 1 ], color[ 2 ], tr.blend );
 
-        RT_TryAddParticleLight( e );
+        if( !is_muzzleflash )
+        {
+            RT_TryAddParticleLight( e );
+        }
     }
     else
     {
