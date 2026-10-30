@@ -590,17 +590,12 @@ void R_DrawSpriteModel( cl_entity_t *e )
 		GL_Cull( GL_NONE );
 
 #if XASH_RAYTRACING
-    qboolean is_muzzleflash = ( model && model->name && Q_stristr( model->name, "muzzleflash" ) != NULL );
-
-    if( e->curstate.rendermode == kRenderGlow || is_muzzleflash )
+    if( e->curstate.rendermode == kRenderGlow )
     {
         rt_lensflare_enable = true;
         rt_lensflare_color = rgUtilPackColorFloat4D( color[ 0 ], color[ 1 ], color[ 2 ], tr.blend );
 
-        if( !is_muzzleflash )
-        {
-            RT_TryAddParticleLight( e );
-        }
+        RT_TryAddParticleLight( e );
     }
     else
     {
