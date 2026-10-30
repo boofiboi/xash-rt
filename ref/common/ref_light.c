@@ -35,7 +35,11 @@ void CL_RunLightStyles( lightstyle_t *ls )
 	if( !world )
 		return;
 
+#if !XASH_RAYTRACING
 	if( r_fullbright->value || !world->lightdata )
+#else
+	if( !world->lightdata )
+#endif
 	{
 		for( int i = 0; i < MAX_LIGHTSTYLES; i++ )
 			g_lightstylevalue[i] = 256 * 256;
