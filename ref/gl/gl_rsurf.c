@@ -1981,12 +1981,6 @@ void R_DrawBrushModel( cl_entity_t *e )
 	{
 		return;
 	}
-
-	if( RT_IsCullingActive() && RT_CVAR_TO_BOOL( rt_cull_entities ) &&
-		!gEngfuncs.Mod_BoxVisible( mins, maxs, Mod_GetCurrentVis() ))
-	{
-		return;
-	}
 #endif
 
 	memset( gl_lms.lightmap_surfaces, 0, sizeof( gl_lms.lightmap_surfaces ));

@@ -1427,9 +1427,9 @@ static void GL_InitCommands( void )
 	
 	CVAR_DEF_T( rt_forcecvars,				"1",	"force original cvars to be set to be compatible with RT mode: disable culling, no lightmaps" )
 
-	CVAR_DEF_T( rt_cull,					"1",	"enable PVS-based culling in RT mode" )
+	CVAR_DEF_T( rt_cull,					"0",	"enable PVS-based culling in RT mode" )
 	CVAR_DEF_T( rt_pvs_radius,				"768",	"radius for fattened PVS in RT mode (qu units)" )
-	CVAR_DEF_T( rt_cull_entities,			"1",	"also cull studio models and brush entities by PVS" )
+	CVAR_DEF_T( rt_cull_entities,			"0",	"also cull studio models and brush entities by PVS" )
 
 	CVAR_DEF_T( _rt_chapter,				"",		"chapter logo name; checking folder: rt/mat/resource/ch/" )
 	CVAR_DEF_T( _rt_chaptershow,			"0",	"show chapter logo" )
