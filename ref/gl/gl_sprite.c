@@ -366,10 +366,10 @@ static void R_DrawSpriteQuad( mspriteframe_t *frame, vec3_t org, vec3_t v_right,
 		VectorMA( org, frame->down * scale, v_up, point );
 		VectorMA( point, frame->right * scale, v_right, point );
 		pglVertex3fv( point );
-#if XASH_RAYTRACING
-		rt_state.curIsRasterized = false;
-#endif
 	pglEnd();
+#if XASH_RAYTRACING
+	rt_state.curIsRasterized = false;
+#endif
 }
 
 static qboolean R_SpriteHasLightmap( cl_entity_t *e, int texFormat )
@@ -452,6 +452,13 @@ void R_DrawSpriteModel( cl_entity_t *e )
 			else VectorCopy( parent->origin, origin );
 		}
 	}
+
+#if XASH_RAYTRACING
+	if( model && model->name && Q_stristr( model->name, "muzzleflash" ) != NULL )
+	{
+		VectorMA( origin, -4.0f, RI.vforward, origin );
+	}
+#endif
 
 	float scale = e->curstate.scale;
 	if( !scale ) scale = 1.0f;
