@@ -1542,17 +1542,16 @@ static void ResolutionToRtgl( RgDrawFrameRenderResolutionParams* dst,
     dst->pPixelizedRenderSize = NULL;
 }
 
-static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar()
+static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar( void )
 {
     int vintage = RT_CVAR_TO_INT32( rt_ef_vintage );
-    float val   = RT_CVAR_TO_FLOAT( rt_sharpen );
-    int t       = ( int )val;
+    int t       = RT_CVAR_TO_INT32( rt_sharpen );
 
-    if( t == 3 )
+    if( t == 1 )
     {
         return RG_RENDER_SHARPEN_TECHNIQUE_NAIVE;
     }
-    if( val > 0.0f )
+    if( t >= 2 )
     {
         return RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
     }
