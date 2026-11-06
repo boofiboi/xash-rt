@@ -1545,20 +1545,23 @@ static void ResolutionToRtgl( RgDrawFrameRenderResolutionParams* dst,
 static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar()
 {
     int vintage = RT_CVAR_TO_INT32( rt_ef_vintage );
-    int t       = RT_CVAR_TO_INT32( rt_sharpen );
+    float val   = RT_CVAR_TO_FLOAT( rt_sharpen );
+    int t       = ( int )val;
 
-    switch( t )
+    if( t == 3 )
     {
-        case 2: return RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
-        case 1: return RG_RENDER_SHARPEN_TECHNIQUE_NAIVE;
-        default:
-            // to accentuate a chunky look, because of the linear (not nearest) downscale mode
-            if( vintage == RT_VINTAGE_200 || vintage == RT_VINTAGE_480 )
-            {
-                return RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
-            }
-            return RG_RENDER_SHARPEN_TECHNIQUE_NONE;
+        return RG_RENDER_SHARPEN_TECHNIQUE_NAIVE;
     }
+    if( val > 0.0f )
+    {
+        return RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
+    }
+
+    if( vintage == RT_VINTAGE_200 || vintage == RT_VINTAGE_480 )
+    {
+        return RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
+    }
+    return RG_RENDER_SHARPEN_TECHNIQUE_NONE;
 }
 
 static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
@@ -1651,18 +1654,17 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
     if( effective_method == 1 )
     {
         pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
-        pDst->sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
     }
     else if( effective_method == 2 )
     {
         pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS;
-        pDst->sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_NONE;
     }
     else
     {
         pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_NEAREST;
-        pDst->sharpenTechnique = GetSharpenTechniqueFromCvar();
     }
+
+    pDst->sharpenTechnique = GetSharpenTechniqueFromCvar();
 
     if( effective_method > 0 )
     {
