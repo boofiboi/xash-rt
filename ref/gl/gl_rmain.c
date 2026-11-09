@@ -1575,7 +1575,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 
     gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr3_ok ? "1" : "0" );
     gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_available->name, dlss_ok ? "1" : "0" );
-    gEngfuncs.Cvar_Set( rt_cvars._rt_framegen_available->name, fg_ok ? "1" : "0" );
+    gEngfuncs.Cvar_Set( rt_cvars._rt_framegen_available->name, fsr3_ok ? "1" : "0" );
     gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_framegen_available->name, dlss_fg_ok ? "1" : "0" );
 
     int method = RT_CVAR_TO_INT32( rt_upscale_method );
@@ -1649,6 +1649,21 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 
     prev_upscale_active = upscale_active;
     prev_vintage = vintage;
+
+    static int prev_fg_warn = -1;
+    int fg_wanted = ( rt_cvars.rt_framegen && RT_CVAR_TO_INT32( rt_framegen ) > 0 );
+    if( fg_wanted && !fg_ok && effective_method != 2 )
+    {
+        if( prev_fg_warn != 1 )
+        {
+            gEngfuncs.Con_Printf( S_NOTE "Enabling frame generation requires vid_restart\n" );
+            prev_fg_warn = 1;
+        }
+    }
+    else
+    {
+        prev_fg_warn = fg_wanted ? 1 : 0;
+    }
 
     if( effective_method == 1 )
     {
@@ -1750,6 +1765,9 @@ void R_EndFrame( void )
 				rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL,
 			.lightstyleValuesCount = RT_ARRAYSIZE( lightstyles ),
 			.pLightstyleValues     = lightstyles,
+			.denoiserMode          = ( rt_cvars.rt_denoiser && RT_CVAR_TO_INT32( rt_denoiser ) == 1 )
+                                ? RG_DENOISER_MODE_RELAX
+                                : RG_DENOISER_MODE_REBLUR,
 		};
 
 		RgDrawFrameTonemappingParams tnmp_params = {

@@ -915,6 +915,7 @@ typedef struct rt_cvars_t
 		rt_sharpen,
 
         rt_antifirefly,
+        rt_denoiser,
         rt_shadowrays,
 		rt_indir2bounces,
 		

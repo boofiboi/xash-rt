@@ -1329,6 +1329,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
 
 	CVAR_DEF_T( rt_antifirefly,				"1",	"" )
+	CVAR_DEF_T( rt_denoiser,				"0",	"0 - ReBLUR, 1 - RELAX" )
     CVAR_DEF_T( rt_shadowrays,				"2",	"max depth of shadow ray casts" )
 	CVAR_DEF_T( rt_indir2bounces,			"1",	"2 bounces for indirect" )
 
@@ -1595,7 +1596,7 @@ qboolean R_Init( void )
 			.worldForward = { 0, 1, 0 },
 			.worldScale   = QUAKEUNIT_IN_METERS,
 
-			.enableFrameGeneration = true,
+			.enableFrameGeneration = ( rt_cvars.rt_framegen && RT_CVAR_TO_INT32( rt_framegen ) > 0 ),
 		};
 
 		RgResult r = rgCreateInstance( &info, &rg_instance );
@@ -1616,7 +1617,9 @@ qboolean R_Init( void )
 				: 0.0f );
 		gEngfuncs.Cvar_SetValue(
 			"_rt_framegen_available",
-			rgUtilIsFrameGenerationAvailable( rg_instance ) ? 1.0f : 0.0f );
+			rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 )
+				? 1.0f
+				: 0.0f );
 		gEngfuncs.Cvar_SetValue(
 			"_rt_dlss_framegen_available",
 			rgUtilIsDlssgAvailable( rg_instance ) ? 1.0f : 0.0f );
@@ -2879,8 +2882,12 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 	else if( curtype == RT_BATCH_TYPE_RASTER )
 	{
 		RgMeshInfo mesh = {
-			.uniqueObjectID = UINT32_MAX,
-			.pMeshName      = NULL,
+			.uniqueObjectID = ( RI.currententity && RI.currententity->index > 0 )
+                                ? ( uint32_t )RI.currententity->index
+                                : ( RI.currententity ? MakeTempEntityIndex( RI.currententity ) : UINT32_MAX ),
+			.pMeshName      = ( RI.currentmodel && RI.currentmodel->name )
+                                ? RI.currentmodel->name
+                                : NULL,
 			.transform      = RG_TRANSFORM_IDENTITY,
 			.isExportable   = false,
 			.animationName  = NULL,
