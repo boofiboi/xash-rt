@@ -370,7 +370,11 @@ void FS_Init( void )
 
 		if( len && ( rootdir[len - 1] == '/' || rootdir[len - 1] == '\\' ))
 			rootdir[len - 1] = 0;
-		Q_strncat( rootdir, XASH_WIN32 ? "\\.." : "/..", sizeof( rootdir ));
+#if XASH_WIN32
+		Q_strncat( rootdir, "\\..", sizeof( rootdir ));
+#else
+		Q_strncat( rootdir, "/..", sizeof( rootdir ));
+#endif
 	}
 #else
 	COM_StripDirectorySlash( rootdir );

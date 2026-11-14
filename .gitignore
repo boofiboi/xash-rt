@@ -103,6 +103,7 @@ ipch/
 x64/
 x86/
 build/
+build_linux/
 bld/
 [Bb]in/
 [Oo]bj/

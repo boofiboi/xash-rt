@@ -305,7 +305,7 @@ void Platform_SetCursorType( VGUI_DefaultCursor type )
 			in_visible_cursor_pos.pushed = true;
 		}
 
-		SDL_ShowCursor( false );
+		SDL_ShowCursor( host.status == HOST_NOFOCUS );
 	}
 }
 

@@ -96,7 +96,7 @@ def configure(conf):
 	LINKFLAGS     = 'LINKFLAGS_' + libname
 
 	sdl_path = conf.options.SDL_PATH
-	if not sdl_path:
+	if not sdl_path and conf.env.DEST_OS == 'win32':
 		local_sdl = os.path.abspath(os.path.join(conf.srcnode.abspath(), 'SDL2_VC'))
 		if not os.path.isdir(local_sdl) and os.name == 'nt' and not conf.options.SDL3:
 			import urllib.request, zipfile, io, shutil

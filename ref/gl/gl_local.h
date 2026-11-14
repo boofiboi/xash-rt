@@ -830,8 +830,28 @@ extern convar_t r_scene_scale;
 
 #if XASH_RAYTRACING
 #include <assert.h>
+#if XASH_WIN32
 #define RG_USE_SURFACE_WIN32
+#elif XASH_LINUX
+#define RG_USE_SURFACE_WAYLAND
+#define RG_USE_SURFACE_XLIB
+#endif
 #include <RTGL1/RTGL1.h>
+#ifdef None
+#undef None
+#endif
+#ifdef True
+#undef True
+#endif
+#ifdef False
+#undef False
+#endif
+#ifdef Status
+#undef Status
+#endif
+#ifdef Bool
+#undef Bool
+#endif
 
 extern RgInstance rg_instance;
 #define RG_CHECK( x )									\

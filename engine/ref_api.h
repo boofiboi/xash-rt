@@ -183,6 +183,10 @@ typedef struct ref_globals_s
 	int desktopBitsPixel;
 
 	void* rtglHwnd;
+	ref_window_type_t rtglSurfaceType;
+	void* rtglDisplay;
+	unsigned long rtglX11Window;
+	void* rtglWaylandSurface;
 
 	// scaling factor of physical window size compared to logical
 	float scale_x;

@@ -1363,6 +1363,10 @@ void R_BeginFrame( qboolean clearScene )
 		RgStartFrameInfo info = {
 			.pMapName               = mapname,
 			.ignoreExternalGeometry = false,
+			.surfaceSize            = {
+				.width  = gpGlobals->width > 0 ? ( uint32_t )gpGlobals->width : 0,
+				.height = gpGlobals->height > 0 ? ( uint32_t )gpGlobals->height : 0,
+			},
 		};
 
 		RgResult r = rgStartFrame( rg_instance, &info );
@@ -1575,7 +1579,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 
     gEngfuncs.Cvar_Set( rt_cvars._rt_fsr3_available->name, fsr3_ok ? "1" : "0" );
     gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_available->name, dlss_ok ? "1" : "0" );
-    gEngfuncs.Cvar_Set( rt_cvars._rt_framegen_available->name, fsr3_ok ? "1" : "0" );
+    gEngfuncs.Cvar_Set( rt_cvars._rt_framegen_available->name, fg_ok ? "1" : "0" );
     gEngfuncs.Cvar_Set( rt_cvars._rt_dlss_framegen_available->name, dlss_fg_ok ? "1" : "0" );
 
     int method = RT_CVAR_TO_INT32( rt_upscale_method );

@@ -44,6 +44,8 @@ def build(bld):
 			from waflib.Tools import rtgl1
 			rtgl1_sdk = rtgl1.get_rtgl1_sdk(bld)
 		includes.append(os.path.join(rtgl1_sdk, 'Include'))
+		if bld.env.DEST_OS != 'win32':
+			libpath.append(os.path.join(rtgl1_sdk, 'Build', 'linux-x64-Release'))
 		libpath.extend([
 			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release'),
 			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RelWithDebInfo'),
@@ -56,22 +58,29 @@ def build(bld):
 			os.path.join(rtgl1_sdk, 'Build', 'Debug'),
 			os.path.join(rtgl1_sdk, 'Build', 'x64-Release-NonAVX', 'Release'),
 		])
-		extra_libs.extend(['RayTracedGL1', 'opengl32', 'user32', 'gdi32'])
+		if bld.env.DEST_OS == 'win32':
+			extra_libs.extend(['RayTracedGL1', 'opengl32', 'user32', 'gdi32'])
+		else:
+			extra_libs.extend(['RayTracedGL1', 'dl', 'pthread'])
 		extra_defines.extend(['XASH_RAYTRACING=1', 'XASH_GL_STATIC=1'])
 
 		def copy_rtgl1_dll(bld_ctx):
 			import shutil
+			rt_name = 'RayTracedGL1.dll' if bld_ctx.env.DEST_OS == 'win32' else 'libRayTracedGL1.so'
+			ffx_name = 'amd_fidelityfx_vk.dll' if bld_ctx.env.DEST_OS == 'win32' else 'libamd_fidelityfx_vk.so'
 			candidates = [
-				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', 'RayTracedGL1.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RelWithDebInfo', 'RayTracedGL1.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RayTracedGL1.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'Release', 'Release', 'RayTracedGL1.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'Release', 'RayTracedGL1.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'Debug', 'RayTracedGL1.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'RayTracedGL1.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'Debug', 'Debug', 'RayTracedGL1.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'Debug', 'RayTracedGL1.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', rt_name),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RelWithDebInfo', rt_name),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', rt_name),
+				os.path.join(rtgl1_sdk, 'Build', 'Release', 'Release', rt_name),
+				os.path.join(rtgl1_sdk, 'Build', 'Release', rt_name),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'Debug', rt_name),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', rt_name),
+				os.path.join(rtgl1_sdk, 'Build', 'Debug', 'Debug', rt_name),
+				os.path.join(rtgl1_sdk, 'Build', 'Debug', rt_name),
 			]
+			if bld_ctx.env.DEST_OS != 'win32':
+				candidates.insert(0, os.path.join(rtgl1_sdk, 'Build', 'linux-x64-Release', rt_name))
 			src_dll = None
 			for c in candidates:
 				if os.path.exists(c):
@@ -80,9 +89,9 @@ def build(bld):
 			if src_dll:
 				dst = bld_ctx.bldnode.abspath()
 				shutil.copy(src_dll, dst)
-				src_ffx = os.path.join(rtgl1_sdk, 'bin', 'amd_fidelityfx_vk.dll')
+				src_ffx = os.path.join(rtgl1_sdk, 'bin', ffx_name)
 				if not os.path.exists(src_ffx):
-					src_ffx = os.path.join(os.path.dirname(src_dll), 'amd_fidelityfx_vk.dll')
+					src_ffx = os.path.join(os.path.dirname(src_dll), ffx_name)
 				if os.path.exists(src_ffx):
 					shutil.copy(src_ffx, dst)
 
@@ -128,4 +137,5 @@ def build(bld):
 			lib = v['libs'],
 			use = libs,
 			defines = v['defines'] + ['REF_DLL=1'],
+			rpath = bld.env.DEFAULT_RPATH,
 			install_path = bld.env.LIBDIR)

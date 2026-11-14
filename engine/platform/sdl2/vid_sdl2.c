@@ -537,23 +537,9 @@ static qboolean VID_GetDisplayBounds( int display_index, SDL_Window *hWnd, SDL_R
 static rserr_t VID_SetScreenResolution( int width, int height, window_mode_t window_mode, window_mode_t prev_window_mode )
 {
 #if XASH_RAYTRACING
-	// never change screen resolution
-	if( window_mode != WINDOW_MODE_WINDOWED )
-	{
-		SDL_DisplayMode displayMode;
-		if( SDL_GetDesktopDisplayMode( VID_GetDisplayIndex( __func__, host.hWnd ), &displayMode ) >= 0 )
-		{
-			SDL_SetWindowBordered( host.hWnd, SDL_FALSE );
-			SDL_SetWindowSize( host.hWnd, displayMode.w, displayMode.h );
-		}
-
-		SDL_SetWindowPosition( host.hWnd, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
-		SDL_SetWindowGrab( host.hWnd, SDL_TRUE );
-	}
-
-	VID_SaveWindowSize( width, height );
-	return rserr_ok;
-#else
+	if( window_mode == WINDOW_MODE_FULLSCREEN )
+		window_mode = WINDOW_MODE_BORDERLESS;
+#endif
 	const int display_index = VID_GetDisplayIndex( __func__, host.hWnd );
 	int out_width, out_height;
 
@@ -657,7 +643,6 @@ static rserr_t VID_SetScreenResolution( int width, int height, window_mode_t win
 	VID_SetWindowIcon( host.hWnd );
 
 	return rserr_ok;
-#endif
 }
 
 void VID_RestoreScreenResolution( window_mode_t window_mode )
@@ -780,10 +765,30 @@ static rserr_t VID_CreateWindow( const int input_width, const int input_height, 
 	{
 		SDL_SysWMinfo wmInfo;
 		SDL_VERSION( &wmInfo.version );
-		SDL_GetWindowWMInfo( host.hWnd, &wmInfo );
-		HWND hwnd = wmInfo.info.win.window;
-
-		refState.rtglHwnd = hwnd;
+		if( SDL_GetWindowWMInfo( host.hWnd, &wmInfo ))
+		{
+#if XASH_WIN32
+			refState.rtglSurfaceType = REF_WINDOW_TYPE_WIN32;
+			refState.rtglHwnd = wmInfo.info.win.window;
+#else
+#ifdef SDL_VIDEO_DRIVER_WAYLAND
+			if( wmInfo.subsystem == SDL_SYSWM_WAYLAND )
+			{
+				refState.rtglSurfaceType = REF_WINDOW_TYPE_WAYLAND;
+				refState.rtglDisplay = wmInfo.info.wl.display;
+				refState.rtglWaylandSurface = wmInfo.info.wl.surface;
+			}
+#endif
+#ifdef SDL_VIDEO_DRIVER_X11
+			if( wmInfo.subsystem == SDL_SYSWM_X11 )
+			{
+				refState.rtglSurfaceType = REF_WINDOW_TYPE_X11;
+				refState.rtglDisplay = wmInfo.info.x11.display;
+				refState.rtglX11Window = (unsigned long)wmInfo.info.x11.window;
+			}
+#endif
+#endif
+		}
 	}
 #endif
 

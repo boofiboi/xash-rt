@@ -1548,16 +1548,32 @@ qboolean R_Init( void )
 
 #if XASH_RAYTRACING
 	{
+#if XASH_WIN32
 		RgWin32SurfaceCreateInfo win32Info = {
 			.hinstance = GetModuleHandle( NULL ),
 			.hwnd      = gpGlobals->rtglHwnd,
 		};
+#elif XASH_LINUX
+		RgWaylandSurfaceCreateInfo waylandInfo = {
+			.display = gpGlobals->rtglDisplay,
+			.surface = gpGlobals->rtglWaylandSurface,
+		};
+		RgXlibSurfaceCreateInfo xlibInfo = {
+			.dpy    = gpGlobals->rtglDisplay,
+			.window = (Window)gpGlobals->rtglX11Window,
+		};
+#endif
 
 		RgInstanceCreateInfo info = {
 			.pAppName = "Xash",
 			.pAppGUID = "986af412-bab4-4e44-a603-bfaf49e7ef4d",
 
+#if XASH_WIN32
 			.pWin32SurfaceInfo = &win32Info,
+#elif XASH_LINUX
+			.pWaylandSurfaceCreateInfo = gpGlobals->rtglSurfaceType == REF_WINDOW_TYPE_WAYLAND ? &waylandInfo : NULL,
+			.pXlibSurfaceCreateInfo    = gpGlobals->rtglSurfaceType == REF_WINDOW_TYPE_X11     ? &xlibInfo    : NULL,
+#endif
 
 			.pOverrideFolderPath = "rt/",
 
@@ -1617,9 +1633,7 @@ qboolean R_Init( void )
 				: 0.0f );
 		gEngfuncs.Cvar_SetValue(
 			"_rt_framegen_available",
-			rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 )
-				? 1.0f
-				: 0.0f );
+			rgUtilIsFrameGenerationAvailable( rg_instance ) ? 1.0f : 0.0f );
 		gEngfuncs.Cvar_SetValue(
 			"_rt_dlss_framegen_available",
 			rgUtilIsDlssgAvailable( rg_instance ) ? 1.0f : 0.0f );
@@ -3170,10 +3184,9 @@ void pglLoadIdentity( void )
 {
 	if( rt_matrix_mode == GL_PROJECTION )
 	{
-		Matrix4x4_LoadIdentity( rt_2dstate.view_projection );
-		rt_2dstate_changed = true;
-
 		Matrix4x4_LoadIdentity( rt_matrix_proj );
+		Matrix4x4_ToArrayFloatGL( rt_matrix_proj, rt_2dstate.view_projection );
+		rt_2dstate_changed = true;
 	}
 }
 

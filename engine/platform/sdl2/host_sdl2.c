@@ -245,19 +245,22 @@ static void SDLash_ActiveEvent( int gain )
 		if( cls.key_dest == key_game )
 			IN_ActivateMouse( );
 
+		if( !host.mouse_visible && !m_ignore.value && !Touch_WantVisibleCursor( ))
+			SDL_ShowCursor( SDL_FALSE );
+
 		host.force_draw_version_time = host.realtime + FORCE_DRAW_VERSION_TIME;
+#if !XASH_RAYTRACING
 		if( vid_fullscreen.value == WINDOW_MODE_FULLSCREEN )
 			VID_SetMode();
+#endif
 	}
 	else
 	{
 		host.status = HOST_NOFOCUS;
 
-		if( cls.key_dest == key_game )
-		{
-			Key_ClearStates();
-			IN_DeactivateMouse();
-		}
+		Key_ClearStates();
+		IN_DeactivateMouse();
+		SDL_ShowCursor( SDL_TRUE );
 
 		host.force_draw_version_time = host.realtime + 2.0;
 		VID_RestoreScreenResolution( (window_mode_t)vid_fullscreen.value );
@@ -399,8 +402,10 @@ static void SDLash_EventHandler( SDL_Event *event )
 			host.status = HOST_FRAME;
 			host.force_draw_version_time = host.realtime + FORCE_DRAW_VERSION_TIME;
 			Cvar_DirectSet( &vid_maximized, "0" );
+#if !XASH_RAYTRACING
 			if( vid_fullscreen.value == WINDOW_MODE_FULLSCREEN )
 				VID_SetMode();
+#endif
 			break;
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 			SDLash_ActiveEvent( true );

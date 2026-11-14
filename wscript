@@ -698,18 +698,23 @@ def build(bld):
 			from waflib.Tools import rtgl1
 			rtgl1_sdk = rtgl1.get_rtgl1_sdk(bld)
 
+		rt_name = 'RayTracedGL1.dll' if bld.env.DEST_OS == 'win32' else 'libRayTracedGL1.so'
+		nri_name = 'NRI.dll' if bld.env.DEST_OS == 'win32' else 'libNRI.so'
+		ffx_name = 'amd_fidelityfx_vk.dll' if bld.env.DEST_OS == 'win32' else 'libamd_fidelityfx_vk.so'
 		rtgl1_dll_candidates = [
-			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', 'RayTracedGL1.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RelWithDebInfo', 'RayTracedGL1.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RayTracedGL1.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'Release', 'Release', 'RayTracedGL1.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'Release', 'RayTracedGL1.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'Debug', 'RayTracedGL1.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'RayTracedGL1.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'Debug', 'Debug', 'RayTracedGL1.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'Debug', 'RayTracedGL1.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'x64-Release-NonAVX', 'Release', 'RayTracedGL1.dll'),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', rt_name),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'RelWithDebInfo', rt_name),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', rt_name),
+			os.path.join(rtgl1_sdk, 'Build', 'Release', 'Release', rt_name),
+			os.path.join(rtgl1_sdk, 'Build', 'Release', rt_name),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', 'Debug', rt_name),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', rt_name),
+			os.path.join(rtgl1_sdk, 'Build', 'Debug', 'Debug', rt_name),
+			os.path.join(rtgl1_sdk, 'Build', 'Debug', rt_name),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release-NonAVX', 'Release', rt_name),
 		]
+		if bld.env.DEST_OS != 'win32':
+			rtgl1_dll_candidates.insert(0, os.path.join(rtgl1_sdk, 'Build', 'linux-x64-Release', rt_name))
 		rtgl1_dll = None
 		for c in rtgl1_dll_candidates:
 			if os.path.exists(c):
@@ -720,47 +725,51 @@ def build(bld):
 		if rtgl1_dll:
 			extra_rt_files.append(rtgl1_dll)
 			rt_dir = os.path.dirname(rtgl1_dll)
-			for extra_name in ['NRI.dll']:
+			side_names = [nri_name] if bld.env.DEST_OS == 'win32' else [nri_name, 'libnvidia-ngx-dlss.so.310.9.16', 'libnvidia-ngx-dlssd.so.310.9.16', 'libnvidia-ngx-dlssg.so.310.9.16']
+			for extra_name in side_names:
 				p = os.path.join(rt_dir, extra_name)
 				if os.path.exists(p) and p not in extra_rt_files:
 					extra_rt_files.append(p)
 
 		ffx_candidates = [
-			os.path.join(rtgl1_sdk, 'bin', 'amd_fidelityfx_vk.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', 'amd_fidelityfx_vk.dll'),
-			os.path.join(rtgl1_sdk, 'Build', 'Release', 'amd_fidelityfx_vk.dll'),
+			os.path.join(rtgl1_sdk, 'bin', ffx_name),
+			os.path.join(rtgl1_sdk, 'Build', 'linux-x64-Release', ffx_name),
+			os.path.join(rtgl1_sdk, 'Build', 'x64-Release', 'Release', ffx_name),
+			os.path.join(rtgl1_sdk, 'Build', 'Release', ffx_name),
 		]
 		for c in ffx_candidates:
 			if os.path.exists(c):
 				extra_rt_files.append(c)
 				break
 
-		if not any(f.endswith('NRI.dll') for f in extra_rt_files):
+		if not any(f.endswith(nri_name) for f in extra_rt_files):
 			nri_candidates = [
-				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', '_deps', 'nri-build', 'Release', 'NRI.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', '_deps', 'nri-build', 'RelWithDebInfo', 'NRI.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', '_deps', 'nri-build', 'Debug', 'NRI.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'Release', '_deps', 'nri-build', 'Release', 'NRI.dll'),
-				os.path.join(rtgl1_sdk, 'Build', 'Debug', '_deps', 'nri-build', 'Debug', 'NRI.dll'),
+				os.path.join(rtgl1_sdk, 'Build', 'linux-x64-Release', '_deps', 'nri-build', nri_name),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', '_deps', 'nri-build', 'Release', nri_name),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Release', '_deps', 'nri-build', 'RelWithDebInfo', nri_name),
+				os.path.join(rtgl1_sdk, 'Build', 'x64-Debug', '_deps', 'nri-build', 'Debug', nri_name),
+				os.path.join(rtgl1_sdk, 'Build', 'Release', '_deps', 'nri-build', 'Release', nri_name),
+				os.path.join(rtgl1_sdk, 'Build', 'Debug', '_deps', 'nri-build', 'Debug', nri_name),
 			]
 			for c in nri_candidates:
 				if os.path.exists(c):
 					extra_rt_files.append(c)
 					break
 
-		if bld.env.LIBPATH_SDL2:
-			for lp in bld.env.LIBPATH_SDL2:
-				sdl_dll = os.path.join(lp, 'SDL2.dll')
-				if os.path.exists(sdl_dll):
-					extra_rt_files.append(sdl_dll)
-					break
-		if not any(f.endswith('SDL2.dll') for f in extra_rt_files):
-			sdl_path = getattr(bld.env, 'SDL_PATH', None) or os.path.abspath(os.path.join(bld.srcnode.abspath(), 'SDL2_VC'))
-			for sub in ['lib/x64/SDL2.dll', 'lib/x86/SDL2.dll', 'lib/SDL2.dll']:
-				p = os.path.join(sdl_path, sub)
-				if os.path.exists(p):
-					extra_rt_files.append(p)
-					break
+		if bld.env.DEST_OS == 'win32':
+			if bld.env.LIBPATH_SDL2:
+				for lp in bld.env.LIBPATH_SDL2:
+					sdl_dll = os.path.join(lp, 'SDL2.dll')
+					if os.path.exists(sdl_dll):
+						extra_rt_files.append(sdl_dll)
+						break
+			if not any(f.endswith('SDL2.dll') for f in extra_rt_files):
+				sdl_path = getattr(bld.env, 'SDL_PATH', None) or os.path.abspath(os.path.join(bld.srcnode.abspath(), 'SDL2_VC'))
+				for sub in ['lib/x64/SDL2.dll', 'lib/x86/SDL2.dll', 'lib/SDL2.dll']:
+					p = os.path.join(sdl_path, sub)
+					if os.path.exists(p):
+						extra_rt_files.append(p)
+						break
 
 		extra_nodes = []
 		for p in extra_rt_files:
