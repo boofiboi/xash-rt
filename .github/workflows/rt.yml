@@ -144,7 +144,7 @@ jobs:
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev pkg-config ninja-build libwayland-dev libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+          sudo apt-get install -y libsdl2-dev pkg-config ninja-build libwayland-dev libwayland-bin libxkbcommon-dev libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
 
       - name: Install Vulkan SDK
         uses: jakoch/install-vulkan-sdk-action@v1.7.0
