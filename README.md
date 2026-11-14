@@ -31,7 +31,17 @@ If there were commits to the repository after a release has been released (Visib
 
 ## Building & Installing
 
-### These are outdated asf, just get the latest artifact produced by GH runners.
+The repository's GitHub Actions workflow builds both Windows x64 and Linux x64
+ray-tracing packages. For most users, download the latest package from the
+[Actions artifacts](https://github.com/boofiboi/xash-rt/actions/workflows/rt.yml)
+or the [Releases](https://github.com/boofiboi/xash-rt/releases) page instead of
+building locally.
+
+The commands below describe a local Windows build. Waf will use
+`RTGL1_SDK_PATH` when it is set; otherwise, the ray-tracing build automatically
+clones and builds the `hl1` branch of
+[RayTracedGL1](https://github.com/boofiboi/RayTracedGL1).
+
 #### Requirements:
 
     git
@@ -47,7 +57,7 @@ These are assuming you are running Windows, have a Visual Studio install with C+
 	- Download and install the *Vulkan SDK* from [here](https://vulkan.lunarg.com/) (Make sure to also tick `Add to PATH`)
 	-  Download and install *Python* from [here](https://www.python.org/downloads/) (Make sure to tick `Add to PATH` during installation)
 	-  Download and install *Visual Studio 2026* from [here](https://visualstudio.microsoft.com/downloads/) (Get the community version, after installing VS, install the `Desktop development package with C++` package
-2. **Compile RTGL1**
+2. **Optional: compile RTGL1 manually**
 	-  Open a `Developer Command Prompt for VS`
 	-  Run the following commands:
 	```
@@ -74,11 +84,11 @@ These are assuming you are running Windows, have a Visual Studio install with C+
 	-  You should now have `RayTracedGL1.dll, amd_fidelityfx_vk.dll, NRI.dll` in the `build\x64-Release\Release` folder and a bunch of `.comp.spv` files in `build/x64-Release/shaders` folder.
 	- Leave them be, these will be automatically handled by the next steps.
 
-3. **Set the `RTGL1_SDK_PATH` environment variable to point to the repository we cloned earlier**
+3. **Optional: set `RTGL1_SDK_PATH`**
 	-  Open the start menu and search for `Edit the system environment variables`
 	-  A menu will open, click the `Environment Variables` button
 	-  Press `New` under the `System Variables` entries
-	-  Set `Variable name` to `RTGL1_SDK_PATH`
+	- Set `Variable name` to `RTGL1_SDK_PATH`
 	-  Set `Variable value` to where you cloned the repo (e.g: `C:\RayTracedGL1`)
 4. **Compile xash-rt**
 	- Open a regular command prompt window (**Xash-RT does not compile in a VS cmd prompt**)
