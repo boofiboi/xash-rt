@@ -119,6 +119,7 @@ def run_mod(exe_path, game_dir, mod_name, cases, out_dir):
     try:
         cmd = [
             exe_path,
+            "-nowriteconfig",
             "-windowed",
             "-width", "1280",
             "-height", "720",

@@ -1328,7 +1328,6 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_upscale_quality,			"0",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
 	CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
 
-	CVAR_DEF_T( rt_antifirefly,				"1",	"" )
 	CVAR_DEF_T( rt_denoiser,				"0",	"0 - ReBLUR, 1 - RELAX" )
     CVAR_DEF_T( rt_shadowrays,				"2",	"max depth of shadow ray casts" )
 	CVAR_DEF_T( rt_indir2bounces,			"1",	"2 bounces for indirect" )
@@ -1430,7 +1429,6 @@ static void GL_InitCommands( void )
 
 	CVAR_DEF_T( rt_cull,					"0",	"enable PVS-based culling in RT mode" )
 	CVAR_DEF_T( rt_pvs_radius,				"768",	"radius for fattened PVS in RT mode (qu units)" )
-	CVAR_DEF_T( rt_cull_entities,			"0",	"also cull studio models and brush entities by PVS" )
 
 	CVAR_DEF_T( _rt_chapter,				"",		"chapter logo name; checking folder: rt/mat/resource/ch/" )
 	CVAR_DEF_T( _rt_chaptershow,			"0",	"show chapter logo" )

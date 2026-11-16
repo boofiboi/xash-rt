@@ -934,7 +934,6 @@ typedef struct rt_cvars_t
 		rt_upscale_quality,
 		rt_sharpen,
 
-        rt_antifirefly,
         rt_denoiser,
         rt_shadowrays,
 		rt_indir2bounces,
@@ -1039,7 +1038,6 @@ typedef struct rt_cvars_t
 
 		rt_cull,
 		rt_pvs_radius,
-		rt_cull_entities,
 
 		_rt_chapter,
 		_rt_chaptershow,
