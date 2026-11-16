@@ -578,7 +578,7 @@ static void CL_RemoveCustomization( int nPlayerNum, customization_t *pRemove )
 		{
 			if( pList->resource.type == t_decal )
 			{
-				if( cls.state == ca_active )
+				if( cls.state == ca_active && pList->nUserData1 )
 					ref.dllFuncs.R_DecalRemoveAll( pList->nUserData1 );
 				FS_FreeImage( pList->pInfo );
 			}
@@ -2426,12 +2426,6 @@ qboolean CL_ParseCommonHLMessage( sizebuf_t *msg, connprotocol_t proto, int svc_
 			size_t len = Q_strlen( s );
 			Con_Printf( "Stufftext: %s%c", s, len && s[len-1] == '\n' ? '\0' : '\n' );
 		}
-
-#ifdef HACKS_RELATED_HLMODS
-		// disable Cry Of Fear antisave protection
-		if( !Q_strnicmp( s, "disconnect", 10 ) && cls.signon != SIGNONS )
-			break; // too early
-#endif
 
 		Cbuf_AddFilteredText( s );
 		break;

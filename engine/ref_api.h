@@ -150,6 +150,7 @@ typedef enum ref_window_type_e
 	REF_WINDOW_TYPE_MACOS, // NSWindow*
 	REF_WINDOW_TYPE_SDL2, // SDL2 SDL_Window*
 	REF_WINDOW_TYPE_SDL3, // SDL3 SDL_Window*
+	REF_WINDOW_TYPE_GNM, // PS4 gnm_dev_api_t*
 } ref_window_type_t;
 
 typedef struct
@@ -548,6 +549,7 @@ typedef struct ref_interface_s
 	// const char *(*R_GetInitError)( void );
 	void (*R_Shutdown)( void );
 	const char *(*R_GetConfigName)( void ); // returns config name without extension
+	// x and y are the picture's bottom left corner in the window, in pixels, counted from the window's bottom left corner
 	qboolean (*R_SetDisplayTransform)( ref_screen_rotation_t rotate, int x, int y, float unused1_default_at_1, float unused2_default_at_1 );
 
 	// only called for GL contexts

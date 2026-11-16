@@ -1393,6 +1393,8 @@ static void R_RenderDetails( int passes )
 		pglEnable( GL_POLYGON_OFFSET_FILL );
 	}
 
+	qboolean equal = passes == 3;
+
 	for( int i = draw_details.first; i <= draw_details.last; i++ )
 	{
 		mextrasurf_t *es = detail_surfaces[i];
@@ -1405,6 +1407,25 @@ static void R_RenderDetails( int passes )
 		{
 			msurface_t *fa = p->surf;
 			gl_texture_t *glt = R_GetTexture( fa->texinfo->texture->gl_texturenum ); // get texture scale
+
+			// transparent surfaces aren't in VBO, match their depth exactly to keep alpha tested holes untouched
+			if( passes != 3 && equal != !!FBitSet( fa->flags, SURF_TRANSPARENT ))
+			{
+				equal = !equal;
+
+				if( equal )
+				{
+					pglDepthFunc( GL_EQUAL );
+					if( !glState.num_polyoffsets )
+						pglDisable( GL_POLYGON_OFFSET_FILL );
+				}
+				else
+				{
+					pglDepthFunc( GL_LEQUAL );
+					pglEnable( GL_POLYGON_OFFSET_FILL );
+				}
+			}
+
 			DrawGLPoly( fa->polys, glt->xscale, glt->yscale );
 		}
 
@@ -1714,12 +1735,12 @@ void R_DrawAlphaTextureChains( void )
 	pglEnable( GL_ALPHA_TEST );
 	pglAlphaFunc( GL_GREATER, 0.25f );
 
-	GL_SetupFogColorForSurfaces();
-
 	// restore worldmodel
 	RI.currententity = CL_GetEntityByIndex( 0 );
 	RI.currentmodel = RI.currententity->model;
 	RI.currententity->curstate.rendermode = kRenderTransAlpha;
+
+	GL_SetupFogColorForSurfaces();
 
 	for( int i = draw_alpha_surfaces.first; i <= draw_alpha_surfaces.last; i++ )
 	{

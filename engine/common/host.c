@@ -765,6 +765,14 @@ static void Sys_Error_f( void )
 	Sys_Error( "%s\n", error );
 }
 
+static void Sys_Warn_f( void )
+{
+	const char *warning = Cmd_Argv( 1 );
+
+	if( !*warning ) warning = "Invoked sys warning";
+	Sys_Warn( "%s", warning );
+}
+
 /*
 =================
 Host_Crash_f
@@ -1194,6 +1202,7 @@ int EXPORT Host_Main( int argc, char **argv, const char *progname, int bChangeGa
 	{
 		Cmd_AddRestrictedCommand ( "sys_error", Sys_Error_f, "just throw a fatal error to test shutdown procedures");
 		Cmd_AddRestrictedCommand ( "host_error", Host_Error_f, "just throw a host error to test shutdown procedures");
+		Cmd_AddRestrictedCommand ( "sys_warn", Sys_Warn_f, "just show a warning to test message boxes");
 		Cmd_AddRestrictedCommand ( "crash", Host_Crash_f, "a way to force a bus error for development reasons");
 	}
 
@@ -1307,6 +1316,7 @@ int EXPORT Host_Main( int argc, char **argv, const char *progname, int bChangeGa
 
 #ifndef XASH_DEDICATED
 	IN_GyroCheckAvailability();
+	Joy_AutoPreset();
 #endif
 
 	string demoname;
@@ -1336,6 +1346,11 @@ int EXPORT Host_Main( int argc, char **argv, const char *progname, int bChangeGa
 
 	// check after all configs were executed
 	HPAK_CheckIntegrity( hpk_custom_file.string );
+
+#if XASH_PS4
+	// initialization is done, startup splash can be hidden with the next frames
+	PS4_AllowHideSplash( );
+#endif
 
 	// main window message loop
 	while( host.status != HOST_CRASHED )

@@ -38,6 +38,9 @@ void VGL_ShimEndFrame( void );
 #if !defined(XASH_GL_STATIC)
 #include "gl2_shim/gl2_shim.h"
 #endif
+#if XASH_PS4
+#include "gnm_shim/gnm_shim.h"
+#endif
 
 #ifndef offsetof
 #ifdef __GNUC__
@@ -265,6 +268,7 @@ typedef struct
 	uint max_entities;
 
 	ref_screen_rotation_t rotation;
+	int offset_x, offset_y; // picture position in the window, see R_SetDisplayTransform
 
 	gl_rendertargets_t targets;
 } gl_globals_t;
@@ -507,6 +511,7 @@ void GL_SetupAttributes( int safegl );
 void GL_OnContextCreated( void );
 void GL_InitExtensions( void );
 void GL_ClearExtensions( void );
+void GAME_EXPORT *GL_GetProcAddress( const char *name );
 int GL_LoadTexture( const char *name, const byte *buf, size_t size, int flags );
 qboolean VID_ScreenShot( const char *filename, int shot_type );
 qboolean VID_CubemapShot( const char *base, uint size, const float *vieworg, qboolean skyshot );
