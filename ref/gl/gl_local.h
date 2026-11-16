@@ -1050,7 +1050,8 @@ typedef struct rt_cvars_t
 		_rt_dlss_available,
 		rt_framegen,
 		_rt_framegen_available,
-		_rt_dlss_framegen_available;
+		_rt_dlss_framegen_available,
+		_rt_capture_target;
 } rt_cvars_t;
 extern rt_cvars_t rt_cvars;
 

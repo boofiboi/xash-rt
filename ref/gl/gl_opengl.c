@@ -1324,7 +1324,7 @@ static void GL_InitCommands( void )
 	CVAR_DEF_T( rt_vsync,					"1",	"vertical synchronization to prevent tearing" )
 	
 	CVAR_DEF_T( rt_renderscale,				"0",	"[20, 100] resolution scale")
-	CVAR_DEF_T( rt_upscale_method,			"0",	"0 - off, 1 - FSR3, 2 - DLSS" )
+	CVAR_DEF_T( rt_upscale_method,			"0",	"0 - off, 1 - FSR, 2 - DLSS" )
 	CVAR_DEF_T( rt_upscale_quality,			"0",	"0 - off, 1 - native aa, 2 - quality, 3 - balanced, 4 - perf, 5 - ultra perf" )
 	CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
 
@@ -1442,6 +1442,7 @@ static void GL_InitCommands( void )
     CVAR_DEF_T( rt_framegen,				"1",	"enable Frame Generation" )
     CVAR_DEF_T( _rt_framegen_available,		"0",	"internal variable; for menu" )
     CVAR_DEF_T( _rt_dlss_framegen_available,	"0",	"internal variable; for menu" )
+    CVAR_DEF_T( _rt_capture_target,			"0",	"0 - final, 1 - bloom, 2 - volumetric, 3 - denoiser" )
 
 	// clang-format on
 
@@ -1623,7 +1624,7 @@ qboolean R_Init( void )
 
 		gEngfuncs.Cvar_SetValue(
 			"_rt_fsr3_available",
-			rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 )
+			rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR )
 				? 1.0f
 				: 0.0f );
 		gEngfuncs.Cvar_SetValue(
@@ -1638,7 +1639,11 @@ qboolean R_Init( void )
 			"_rt_dlss_framegen_available",
 			rgUtilIsDlssgAvailable( rg_instance ) ? 1.0f : 0.0f );
 
+#ifdef _WIN32
+		gEngfuncs.Con_Printf( "Ray tracing upscaling: FSR4=%s, DLSS=%s, FrameGen=%s, DLSS-FG=%s\n",
+#else
 		gEngfuncs.Con_Printf( "Ray tracing upscaling: FSR3=%s, DLSS=%s, FrameGen=%s, DLSS-FG=%s\n",
+#endif
 			RT_CVAR_TO_BOOL( _rt_fsr3_available ) ? "available" : "unavailable",
 			RT_CVAR_TO_BOOL( _rt_dlss_available ) ? "available" : "unavailable",
 			RT_CVAR_TO_BOOL( _rt_framegen_available ) ? "available" : "unavailable",

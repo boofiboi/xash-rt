@@ -200,6 +200,10 @@ def options(opt):
 
 	grp.add_option('--enable-tests', action = 'store_true', dest = 'TESTS', default = False,
 		help = 'enable building standalone tests (does not enable engine tests!) [default: %(default)s]')
+	grp.add_option('--game-dir', action = 'store', dest = 'GAME_DIR', default = r'D:\penise\HL1',
+		help = 'game directory for visual regression tests [default: %(default)s]')
+	grp.add_option('--bless', action = 'store_true', dest = 'BLESS_VISUAL_TESTS', default = False,
+		help = 'save/update golden screenshots for visual tests [default: %(default)s]')
 
 	grp.add_option('--disable-rpath', action = 'store_false', dest = 'ENABLE_RPATH', default = True,
 		help = 'disables rpath, duh!')
@@ -792,5 +796,25 @@ def build(bld):
 				bld.install_files(os.path.join(bld.env.PREFIX, 'rt', 'shaders').replace('\\', '/'), spv_nodes)
 
 	if bld.env.TESTS:
+		script_node = bld.srcnode.find_node('tests/visual/game_test.py')
+		if script_node:
+			extra = ' --bless' if getattr(bld.options, 'BLESS_VISUAL_TESTS', False) else ''
+			game_dir = getattr(bld.options, 'GAME_DIR', r'D:\penise\HL1')
+			bld(
+				features = 'test_scripts',
+				target = 'game_test',
+				test_scripts_source = script_node,
+				test_scripts_template = '%s ${SCRIPT} --game-dir "%s"%s' % (sys.executable, game_dir, extra),
+			)
 		bld.add_post_fun(waf_unit_test.summary)
 		bld.add_post_fun(waf_unit_test.set_exit_code)
+
+def game_test(ctx):
+	import subprocess
+	script = os.path.join(Context.top_dir, 'tests', 'visual', 'game_test.py')
+	cmd = [sys.executable, script, '--game-dir', ctx.options.GAME_DIR]
+	if ctx.options.BLESS_VISUAL_TESTS:
+		cmd.append('--bless')
+	ret = subprocess.call(cmd)
+	if ret != 0:
+		ctx.fatal('game_test failed with exit code %d' % ret)

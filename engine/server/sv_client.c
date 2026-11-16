@@ -2001,6 +2001,30 @@ static qboolean SV_Noclip_f( sv_client_t *cl )
 	return true;
 }
 
+static qboolean SV_SetPos_f( sv_client_t *cl )
+{
+	edict_t *pEntity = cl->edict;
+
+	if( sv.background || !Cvar_VariableInteger( "sv_cheats" ) || Cmd_Argc() < 4 )
+		return true;
+
+	pEntity->v.origin[0] = Q_atof( Cmd_Argv( 1 ));
+	pEntity->v.origin[1] = Q_atof( Cmd_Argv( 2 ));
+	pEntity->v.origin[2] = Q_atof( Cmd_Argv( 3 ));
+	VectorClear( pEntity->v.velocity );
+
+	if( Cmd_Argc() >= 7 )
+	{
+		pEntity->v.angles[0] = pEntity->v.v_angle[0] = Q_atof( Cmd_Argv( 4 ));
+		pEntity->v.angles[1] = pEntity->v.v_angle[1] = Q_atof( Cmd_Argv( 5 ));
+		pEntity->v.angles[2] = pEntity->v.v_angle[2] = Q_atof( Cmd_Argv( 6 ));
+		pEntity->v.fixangle = 1;
+	}
+
+	SV_LinkEdict( pEntity, false );
+	return true;
+}
+
 /*
 ==================
 SV_Godmode_f
@@ -3136,6 +3160,7 @@ static const ucmd_t ucmds[] =
 { "pause", SV_Pause_f },
 { "sendres", SV_SendRes_f },
 { "setinfo", SV_SetInfo_f },
+{ "setpos", SV_SetPos_f },
 { "spawn", SV_Spawn_f },
 { "status", SV_ClientStatus_f },
 };

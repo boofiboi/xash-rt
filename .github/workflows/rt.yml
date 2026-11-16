@@ -119,7 +119,15 @@ jobs:
           } elseif (Test-Path "$rtgl1Dir/Source/External/DLSS/lib/Windows_x86_64/rel/nvngx_dlss.dll") {
             Copy-Item -Path "$rtgl1Dir/Source/External/DLSS/lib/Windows_x86_64/rel/nvngx_*.dll" -Destination "package/rt_bin/" -Force
           }
-          Copy-Item -Path "$rtgl1Dir/bin/amd_fidelityfx_vk.dll" -Destination "package/rt_bin/amd_fidelityfx_vk.dll" -Force
+          if (Test-Path "$rtgl1Dir/Build/x64-Release/Release/amd_fidelityfx_loader_vk.dll") {
+            Copy-Item -Path "$rtgl1Dir/Build/x64-Release/Release/amd_fidelityfx_loader_vk.dll" -Destination "package/rt_bin/" -Force
+            Copy-Item -Path "$rtgl1Dir/Build/x64-Release/Release/amd_fidelityfx_upscaler_vk.dll" -Destination "package/rt_bin/" -Force
+            Copy-Item -Path "$rtgl1Dir/Build/x64-Release/Release/amd_fidelityfx_framegeneration_vk.dll" -Destination "package/rt_bin/" -Force
+          } elseif (Test-Path "$rtgl1Dir/Source/FSR4/Kits/FidelityFX/signedbin/amd_fidelityfx_loader_vk.dll") {
+            Copy-Item -Path "$rtgl1Dir/Source/FSR4/Kits/FidelityFX/signedbin/amd_fidelityfx_loader_vk.dll" -Destination "package/rt_bin/" -Force
+            Copy-Item -Path "$rtgl1Dir/Source/FSR4/Kits/FidelityFX/signedbin/amd_fidelityfx_upscaler_vk.dll" -Destination "package/rt_bin/" -Force
+            Copy-Item -Path "$rtgl1Dir/Source/FSR4/Kits/FidelityFX/signedbin/amd_fidelityfx_framegeneration_vk.dll" -Destination "package/rt_bin/" -Force
+          }
           Copy-Item -Path "$rtgl1Dir/Build/shaders/*.spv" -Destination "package/rt/shaders/" -Force
 
       - name: Upload Release Artifact

@@ -1572,7 +1572,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
     static int prev_vintage = -1;
     static int prev_upscale_active = -1;
 
-    RgBool32 fsr3_ok    = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3 );
+    RgBool32 fsr3_ok    = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR );
     RgBool32 dlss_ok    = rgUtilIsUpscaleTechniqueAvailable( rg_instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS );
     RgBool32 fg_ok      = rgUtilIsFrameGenerationAvailable( rg_instance );
     RgBool32 dlss_fg_ok = rgUtilIsDlssgAvailable( rg_instance );
@@ -1604,7 +1604,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
         effective_method = 0;
         if( prev_rejected_method != 1 )
         {
-            gEngfuncs.Con_Printf( S_WARN "FSR3 upscaling is not available, disabling upscaling\n" );
+            gEngfuncs.Con_Printf( S_WARN "FSR upscaling is not available, disabling upscaling\n" );
             prev_rejected_method = 1;
         }
     }
@@ -1615,7 +1615,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
         if( prev_rejected_method != 2 )
         {
             gEngfuncs.Con_Printf( S_WARN "DLSS upscaling is not available on this system, reverting rt_upscale_method to %d (%s)\n",
-                                  method, method == 1 ? "FSR3" : "off" );
+                                  method, method == 1 ? "FSR" : "off" );
             prev_rejected_method = 2;
         }
         gEngfuncs.Cvar_SetValue( rt_cvars.rt_upscale_method->name, ( float )method );
@@ -1671,7 +1671,7 @@ static void UpscaleCvarsToRtgl( RgDrawFrameRenderResolutionParams* pDst )
 
     if( effective_method == 1 )
     {
-        pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR3;
+        pDst->upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR;
     }
     else if( effective_method == 2 )
     {

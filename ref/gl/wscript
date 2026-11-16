@@ -89,11 +89,19 @@ def build(bld):
 			if src_dll:
 				dst = bld_ctx.bldnode.abspath()
 				shutil.copy(src_dll, dst)
-				src_ffx = os.path.join(rtgl1_sdk, 'bin', ffx_name)
-				if not os.path.exists(src_ffx):
-					src_ffx = os.path.join(os.path.dirname(src_dll), ffx_name)
-				if os.path.exists(src_ffx):
-					shutil.copy(src_ffx, dst)
+				if bld_ctx.env.DEST_OS == 'win32':
+					for fsr4_dll in ('amd_fidelityfx_loader_vk.dll', 'amd_fidelityfx_upscaler_vk.dll', 'amd_fidelityfx_framegeneration_vk.dll'):
+						src_fsr4 = os.path.join(os.path.dirname(src_dll), fsr4_dll)
+						if not os.path.exists(src_fsr4):
+							src_fsr4 = os.path.join(rtgl1_sdk, 'Source', 'FSR4', 'Kits', 'FidelityFX', 'signedbin', fsr4_dll)
+						if os.path.exists(src_fsr4):
+							shutil.copy(src_fsr4, dst)
+				else:
+					src_ffx = os.path.join(rtgl1_sdk, 'bin', ffx_name)
+					if not os.path.exists(src_ffx):
+						src_ffx = os.path.join(os.path.dirname(src_dll), ffx_name)
+					if os.path.exists(src_ffx):
+						shutil.copy(src_ffx, dst)
 
 		bld.add_post_fun(copy_rtgl1_dll)
 

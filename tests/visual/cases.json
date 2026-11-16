@@ -1,0 +1,20 @@
+[
+  {
+    "name": "valve_c2a5x",
+    "game": "valve",
+    "map": "c2a5x",
+    "commands": ["give item_suit", "impulse 100"]
+  },
+  {
+    "name": "gearbox_of1a3",
+    "game": "gearbox",
+    "map": "of1a3",
+    "commands": ["impulse 100"]
+  },
+  {
+    "name": "bshift_ba_security2",
+    "game": "bshift",
+    "map": "ba_security2",
+    "commands": ["impulse 100"]
+  }
+]

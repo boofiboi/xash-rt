@@ -578,20 +578,37 @@ static const envmap_t r_envMapInfo[6] =
 
 qboolean VID_ScreenShot( const char *filename, int shot_type )
 {
+#if XASH_RAYTRACING
+	uint flags = 0;
+#else
 	uint flags = IMAGE_FLIP_Y;
+#endif
 	int width = 0, height = 0;
 
 	rgbdata_t *r_shot = Mem_Calloc( r_temppool, sizeof( rgbdata_t ));
+#if XASH_RAYTRACING
+	r_shot->width = gpGlobals->width;
+	r_shot->height = gpGlobals->height;
+#else
 	r_shot->width = (gpGlobals->width + 3) & ~3;
 	r_shot->height = (gpGlobals->height + 3) & ~3;
+#endif
 	r_shot->flags = IMAGE_HAS_COLOR;
 	r_shot->type = PF_RGBA_32;
 	r_shot->size = r_shot->width * r_shot->height * gEngfuncs.Image_GetPFDesc( r_shot->type )->bpp;
 	r_shot->palette = NULL;
 	r_shot->buffer = Mem_Malloc( r_temppool, r_shot->size );
 
+#if XASH_RAYTRACING
+	if( !rgUtilReadFramebuffer( rg_instance, (RgCaptureTarget)RT_CVAR_TO_INT32( _rt_capture_target ), r_shot->buffer, r_shot->width, r_shot->height ))
+	{
+		gEngfuncs.FS_FreeImage( r_shot );
+		return false;
+	}
+#else
 	// get screen frame
 	pglReadPixels( 0, 0, r_shot->width, r_shot->height, GL_RGBA, GL_UNSIGNED_BYTE, r_shot->buffer );
+#endif
 
 	switch( shot_type )
 	{

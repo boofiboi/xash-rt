@@ -3765,6 +3765,7 @@ static void CL_InitLocal( void )
 	Cmd_AddCommand ("gametitle", NULL, "show game logo" );
 	Cmd_AddRestrictedCommand ("kill", NULL, "die instantly" );
 	Cmd_AddCommand ("god", NULL, "enable godmode" );
+	Cmd_AddCommand ("setpos", NULL, "set player origin and angles" );
 	Cmd_AddCommand ("fov", NULL, "set client field of view" );
 
 	Cmd_AddRestrictedCommand ("ent_list", NULL, "list entities on server" );
