@@ -1,157 +1,60 @@
+<div align="center">
 
 # Xash-RT Improved
 
-  
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/boofiboi/xash-rt/rt.yml?style=for-the-badge&logo=github)](https://github.com/boofiboi/xash-rt/actions/workflows/rt.yml)
+[![Discord](https://img.shields.io/discord/1530690470194446395?color=5865F2&label=Discord&logo=discord&logoColor=white&style=for-the-badge)](https://discord.com/invite/6ueFjD6UTy)
+[![GitHub Release](https://img.shields.io/github/v/release/boofiboi/xash-rt?style=for-the-badge&logo=github)](https://github.com/boofiboi/xash-rt/releases)
+[![Downloads](https://img.shields.io/github/downloads/boofiboi/xash-rt/total?color=brightgreen&logo=github&style=for-the-badge)](https://github.com/boofiboi/xash-rt/releases)
+<br>
+![C++](https://img.shields.io/badge/Language-C%2B%2B-00599C?logo=cplusplus&logoColor=white&style=for-the-badge)
+[![Renderer](https://img.shields.io/badge/Renderer-RayTracedGL1-2E3440?logo=github&logoColor=white&style=for-the-badge)](https://github.com/boofiboi/RayTracedGL1)
+</div>
 
-Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sultim-t/xash-rt) which in of itself is a fork of [xash3d-fwgs](https://github.com/FWGS/xash3d-fwgs) with edits to the OpenGL renderer to allow for integration with [a custom path traced renderer](https://github.com/boofiboi/RayTracedGL1) to add modern graphical improvements to the otherwise dated engine.
+Xash-RT Improved is a heavily modified fork of [xash-rt](https://github.com/sultim-t/xash-rt) (originally forked from [xash3d-fwgs](https://github.com/FWGS/xash3d-fwgs)). It modifies the OpenGL renderer to integrate a [custom path-traced renderer](https://github.com/boofiboi/RayTracedGL1), bringing modern graphics and upscaling technologies to the GoldSrc engine.
 
-## Improvements over the original [fork](https://github.com/sultim-t/xash-rt)
-- **Completely synced to upstream (Allows for running a wider-range of mods, including Counter-Strike: 1.6)**
-- **FSR3.1 support (Including frame generation)**
-	- *FSR4 coming soon™*
-- **DLSS 4.5 Upscaling + Frame Generation support**
-- **Huge performance + visual improvements.**
-- **Visual fixes compared to the original.**
-- **Improved mod support.**
-- **[NRD](https://github.com/NVIDIA-RTX/NRD) (Better denoiser)**
-- **Various QoL features**
-### In-progress:
-- Check the [rt-todo.md](https://github.com/boofiboi/xash-rt/blob/master/Documentation/rt-todo.md) file!
+---
 
-## Installation without building
-Latest compiled build for Half-Life 1 can be found in the [Releases](https://github.com/boofiboi/xash-rt/releases) tab.
+## Key Improvements
 
-If there were commits to the repository after a release has been released (Visible under the release name, it says "X commits to master since release), you can download the latest .exe in the [Artifacts](https://github.com/boofiboi/xash-rt/actions/workflows/rt.yml) section (Always select the latest one and scroll down, there is a .zip file with the engine - extract that archive into your HL1 folder)
-## Minor things
-- We have a [Discord](https://discord.com/invite/6ueFjD6UTy) server (Come discuss this mod, get support etc.)
-- Read up on the original xash3d-fwgs repository [here](https://github.com/FWGS/xash3d-fwgs)
-- Also read up on the original xash-rt fork [here](https://github.com/sultim-t/xash-rt)
-- I try to do a lot of things but not all of them land properly (work), unfortunately im just one person working on this and I am a student, this can cause delays in updates/new releases.
-  
+### Engine & Compatibility
+* **Upstream Sync:** Fully synced with upstream `xash3d-fwgs`, enabling compatibility with a wider range of mods, including *Counter-Strike 1.6*.
+* **Native Linux Builds:** Supported out of the box. *(Note: Native Linux builds are limited to FSR 3 due to the lack of `.so` libraries for FSR 4; running the Windows build via Wine/Proton unlocks FSR 4).*
+* **Visual & QoL Fixes:** Significant performance optimizations, rendering bug fixes, and quality-of-life improvements over the original fork.
 
-## Building & Installing
+### Upscaling & Denoising
+* **AMD FSR 4 Upscaling:** Runs on RX 6000+ series GPUs with comparable performance to FSR 3.1.6 while delivering substantially sharper visuals than a compute-only upscaler. RX 9000 series GPUs utilize the full-size FP8 model for maximum image quality. Uses FSR 3.1.6 for Frame Generation.
+* **AMD FSR 3:** Full support, including Frame Generation.
+* **NVIDIA DLSS 4.5:** Full support for both Upscaling and Frame Generation.
+* **NVIDIA Real-Time Denoisers ([NRD](https://github.com/NVIDIA-RTX/NRD)):** Integrated for cleaner, higher-quality ray-traced denoising.
 
-### These are outdated asf, just get the latest artifact produced by GH runners.
-#### Requirements:
+### Roadmap
+* Track ongoing development and upcoming features in [rt-todo.md](https://github.com/boofiboi/xash-rt/blob/master/Documentation/rt-todo.md).
 
-    git
-    RayTracedGL1
-    Vulkan SDK
-    Python 3.11+
-    Visual Studio 2026 (C++ desktop workload)
-    A higher than room temperature IQ (Ability to understand instructions)
-#### Instructions:
-These are assuming you are running Windows, have a Visual Studio install with C++ Development Tools installed and know your way around.
+---
 
-1. **Install all requirements**
-	- Download and install the *Vulkan SDK* from [here](https://vulkan.lunarg.com/) (Make sure to also tick `Add to PATH`)
-	-  Download and install *Python* from [here](https://www.python.org/downloads/) (Make sure to tick `Add to PATH` during installation)
-	-  Download and install *Visual Studio 2026* from [here](https://visualstudio.microsoft.com/downloads/) (Get the community version, after installing VS, install the `Desktop development package with C++` package
-2. **Compile RTGL1**
-	-  Open a `Developer Command Prompt for VS`
-	-  Run the following commands:
-	```
-	cd C:\
-	git clone https://github.com/boofiboi/RayTracedGL1 --recursive
-	```
-	-  Download and extract the FSR3 SDK from [here](https://gpuopen.com/fidelityfx-super-resolution-3/#:~:text=Download%20the%20latest%20version%20%2D%20v3.1.5) (Get the SDK 1.1 package)
-	-  Extract the .zip file into `Source\FSR3`
-	-  Run the following commands in the command prompt we opened:
-	```
-	cd RayTracedGL1
-	
-	cd Source/Shaders
-	
-	python GenerateShaders.py
-	
-	cd ../..
-	
-	cmake -B Build/x64-Release -S .  -A x64 -DCMAKE_BUILD_TYPE=Release
-	
-	cmake --build Build/x64-Release --config Release --parallel
-	
-	```
-	-  You should now have `RayTracedGL1.dll, amd_fidelityfx_vk.dll, NRI.dll` in the `build\x64-Release\Release` folder and a bunch of `.comp.spv` files in `build/x64-Release/shaders` folder.
-	- Leave them be, these will be automatically handled by the next steps.
+## Installation
 
-3. **Set the `RTGL1_SDK_PATH` environment variable to point to the repository we cloned earlier**
-	-  Open the start menu and search for `Edit the system environment variables`
-	-  A menu will open, click the `Environment Variables` button
-	-  Press `New` under the `System Variables` entries
-	-  Set `Variable name` to `RTGL1_SDK_PATH`
-	-  Set `Variable value` to where you cloned the repo (e.g: `C:\RayTracedGL1`)
-4. **Compile xash-rt**
-	- Open a regular command prompt window (**Xash-RT does not compile in a VS cmd prompt**)
-	- Run the following commands:
-	```
-	git clone https://github.com/boofiboi/xash-rt --recursive
-	cd xash-rt
-	```
-	- Download *SDL2* from [here](https://github.com/libsdl-org/SDL/releases?page=3#release-release-2.32.8) - Download the `sdl2-devel-2.32.8-vc.zip` file
-	- Extract the SDL2 SDK into either:
-		- Any folder on your machine: Requires passing `-s=SDL2_PATH` to WAF
-		- Extract it into a folder called `SDL2_VC` the xash-rt directory we cloned earlier: This is the best option, WAF will automatically grab it.
-	- Run the following commands:
-	```
-	waf configure -8 --enable-raytracing -s=C:/PATH_TO_SDK_OR_LEAVE_EMPTY --enable-lto --enable-poly-opt -T Release
-	
-	waf build 
-	```
-	- **After a while, WAF should finish and you should have recieved the engine files in `build/`**
-		- Run `waf install --destdir PATH_TO_YOUR_GAME_INSTALL` (e.g `waf install --destdir D:\HalfLifeRT\` [Its recommended to copy the entire game folder somewhere else so you dont mess up your stock Steam install]
-5. **Download the `hl1-rt-improved-combined.7z` file from the [latest release](https://github.com/boofiboi/xash-rt/releases/)**
-	- Extract everything EXCEPT the `rt_bin` folder into your game folder (Replace if prompted)
-	
-6. **Your game folder should now look like this**
-	```
-	Half-Life
-	├── htmlcache
-	├── platform
-	├── redist
-	├── rt
-	│	├── data
-	│		└── textures.json
-	│	├── mat
-	│	├── scenes
-	│	├── shaders
-	│	│	├── CmAntiFirefly.comp.spv
-	│	│	└── CmASVGFGradientAtrous.comp.spv
-	│	└── valve
-	│		└── cl_dlls
-	│			└── client_amd64.dll
-	├── rt_bin
-	│	├── amd_fidelityfx_vk.dll
-	│	├── filesystem_stdio.dll
-	│	├── menu.dll
-	│	├── NRI.dll
-	│	├── RayTracedGL1.dll
-	│	├── ref_gl.dll
-	│	├── xash.dll
-	│	└── xash3d.exe
-	├── valve
-	├── hl.exe
-	├── hlds.exe
-	```
-7. **Run `rt_bin/xash3d.exe`**
-	- Do NOT run `hl.exe` from the root of the game directory - this is the old engine.
+1. **Stable Builds:** Download the latest compiled Half-Life 1 build from the [Releases](https://github.com/boofiboi/xash-rt/releases) tab.
+2. **Development Builds:** Grab the latest CI build artifact directly from the [GitHub Actions](https://github.com/boofiboi/xash-rt/actions) tab.
 
-## Issues
-Issues that are similar to these will be automatically closed without hesitation:
-- It doesnt work
-	- No information provided on what is happening
-	- No logs/crash/error messages
-	- No system specifications provided
-	- 0 actual value
-- Doesnt run (Using unsupported setup)
-	- Contains error message that signifies the person is running a GPU without RT support
-	- Using `RADV_PERFTEST=emulate_rt` also falls under this category, although it should work.
-	- These will be automatically and without debate closed.
-- **Correct way to report an issue**
-	- ***Check if an issue does not already exist.***
-	- Keep it short and simple
-	- Provide:
-		- Error message/logs
-		- Expected behaviour vs actual behaviour
-		- System specs
-		- Any extra information (What you were doing when it happened etc.)
-	- We also have a [Discord](https://discord.com/invite/6ueFjD6UTy) server, if youre not comfortable with creating an issue.
+---
+
+## Issue Guidelines
+
+Before opening an issue, ensure your problem is not already listed and follows the guidelines below. **Invalid reports will be closed immediately without discussion.**
+
+### Automatically Closed Issues
+* **Low-Effort Reports:** Issues stating *"it doesn't work"* with no description, logs, error messages, or system specifications.
+* **Unsupported Hardware / Emulated RT:** Crashes or errors caused by running on a GPU without hardware ray-tracing support (including setups forcing `RADV_PERFTEST=emulate_rt`, even if it technically boots).
+
+### How to Submit a Valid Report
+1. **Search first** to confirm an identical issue does not already exist.
+2. Keep the title and description concise.
+3. Include the following details:
+   * **Logs & Errors:** Exact error messages or crash logs.
+   * **Behavior:** Expected behavior vs. actual behavior.
+   * **System Specs:** GPU, CPU, OS, and driver version.
+   * **Context:** Steps to reproduce or what you were doing when the crash occurred.
+
+> If you are unsure whether your problem qualifies as a bug or need setup help, ask on the [Discord server](https://discord.com/invite/6ueFjD6UTy) instead of opening an issue.

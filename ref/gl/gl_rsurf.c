@@ -1914,7 +1914,6 @@ static int R_SortBrushModelSurfaces( cl_entity_t *e, model_t *clmodel, vec3_t mi
 	{
 		msurface_t *psurf = &clmodel->surfaces[clmodel->firstmodelsurface + i];
 
-#if !XASH_RAYTRACING
 		if( FBitSet( psurf->flags, SURF_DRAWTURB ) && !quake_compatible )
 		{
 			if( psurf->plane->type != PLANE_Z && !FBitSet( e->curstate.effects, EF_WATERSIDES ))
@@ -1923,7 +1922,6 @@ static int R_SortBrushModelSurfaces( cl_entity_t *e, model_t *clmodel, vec3_t mi
 			if( mins[2] + 1.0f >= psurf->plane->dist )
 				continue;
 		}
-#endif
 
 		int cull_type = R_CullSurface( psurf, &RI.frustum, RI.frustum.clipFlags );
 

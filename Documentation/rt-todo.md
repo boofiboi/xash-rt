@@ -1,77 +1,55 @@
-# TODO list for xash-rt and RayTracedGL1, ordered by importance.
+# Project Roadmap & TODO
 
+Tasks for **Xash-RT Improved** and **RayTracedGL1**, ordered roughly by priority.
 
-- [ ] FSR4 Support
-    - AMD have delighted me by releasing the FSR Redstone SDK with VK support literally yesterday (As of the 29th of October 2026)
-    - Reading up proved me wrong about the INT8 upscaling and FG model being absolute ass on the older GPUs that support it.
-    - They have also provided FSR4 support for RX 6xxx series, so we can FULLY drop FSR3.1
-    
-- [x] Change the behaviour of the menu/engine when toggling between FSR3, DLSS + FG ON/OFF
-    - Remove the separate rt_framegen_tech cvar and just automatically use the frame generator for the currently selected upscaler (e.g remove rt_framegen_tech cvar, keep rt_framegen cvar for toggling FG on/off)
-    - Do the same with the rt_upscale_fsr3/dlss - just keep rt_upscale_tech and rt_upscale_quality
-    - ONLY keep rt_upscale_tech, rt_upscale_quality and rt_framegen - if rt_upscale_quality is 0 on game boot dont build swapchains (consider 0 as disabled and dont build swapchains OR build swapchains so user can quickly re-enable upscaling + keep rt_upscale_enabled and add a toggle for it)
-    - When changing upscalers, require a game restart - dont try rebuilding swapchain stack
-    - Build swapchain stack ONLY on game boot
-    - Unify FSR and DLSS stack - keep upscaling and FG OFF by default, let user choose on first game boot/first boot after update, ultra perf in FSR3 = ultra perf in DLSS etc. Both FSR3 and DLSS get the same data from one single place in the codebase, no messy workarounds for one or the other.
-    - FULLY remove obsolete _rt_fsr3_framegen_available cvar
+---
 
-- [x] DLSS4.5 support
+## Active & In-Progress
 
-	- [x] Upscaling
-    - [x] Frame gen
-    - [ ] Ray Reconstruction
+### Ray Tracing & Lighting Pipeline
+* [ ] **Pre-Denoise Signal Cleanup:** Improve initial ray-tracing sampling so denoisers receive cleaner input data.
+  * [x] ReSTIR GI
+  * [x] Quasi-Monte Carlo (QMC) sampling
+  * [ ] Linearly Transformed Cosines (LTC) for Half-Life 1 beam particles
+* [ ] **Reduce Excessive Surface Light Bounce:** Fix default material light-bounce behavior where surfaces reflect far too much light.
+  * **Automated PBR Estimation:** Generate roughness/normal maps automatically (e.g., via OpenCV script, GIMP, Laigter, or OpenBump). *(Note: Batch-baking BC7-compressed `.ktx2` files across all mods is slow—~20 minutes per 100 textures).*
+  * **`texture.json` Overrides:** Introduce material presets (e.g., `Roughness`, `Concrete`) to govern light interaction without altering base albedo textures.
+* [ ] **Quake/VRAD Polygon Light Estimation:** Find a reliable method to infer light sources from compiled BSP VRAD data (since BSP files strip original light entities) to automate gLTF scene generation for unmapped levels.
 
-- [ ] Update the ray tracing calculations so denoisers already get semi-clean data to work off of
-    - [x] ReSTIR GI
-    - [x] Quasi Monte Carlo
-    - [ ] LTC for HL1 beam particles
+### Engine, Tooling & Scene Overhauls
+* [ ] **Campaign Scene Rework:** Update base Half-Life 1 campaign scenes to take full advantage of the new renderer features.
+* [ ] **RTGL1 Devmode Toggle / Build Target:** Replace the current devmode toggle with a proper cvar, launch argument, or separate non-dev build target to strip dev overhead and recover FPS.
+* [ ] **Installation Manager & Launcher:** Build a lightweight .NET or Electron launcher to handle installation, updates, and compatibility notes.
+* [ ] **Release Automation:** Create a one-click CI workflow that packages all required release files and generates user-friendly changelogs from recent commits.
 
+---
 
-- [ ] Rework base HL1 campaign scenes to be up-to-date for this engine fork.
+## Deprioritized / Shelved
 
-- [ ] Get a better way to toggle RTGL1 devmode, maybe a cvar or launch argument or a dev/non-dev build
-    - Potential FPS savings for non-dev builds because devmode does take quite a lot of FPS to run and a non-dev build could have all of the dev mode functionality stripped out.
+* [ ] **Platform-Specific ML Denoisers:**
+  * ~~NVIDIA DLSS Ray Reconstruction~~
+  * ~~AMD Ray Regeneration (RDNA 3+)~~
+  * ~~Intel OIDN (Not worth maintaining for a tiny user base; also skipping [Snapdragon / Apple Silicon](https://youtu.be/h3lZXXO8qTk?t=15))~~
+  * *Status:* The current NRD implementation already matches ML denoiser quality.
 
-- [x] Refactor all shaders
-    - Bloom is unstable and flickers, lens flares dont work, volumetrics are over powering scenes, lights look wonky.
+---
 
-- [ ] Launcher app for updating/managing the installation
-    - atp this project is so bloated and installing it is such a mess I might just whip up a simple .net or Electron app to manage installations.
-    - Would include an updater, detailed writeups of what works what doesnt etc.
+## Completed
 
-- [ ] Platform specific denoisers
-	- DLSS Ray Reconstruction for nVidia
-	- AMD Ray Regeneration for AMD RDNA3+ - NRD fallback
-   		- Might also just drop RDNA2 support, its an old dying platform.
-      	- Lower end RDNA3 cards struggle with the WMMA model, better to use NRD on them. The option will be there though, for the masochists who enjoy playing at 30 FPS.
-      	- AMD RR is also DX12 only like its cousin FSR4 - This will require waiting for the VK release as passing every bit of data a denoiser needs through a DX12 interop would kill performance.
-	- NRD for other platforms (Intel, [*Snapdragon?!??!?! Apple Silicon?!?!?!?!*](https://youtu.be/h3lZXXO8qTk?t=15))
-		- I am not writing OIDN code for the 4 Intel GPU users in the world.
-    - DLSS RR will have to wait until AMD drops the Redstone SDK for Vulkan. I will cross both those bridges at the same time.
+### Upscaling & Frame Generation
+* [x] **AMD FSR 4 Support:**
+  * Implemented upscaling only (FSR 4 Frame Generation is locked to RX 9000 GPUs and skipped in favor of FSR 3.1.6 Frame Generation).
+  * Linux builds currently fall back to FSR 3.1.6 until AMD releases native FSR 4 `.so` libraries.
+* [x] **Unified Upscaler & Frame-Gen Stack:**
+  * Consolidated cvars down to `rt_upscale_tech`, `rt_upscale_quality`, `rt_upscale_enabled`, and `rt_framegen` (removed `rt_framegen_tech`, `rt_upscale_fsr3`/`dlss`, and `_rt_fsr3_framegen_available`).
+  * Standardized quality presets across FSR 3 and DLSS from a single code path, defaulting both upscaling and Frame Generation to OFF on first boot.
+  * Restricted swapchain stack creation strictly to game boot (switching upscalers now prompts a restart instead of rebuilding mid-session).
+* [x] **NVIDIA DLSS 4.5 Support:**
+  * [x] Upscaling
+  * [x] Frame Generation
+  * [ ] ~~Ray Reconstruction~~ *(Moved to deprioritized)*
 
-- [ ] **STOP** RTGL1 bouncing light so much (I dont get it, why does every surface bounce light so much by default?????)
-    - PBR Estimation?
-        - PBR is so old there is hundreds if not thousands of very good ways of doing this automatically (GIMP is a very good example of this, can create normal and roughness maps on even 128x128 images.)
-        - Or just run a one-time algo that will do this for EVERY material in the game, this however is a lot of work requiring export of EVERY material in EVERY HL1 mod and then building all the BXT7 compressed .ktx2 files for them (100 textures took 20 minutes to bake...)
-        - A custom python script based on OpenCV worked well.
-        - laigter/OpenBump also work very well.
-    - texture.json overrides?
-        - Options like Roughness, Concrete etc. that dont affect the look of the material but affect how light interacts.
-
-- [] Release automation
-    - One click workflow that creates a release with all the required files
-    - Auto fills changes with recent commits (Preferrably run through some AI to make them readable by the average Joe)
-
-- [ ] Finding a better way of estimating Quake polygon lights (Yes, **QUAKE** polygon lights, HL1 inherited those with VRAD)
-    - BSP files dont contain light entity data, only the VRAD data. Genuinely 0 clue on what to do here.
-    - This mainly helps with automatic gLTF scene creation when loading a map that does not have one.
-    - This will hopefully obsolete manual scene creation and editing in the future 🤞 
-
-- [ ] PBR materials for HD models
-    - The Gauss Gun, Rocket Launcher, Barney model, HEV model, Revolver, MP5 and all of that do not have PBR textures and therefore dont get the same visual flair as the LD models.
-
-
-- [ ] Linux native builds
-
-
-
+### Rendering, Assets & Platform Support
+* [x] **Full Shader Refactor:** Resolved unstable/flickering bloom, broken lens flares, overpowering volumetrics, and inconsistent lighting.
+* [x] **HD Model PBR Materials:** Added missing PBR textures for HD pack assets (Gauss Gun, Rocket Launcher, Revolver, MP5, Barney, HEV suit, etc.) to match LD model quality.
+* [x] **Native Linux Builds:** Added first-class Linux build support.
