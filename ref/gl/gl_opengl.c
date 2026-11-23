@@ -2087,7 +2087,14 @@ EMPTY_LINKAGE void APIENTRY pglFogi(GLenum pname, GLint param){}
 EMPTY_LINKAGE void APIENTRY pglFogiv(GLenum pname, const GLint *params){}
 EMPTY_LINKAGE void APIENTRY pglFrontFace(GLenum mode){}
 EMPTY_LINKAGE void APIENTRY pglFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar){}
-EMPTY_LINKAGE void APIENTRY pglGenTextures(GLsizei n, GLuint *textures){}
+EMPTY_LINKAGE void APIENTRY pglGenTextures(GLsizei n, GLuint *textures)
+{
+	static GLuint next_texnum = 1;
+	for( GLsizei i = 0; i < n; i++ )
+	{
+		textures[i] = next_texnum++;
+	}
+}
 EMPTY_LINKAGE void APIENTRY pglGetBooleanv(GLenum pname, GLboolean *params){}
 EMPTY_LINKAGE void APIENTRY pglGetClipPlane(GLenum plane, GLdouble *equation){}
 EMPTY_LINKAGE void APIENTRY pglGetDoublev(GLenum pname, GLdouble *params){}

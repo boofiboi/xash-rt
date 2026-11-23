@@ -1270,7 +1270,7 @@ static gl_texture_t *GL_AllocTexture( const char *name, texFlags_t flags )
 	if( texnum >= MAX_TEXTURES || gl_textures[texnum].texnum != 0 )
 	{
 		// find a free texture_t slot
-		for( uint i = 0; i < MAX_TEXTURES; i++ )
+		for( uint i = 1; i < MAX_TEXTURES; i++ )
 		{
 			if( gl_textures[i].texnum )
 				continue;

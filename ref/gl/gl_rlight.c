@@ -26,6 +26,8 @@ typedef struct rt_sun_light_t
     float             intensity;
     float             pitch;
     float             angle;
+    float             score;
+    qboolean          is_env;
 } rt_sun_light_t;
 
 typedef struct rt_static_light_t
@@ -91,10 +93,13 @@ static void AddStaticLight( const vec3_t      abs_position,
 }
 
 
-static void AddPotentialSun( float pitch, float angle, RgColor4DPacked32 pcolor, float intensity )
+static void AddPotentialSun( float pitch, float angle, RgColor4DPacked32 pcolor, float intensity, float score, qboolean is_env )
 {
     uint32_t index = g_lights.potential_sun_count;
-    assert( index < RT_MAX_POTENTIAL_SUN_LIGHTS );
+    if( index >= RT_MAX_POTENTIAL_SUN_LIGHTS )
+    {
+        return;
+    }
 
     rt_sun_light_t* dst = &g_lights.potential_sun[ index ];
     {
@@ -102,6 +107,8 @@ static void AddPotentialSun( float pitch, float angle, RgColor4DPacked32 pcolor,
         dst->intensity = intensity;
         dst->pitch     = pitch;
         dst->angle     = angle;
+        dst->score     = score;
+        dst->is_env    = is_env;
     }
 
     g_lights.potential_sun_count++;
@@ -112,11 +119,21 @@ static void FilterTheSunFromPotential( const char* mapname )
 {
     g_lights.sun_exists = false;
 
-    // for now, just get the first one
     if( g_lights.potential_sun_count > 0 )
     {
+        uint32_t best = 0;
+        for( uint32_t i = 1; i < g_lights.potential_sun_count; i++ )
+        {
+            const rt_sun_light_t* cur = &g_lights.potential_sun[ i ];
+            const rt_sun_light_t* b   = &g_lights.potential_sun[ best ];
+            if( ( cur->is_env && !b->is_env ) ||
+                ( cur->is_env == b->is_env && cur->score > b->score ) )
+            {
+                best = i;
+            }
+        }
         g_lights.sun_exists = true;
-        memcpy( &g_lights.sun, &g_lights.potential_sun[ 0 ], sizeof( rt_sun_light_t ) );
+        memcpy( &g_lights.sun, &g_lights.potential_sun[ best ], sizeof( rt_sun_light_t ) );
     }
 }
 
@@ -142,6 +159,8 @@ void RT_ParseStaticLightEntities()
     {
         vec3_t            origin;
         vec3_t            allangles;
+        vec3_t            raw_rgb;
+        float             raw_scale;
         RgColor4DPacked32 pcolor;
         float             intensity;
         float             pitch;
@@ -242,22 +261,62 @@ void RT_ParseStaticLightEntities()
             {
                 qboolean has_info = !!( has & LT_HAS_COLOR );
 
-                float pitch = 0;
-                float angle = 0;
+                float pitch = -45.0f;
+                float angle = 0.0f;
+
+                if( has & LT_HAS_ALLANGLES )
+                {
+                    pitch = -light.allangles[ 0 ];
+                    angle = light.allangles[ 1 ];
+                }
+
+                if( has & LT_HAS_ANGLE )
+                {
+                    if( light.angle == -2.0f )
+                    {
+                        pitch = -90.0f;
+                    }
+                    else if( light.angle != -1.0f )
+                    {
+                        angle = light.angle;
+                    }
+                }
 
                 if( has & LT_HAS_PITCH )
                 {
                     pitch = light.pitch;
                 }
 
-                if( has & LT_HAS_ANGLE )
+                if( pitch > 0.0f )
                 {
-                    angle = light.angle;
+                    pitch = -pitch;
+                }
+                if( pitch > -5.0f )
+                {
+                    pitch = -5.0f;
                 }
 
                 if( has_info )
                 {
-                    AddPotentialSun( pitch, angle, light.pcolor, light.intensity );
+                    float r = powf( bound( 0.0f, light.raw_rgb[ 0 ] / 255.0f, 1.0f ), 2.2f );
+                    float g = powf( bound( 0.0f, light.raw_rgb[ 1 ] / 255.0f, 1.0f ), 2.2f );
+                    float b = powf( bound( 0.0f, light.raw_rgb[ 2 ] / 255.0f, 1.0f ), 2.2f );
+                    RgColor4DPacked32 sun_pcolor = rgUtilPackColorFloat4D( r, g, b, 1.0f );
+
+                    float sun_intensity = light.raw_scale <= 255.0f
+                                              ? ( light.raw_scale / 255.0f )
+                                              : ( 1.0f + log2f( light.raw_scale / 255.0f ) * 0.25f );
+                    sun_intensity = bound( 0.05f, sun_intensity, 2.0f );
+
+                    float max_c = Q_max( r, Q_max( g, b ) );
+                    float score = sun_intensity * max_c;
+
+                    AddPotentialSun( pitch,
+                                     angle,
+                                     sun_pcolor,
+                                     sun_intensity,
+                                     score,
+                                     classname == LT_CLASS_SUN_POTENTIAL );
                 }
             }
 
@@ -302,6 +361,11 @@ void RT_ParseStaticLightEntities()
             {
                 float val = tmp_color[ 0 ];
 
+                light.raw_rgb[ 0 ] = val;
+                light.raw_rgb[ 1 ] = val;
+                light.raw_rgb[ 2 ] = val;
+                light.raw_scale    = 255.0f;
+
                 light.pcolor =
                     rgUtilPackColorFloat4D( val / 255.0f, val / 255.0f, val / 255.0f, 1.0f );
                 light.intensity = 1.0f;
@@ -310,6 +374,11 @@ void RT_ParseStaticLightEntities()
             }
             else if( components == 3 )
             {
+                light.raw_rgb[ 0 ] = tmp_color[ 0 ];
+                light.raw_rgb[ 1 ] = tmp_color[ 1 ];
+                light.raw_rgb[ 2 ] = tmp_color[ 2 ];
+                light.raw_scale    = 255.0f;
+
                 light.pcolor    = rgUtilPackColorFloat4D( tmp_color[ 0 ] / 255.0f,
                                                        tmp_color[ 1 ] / 255.0f,
                                                        tmp_color[ 2 ] / 255.0f,
@@ -320,6 +389,11 @@ void RT_ParseStaticLightEntities()
             }
             else if( components == 4 )
             {
+                light.raw_rgb[ 0 ] = tmp_color[ 0 ];
+                light.raw_rgb[ 1 ] = tmp_color[ 1 ];
+                light.raw_rgb[ 2 ] = tmp_color[ 2 ];
+                light.raw_scale    = scale;
+
                 light.pcolor    = rgUtilPackColorFloat4D( tmp_color[ 0 ] / 255.0f,
                                                        tmp_color[ 1 ] / 255.0f,
                                                        tmp_color[ 2 ] / 255.0f,
