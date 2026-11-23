@@ -1625,9 +1625,10 @@ static void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 	rt_state.curBrushSurface        = ( int )( fa - surfbase );
 	rt_state.curBrushSurfaceIsWater = false;
 	{
-		// ignore random tiling: if texture starts with '-', and texture->alternate_anims
+		texture_t *tex = fa->texinfo->texture;
 		rt_state.curBrushSurfaceIsAnimated =
-			fa->texinfo->texture->anim_total > 0 && fa->texinfo->texture->name[ 0 ] != '-';
+			tex->anim_total > 0 && tex->name[ 0 ] != '-' &&
+			( tex->anim_next != tex || ( RI.currentmodel != WORLDMODEL && tex->alternate_anims != NULL ) );
 	}
 	RT_BindLightmapTexture( tr.lightmapTextures[ fa->lightmaptexturenum ] );
 	{
@@ -3643,9 +3644,12 @@ loc0:
 
 	// node is just a decision point, so go down the apropriate sides
 
-	// find which side of the node we are on
+#if XASH_RAYTRACING
+	int side = 0;
+#else
 	float dot = PlaneDiff( tr.modelorg, node->plane );
 	int side = (dot >= 0.0f) ? 0 : 1;
+#endif
 
 	// recurse down the children, front side first
 	R_RecursiveWorldNode( node_child( node, side, WORLDMODEL ), clipflags );

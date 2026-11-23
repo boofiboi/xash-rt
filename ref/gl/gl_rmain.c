@@ -1371,6 +1371,7 @@ void R_BeginFrame( qboolean clearScene )
 				.width  = gpGlobals->width > 0 ? ( uint32_t )gpGlobals->width : 0,
 				.height = gpGlobals->height > 0 ? ( uint32_t )gpGlobals->height : 0,
 			},
+			.pMapFilePath           = ( mapname && rt_state.curMapBspPath[ 0 ] ) ? rt_state.curMapBspPath : NULL,
 		};
 
 		RgResult r = rgStartFrame( rg_instance, &info );

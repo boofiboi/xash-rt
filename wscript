@@ -418,6 +418,12 @@ def configure(conf):
 		conf.force_32bit()
 
 	cflags, linkflags = conf.get_optimization_flags()
+	if conf.env.RAYTRACING and conf.options.BUILD_TYPE in ['humanrights', 'fast', 'fastnative']:
+		if conf.env.COMPILER_CC == 'msvc':
+			cflags += ['/Ob3', '/Ot', '/Oi', '/Gw', '/Gy', '/arch:AVX2', '/DNDEBUG']
+			linkflags += ['/OPT:REF', '/OPT:ICF']
+		elif conf.env.COMPILER_CC in ['gcc', 'clang']:
+			cflags += ['-mavx2', '-mfma', '-DNDEBUG']
 	cxxflags = list(cflags) # optimization flags are common between C and C++ but we need a copy
 
 	# on the Switch, allow undefined symbols by default, which is needed for libsolder to work

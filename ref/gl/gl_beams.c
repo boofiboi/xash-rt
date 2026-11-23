@@ -1062,6 +1062,15 @@ static void R_BeamDraw( BEAM *pbeam, float frametime )
 #if XASH_RAYTRACING
 	rt_state.curIsRasterized = true;
 	rt_state.curIsBeam = true;
+	if( RI.currentbeam && RI.currentbeam->index > 0 )
+	{
+		rt_state.curBeamID = (uint32_t)RI.currentbeam->index;
+	}
+	else
+	{
+		uint64_t iptr = (uint64_t)pbeam / sizeof( BEAM );
+		rt_state.curBeamID = ( 1u << 29u ) | ( (uint32_t)iptr & ( ( 1u << 29u ) - 1u ) );
+	}
 #endif
 
 	switch( pbeam->type )
@@ -1106,6 +1115,7 @@ static void R_BeamDraw( BEAM *pbeam, float frametime )
 #if XASH_RAYTRACING
 	rt_state.curIsRasterized = false;
 	rt_state.curIsBeam = false;
+	rt_state.curBeamID = 0;
 #endif
 
 	GL_Cull( GL_FRONT );
@@ -1247,6 +1257,9 @@ draw beam loop
 */
 void CL_DrawBeams( int fTrans, BEAM *active_beams )
 {
+	RI.currententity = NULL;
+	RI.currentmodel = NULL;
+
 	pglShadeModel( GL_SMOOTH );
 	pglDepthMask( fTrans ? GL_FALSE : GL_TRUE );
 

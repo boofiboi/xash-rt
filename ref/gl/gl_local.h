@@ -886,6 +886,7 @@ typedef struct rt_state_s
 	qboolean    curIsSky;
 	qboolean    curIsRasterized;
 	qboolean    curIsBeam;
+	uint32_t    curBeamID;
 	int         curStudioBodyPart;
 	int         curStudioSubmodel;
 	int         curStudioMesh;
@@ -898,6 +899,8 @@ typedef struct rt_state_s
 	qboolean	curBrushSurfaceIsAnimated;
 
 	uint64_t	flashlight_uniqueid;
+
+	char		curMapBspPath[ 256 ];
 
 } rt_state_t;
 extern rt_state_t rt_state;

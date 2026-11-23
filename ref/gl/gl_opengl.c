@@ -1619,6 +1619,7 @@ qboolean R_Init( void )
 			.worldScale   = QUAKEUNIT_IN_METERS,
 
 			.enableFrameGeneration = ( rt_cvars.rt_framegen && RT_CVAR_TO_INT32( rt_framegen ) > 0 ),
+			.enableDevMode = gEngfuncs.Sys_CheckParm( "-rtdev" ) ? true : false,
 		};
 
 		RgResult r = rgCreateInstance( &info, &rg_instance );
@@ -1663,6 +1664,8 @@ qboolean R_Init( void )
 .curTextureClamped      = false,
 				.curIsSky               = false,
 				.curIsRasterized        = false,
+				.curIsBeam              = false,
+				.curBeamID              = 0,
 				.curStudioBodyPart = -1,
 				.curStudioSubmodel = -1,
 				.curStudioMesh     = -1,
@@ -2630,7 +2633,7 @@ static uint32_t HashCombine( uint32_t seed, uint32_t v )
 
 static uint32_t MakeTempEntityIndex( const cl_entity_t* ent )
 {
-	uint64_t iptr = ( uint64_t )RI.currententity / sizeof( cl_entity_t );
+	uint64_t iptr = ( uint64_t )ent / sizeof( cl_entity_t );
 
 	return ( 1u << 30u ) | ( HashCombine( iptr >> 32ull, iptr & UINT32_MAX ) );
 }
@@ -2889,6 +2892,12 @@ static void TryBeginBatch_Finalize( rt_batchtype_t             newtype,
 			}
 		}
 	}
+	else if( newtype == RT_BATCH_TYPE_BRUSH && newprimitive )
+	{
+		rt_batch.primitive.primitiveIndexInMesh =
+			( 1u << 31u ) |
+			HashCombine( rt_batch.primitive.primitiveIndexInMesh, newprimitive->primitiveIndexInMesh );
+	}
 }
 
 static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
@@ -2916,10 +2925,12 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 	else if( curtype == RT_BATCH_TYPE_RASTER )
 	{
 		RgMeshInfo mesh = {
-			.uniqueObjectID = ( RI.currententity && RI.currententity->index > 0 )
-                                ? ( uint32_t )RI.currententity->index
-                                : ( RI.currententity ? MakeTempEntityIndex( RI.currententity ) : UINT32_MAX ),
-			.pMeshName      = ( RI.currentmodel && RI.currentmodel->name )
+			.uniqueObjectID = rt_state.curIsBeam
+                                ? rt_state.curBeamID
+                                : ( ( RI.currententity && RI.currententity->index > 0 )
+                                    ? ( uint32_t )RI.currententity->index
+                                    : ( RI.currententity ? MakeTempEntityIndex( RI.currententity ) : UINT32_MAX ) ),
+			.pMeshName      = ( !rt_state.curIsBeam && RI.currentmodel && RI.currentmodel->name )
                                 ? RI.currentmodel->name
                                 : NULL,
 			.transform      = RG_TRANSFORM_IDENTITY,
@@ -2937,7 +2948,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 			.pTextureName = rt_state.curTexture2DName,
 			.textureFrame = 0,
 			.color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = ( rt_state.curIsBeam || ( rt_state.curTexture2DName && strstr( rt_state.curTexture2DName, "muzzleflash" ) != NULL ) )
+            .emissive     = ( ( rt_raster_blend && rt_state.curIsBeam ) || ( rt_state.curTexture2DName && strstr( rt_state.curTexture2DName, "muzzleflash" ) != NULL ) )
                                 ? 2.0f
                                 : ( rt_raster_blend && rt_raster_additive
                                     ? RT_CVAR_TO_FLOAT( rt_emis_additive_dflt )

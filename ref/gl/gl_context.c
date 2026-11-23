@@ -541,6 +541,15 @@ static void R_NewMap( void )
 		gEngfuncs.drawFuncs->R_NewMap();
 
 #if XASH_RAYTRACING
+	rt_state.curMapBspPath[ 0 ] = '\0';
+	if( WORLDMODEL && WORLDMODEL->name[ 0 ] && gEngfuncs.fsapi && gEngfuncs.fsapi->GetDiskPath )
+	{
+		const char* diskPath = gEngfuncs.fsapi->GetDiskPath( WORLDMODEL->name, false );
+		if( diskPath )
+		{
+			Q_strncpy( rt_state.curMapBspPath, diskPath, sizeof( rt_state.curMapBspPath ) );
+		}
+	}
 	RT_ParseStaticLightEntities();
 	RT_ResetChapterLogo();
 	RT_ResetTramLights();

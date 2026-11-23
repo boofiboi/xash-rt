@@ -11,6 +11,17 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: release
+            rtgl1_artifact: RayTracedGL1-Artifact
+            output_artifact: xash-rt-windows-x64
+          - variant: devmode
+            rtgl1_artifact: RayTracedGL1-Artifact-Dev
+            output_artifact: xash-rt-windows-x64-dev
+    name: Build Windows (${{ matrix.variant }})
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,9 +75,9 @@ jobs:
           }
 
           if ($targetRunId) {
-            gh run download $targetRunId --repo $targetRepo --name RayTracedGL1-Artifact --dir rtgl1_sdk 2>$null
+            gh run download $targetRunId --repo $targetRepo --name ${{ matrix.rtgl1_artifact }} --dir rtgl1_sdk 2>$null
           } else {
-            gh run download --repo $targetRepo --name RayTracedGL1-Artifact --dir rtgl1_sdk 2>$null
+            gh run download --repo $targetRepo --name ${{ matrix.rtgl1_artifact }} --dir rtgl1_sdk 2>$null
           }
 
           $LASTEXITCODE = 0
@@ -133,7 +144,7 @@ jobs:
       - name: Upload Release Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: xash-rt-windows-x64
+          name: ${{ matrix.output_artifact }}
           path: package/
 
   build-linux:

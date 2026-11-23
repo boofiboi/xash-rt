@@ -60,9 +60,15 @@ def ensure_rtgl1_built(ctx, sdk_path):
 			'-DRG_WITH_SURFACE_WIN32=ON',
 			'-DRG_WITH_AMD_FSR3=ON',
 			'-DRG_WITH_NVIDIA_NRD=ON',
+			'-DRG_WITH_DEVMODE=OFF',
+			'-DNRI_ENABLE_DEBUG_NAMES_AND_ANNOTATIONS=OFF',
+			'-DNRI_ENABLE_VALIDATION_SUPPORT=OFF',
 			'-DRG_WITH_SHADERS=OFF',
 			'-DRG_WITH_EXAMPLES=OFF',
-			'-DCMAKE_CXX_FLAGS_RELEASE=/O2 /Ob3 /Ot /Oi /GL /Gw /Gy /fp:fast /arch:AVX2 /DNDEBUG'
+			'-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON',
+			'-DCMAKE_CXX_FLAGS_RELEASE=/O2 /Ob3 /Ot /Oi /GL /Gw /Gy /fp:fast /arch:AVX2 /DNDEBUG',
+			'-DCMAKE_C_FLAGS_RELEASE=/O2 /Ob3 /Ot /Oi /GL /Gw /Gy /fp:fast /arch:AVX2 /DNDEBUG',
+			'-DCMAKE_SHARED_LINKER_FLAGS_RELEASE=/LTCG /OPT:REF /OPT:ICF'
 		]
 	else:
 		build_dir = 'Build/linux-x64-Release'
@@ -74,8 +80,14 @@ def ensure_rtgl1_built(ctx, sdk_path):
 			'-DRG_WITH_SURFACE_XLIB=ON',
 			'-DRG_WITH_AMD_FSR3=ON',
 			'-DRG_WITH_NVIDIA_NRD=ON',
+			'-DRG_WITH_DEVMODE=OFF',
+			'-DNRI_ENABLE_DEBUG_NAMES_AND_ANNOTATIONS=OFF',
+			'-DNRI_ENABLE_VALIDATION_SUPPORT=OFF',
 			'-DRG_WITH_SHADERS=OFF',
 			'-DRG_WITH_EXAMPLES=OFF',
+			'-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON',
+			'-DCMAKE_CXX_FLAGS_RELEASE=-O3 -DNDEBUG -mavx2 -mfma -mf16c',
+			'-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG -mavx2 -mfma -mf16c',
 		]
 	ret = subprocess.call(cmake_configure, cwd=sdk_path)
 	if ret != 0:
